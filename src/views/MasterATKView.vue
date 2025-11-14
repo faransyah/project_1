@@ -78,7 +78,17 @@ const items = ref([
   { id: 1, name: 'Pensil 2B Faber-Castell', category: 'Alat Tulis' },
   { id: 2, name: 'Kertas A4 Sinar Dunia 80gr', category: 'Kertas & Dokumen' },
   { id: 3, name: 'Tinta Printer Epson 003 Black', category: 'Tinta & Toner' },
+
+  // tambahan sampai 10 item
+  { id: 4, name: 'Pulpen Standard AE7 Hitam', category: 'Alat Tulis' },
+  { id: 5, name: 'Spidol Snowman Boardmarker Black', category: 'Alat Tulis' },
+  { id: 6, name: 'Map Plastik Folio Bening', category: 'Kertas & Dokumen' },
+  { id: 7, name: 'Stopmap Kertas Warna Biru', category: 'Kertas & Dokumen' },
+  { id: 8, name: 'Stiker Label A4 103', category: 'Kertas & Dokumen' },
+  { id: 9, name: 'Toner HP 12A LaserJet', category: 'Tinta & Toner' },
+  { id: 10, name: 'Lakban Bening 2 Inch', category: 'Perlengkapan Kantor' },
 ]);
+
 // -------------------------
 
 const showModal = ref(false);

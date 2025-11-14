@@ -91,7 +91,17 @@ const users = ref([
   { id: 1, name: 'Admin Utama', email: 'admin@pln.co.id', role: 'Admin', password: 'password-admin' },
   { id: 2, name: 'Budi (UID Jatim)', email: 'budi.jatim@pln.co.id', role: 'User', password: 'password-budi' },
   { id: 3, name: 'Citra (UID Jabar)', email: 'citra.jabar@pln.co.id', role: 'User', password: 'password-citra' },
+  
+  // tambahan sampai 10
+  { id: 4, name: 'Dewi (UID Bali)', email: 'dewi.bali@pln.co.id', role: 'User', password: 'password-dewi' },
+  { id: 5, name: 'Erik (UID NTB)', email: 'erik.ntb@pln.co.id', role: 'User', password: 'password-erik' },
+  { id: 6, name: 'Fajar (UID NTT)', email: 'fajar.ntt@pln.co.id', role: 'User', password: 'password-fajar' },
+  { id: 7, name: 'Gina (UID Riau)', email: 'gina.riau@pln.co.id', role: 'User', password: 'password-gina' },
+  { id: 8, name: 'Hendra (UID Sumbar)', email: 'hendra.sumbar@pln.co.id', role: 'User', password: 'password-hendra' },
+  { id: 9, name: 'Intan (UID Kaltim)', email: 'intan.kaltim@pln.co.id', role: 'User', password: 'password-intan' },
+  { id: 10, name: 'Joko (UID Papua)', email: 'joko.papua@pln.co.id', role: 'User', password: 'password-joko' },
 ]);
+
 // ------------------------------------------------
 
 const showModal = ref(false);

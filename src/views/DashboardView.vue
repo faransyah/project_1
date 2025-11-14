@@ -1,9 +1,6 @@
-<!-- src/views/DashboardView.vue -->
 <template>
-  <!-- Kontainer utama dengan jarak vertikal antar modul -->
   <div class="space-y-10">
     
-    <!-- 1. Header Utama -->
     <div>
       <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">Dashboard</h1>
       <p class="mt-2 text-lg text-gray-600">
@@ -11,93 +8,80 @@
       </p>
     </div>
 
-    <!-- 2. Grid Kartu Statistik (KPI) -->
-    <!-- (Ini masih sama dengan sebelumnya) -->
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-4 gap-6">
       
-      <!-- Kartu 1: Signature Card (Tema PLN) -->
       <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 to-blue-500 p-6 shadow-lg">
         <div class="relative z-10">
           <div class="flex items-center justify-between">
-            <span class="text-3xl font-bold text-white">{{ stats.activeUnits }}</span>
-            <BoltIcon class="h-8 w-8 text-white opacity-50" />
+            <span class="text-3xl font-bold text-white truncate">{{ stats.activeUnits }}</span>
+            <BoltIcon class="h-8 w-8 text-white opacity-50 flex-shrink-0" />
           </div>
-          <p class="mt-2 text-sm font-medium text-blue-100">Unit Aktif</p>
+          <p class="mt-2 text-sm font-medium text-blue-100 truncate">Unit Aktif</p>
         </div>
       </div>
 
-      <!-- Kartu 2: Total Master ATK -->
       <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5">
         <div class="flex items-center justify-between">
-          <span class="text-3xl font-bold text-gray-900">{{ stats.totalATK }}</span>
-          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+          <span class="text-3xl font-bold text-gray-900 truncate">{{ stats.totalATK }}</span>
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700 flex-shrink-0">
             <ClipboardDocumentListIcon class="h-6 w-6" />
           </div>
         </div>
-        <p class="mt-2 text-sm font-medium text-gray-500">Total Master ATK</p>
+        <p class="mt-2 text-sm font-medium text-gray-500 truncate">Total Master ATK</p>
       </div>
 
-      <!-- Kartu 3: Total Stok -->
       <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5">
         <div class="flex items-center justify-between">
-          <span class="text-3xl font-bold text-gray-900">{{ stats.totalStock }}</span>
-          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700">
+          <span class="text-3xl font-bold text-gray-900 truncate">{{ stats.totalStock }}</span>
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700 flex-shrink-0">
             <ArchiveBoxIcon class="h-6 w-6" />
           </div>
         </div>
-        <p class="mt-2 text-sm font-medium text-gray-500">Total Stok (Semua Unit)</p>
+        <p class="mt-2 text-sm font-medium text-gray-500 truncate">Total Stok (Semua Unit)</p>
       </div>
       
-      <!-- Kartu 4: Stok Rendah (Peringatan) -->
       <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5">
         <div class="flex items-center justify-between">
-          <span class="text-3xl font-bold text-red-600">{{ lowStockItems.length }}</span>
-          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-700">
+          <span class="text-3xl font-bold text-red-600 truncate">{{ lowStockItems.length }}</span>
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-700 flex-shrink-0">
             <ExclamationTriangleIcon class="h-6 w-6" />
           </div>
         </div>
-        <p class="mt-2 text-sm font-medium text-gray-500">Item Stok Rendah</p>
+        <p class="mt-2 text-sm font-medium text-gray-500 truncate">Item Stok Rendah</p>
       </div>
     </div>
 
-    <!-- 3. (KONTEN LAMA) Akses Cepat -->
-    <!-- (Ini masih sama dengan sebelumnya) -->
     <div>
       <h2 class="text-lg font-semibold leading-6 text-gray-900">Akses Cepat</h2>
-      <div class="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <!-- Aksi 1 -->
+      <div class="mt-4 grid grid-cols-4 gap-4">
+        
         <button class="flex flex-col items-center justify-center rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700">
             <PlusIcon class="h-6 w-6" />
           </div>
-          <span class="mt-3 text-sm font-semibold text-gray-700">Tambah Stok</span>
+          <span class="mt-3 w-full text-center truncate text-sm font-semibold text-gray-700">Tambah Stok</span>
         </button>
-        <!-- Aksi 2 -->
         <button class="flex flex-col items-center justify-center rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700">
             <DocumentPlusIcon class="h-6 w-6" />
           </div>
-          <span class="mt-3 text-sm font-semibold text-gray-700">Master ATK Baru</span>
+          <span class="mt-3 w-full text-center truncate text-sm font-semibold text-gray-700">Master ATK Baru</span>
         </button>
-        <!-- Aksi 3 -->
         <button class="flex flex-col items-center justify-center rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700">
             <UsersIcon class="h-6 w-6" />
           </div>
-          <span class="mt-3 text-sm font-semibold text-gray-700">Manage User</span>
+          <span class="mt-3 w-full text-center truncate text-sm font-semibold text-gray-700">Manage User</span>
         </button>
-        <!-- Aksi 4 -->
         <button class="flex flex-col items-center justify-center rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700">
             <BuildingOfficeIcon class="h-6 w-6" />
           </div>
-          <span class="mt-3 text-sm font-semibold text-gray-700">Manage Unit</span>
+          <span class="mt-3 w-full text-center truncate text-sm font-semibold text-gray-700">Manage Unit</span>
         </button>
       </div>
     </div>
 
-    <!-- 4. (KONTEN LAMA) Tabel Peringatan Stok Rendah (Versi Lengkap) -->
-    <!-- (Ini masih sama dengan sebelumnya) -->
     <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5">
       <h2 class="text-lg font-semibold leading-6 text-gray-900">Peringatan Stok Rendah</h2>
       <p class="mt-1 text-sm text-gray-500">Barang-barang berikut perlu segera di-restock.</p>
@@ -143,7 +127,6 @@
       </div>
     </div>
 
-    <!-- 5. (KONTEN BARU) Permintaan Persetujuan -->
     <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5">
       <h2 class="text-lg font-semibold leading-6 text-gray-900">Permintaan Persetujuan</h2>
       <p class="mt-1 text-sm text-gray-500">Permintaan barang yang menunggu persetujuan Anda.</p>
@@ -174,20 +157,18 @@
       </ul>
     </div>
 
-    <!-- 6. (KONTEN BARU) Analisis Kategori & Log Aktivitas -->
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="grid grid-cols-3 gap-6">
       
-      <!-- Kolom Kiri: Stok Berdasarkan Kategori -->
-      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 lg:col-span-1">
+      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 col-span-1">
         <h3 class="text-lg font-semibold leading-6 text-gray-900">
           Stok Berdasarkan Kategori
         </h3>
         <p class="mt-1 text-sm text-gray-500">Distribusi nilai stok Anda saat ini.</p>
         <ul role="list" class="mt-4 space-y-5">
           <li v-for="cat in categoryStats" :key="cat.name">
-            <div class="flex justify-between text-sm font-medium">
-              <span class="text-gray-900">{{ cat.name }}</span>
-              <span class="text-gray-500">{{ cat.percentage }}</span>
+            <div class="flex justify-between text-sm font-medium gap-2">
+              <span class="text-gray-900 truncate">{{ cat.name }}</span>
+              <span class="text-gray-500 flex-shrink-0">{{ cat.percentage }}</span>
             </div>
             <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200">
               <div class="h-2 rounded-full" :class="cat.colorClass" :style="{ width: cat.percentage }"></div>
@@ -196,8 +177,7 @@
         </ul>
       </div>
 
-      <!-- Kolom Kanan: Aktivitas Terbaru (Dipindahkan) -->
-      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 lg:col-span-2">
+      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 col-span-2">
         <h3 class="text-lg font-semibold leading-6 text-gray-900">
           Aktivitas Terbaru
         </h3>

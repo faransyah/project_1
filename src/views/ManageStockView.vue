@@ -63,10 +63,27 @@
       </div>
     </div>
 
+    <!-- 
+      ======================================================================
+      PERBAIKAN DIMULAI DI SINI:
+      Saya meniru struktur card dan wrapper tabel dari file 'ManageUserView'
+      ======================================================================
+    -->
+    
     <!-- 3. Tabel Daftar Stok Lengkap -->
-    <div class="rounded-2xl bg-white shadow-lg ring-1 ring-gray-900/5">
-      <!-- Wrapper untuk border radius di tabel -->
-      <div class="overflow-hidden md:rounded-2xl">
+    <!-- SAYA TIRU: Menambahkan 'p-6' untuk padding card -->
+    <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5">
+      <!-- SAYA TIRU: Menambahkan judul di dalam card -->
+      <h2 class="text-lg font-semibold leading-6 text-gray-900">Daftar Stok Lengkap</h2>
+
+      <!-- 
+        SAYA TIRU & PERBAIKI:
+        1. Menggunakan wrapper tabel yang sama persis ('mt-4 -mx-6 ...')
+        2. MENGGANTI 'overflow-hidden' menjadi 'overflow-x-auto'.
+           Ini adalah FIX UTAMA agar tabel bisa di-scroll horizontal
+           tanpa merusak layout sidebar.
+      -->
+      <div class="mt-4 -mx-6 overflow-x-auto shadow ring-1 ring-black ring-opacity-5 sm:-mx-6 md:mx-0 md:rounded-lg">
         <table class="min-w-full divide-y divide-gray-300">
           <thead class="bg-gray-50">
             <tr>
@@ -132,6 +149,9 @@
         </table>
       </div>
     </div>
+    <!-- ======================================================================
+      PERBAIKAN SELESAI
+      ====================================================================== -->
 
 
     <!-- 4. Modal Penyesuaian Stok (dan Tambah Stok Baru) -->
