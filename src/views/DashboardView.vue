@@ -157,30 +157,30 @@
       </ul>
     </div>
 
-    <div class="grid grid-cols-3 gap-6">
-      
-      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 col-span-1">
-        <h3 class="text-lg font-semibold leading-6 text-gray-900">
-          Stok Berdasarkan Kategori
-        </h3>
-        <p class="mt-1 text-sm text-gray-500">Distribusi nilai stok Anda saat ini.</p>
-        <ul role="list" class="mt-4 space-y-5">
-          <li v-for="cat in categoryStats" :key="cat.name">
-            <div class="flex justify-between text-sm font-medium gap-2">
-              <span class="text-gray-900 truncate">{{ cat.name }}</span>
-              <span class="text-gray-500 flex-shrink-0">{{ cat.percentage }}</span>
-            </div>
-            <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200">
-              <div class="h-2 rounded-full" :class="cat.colorClass" :style="{ width: cat.percentage }"></div>
-            </div>
-          </li>
-        </ul>
-      </div>
+    <div class="flex gap-6">
+    
+    <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 w-72 flex-shrink-0">
+      <h3 class="text-lg font-semibold leading-6 text-gray-900">
+        Stok Berdasarkan Kategori
+      </h3>
+      <p class="mt-1 text-sm text-gray-500">Distribusi nilai stok Anda saat ini.</p>
+      <ul role="list" class="mt-4 space-y-5">
+        <li v-for="cat in categoryStats" :key="cat.name">
+          <div class="flex justify-between text-sm font-medium gap-2">
+            <span class="text-gray-900 truncate">{{ cat.name }}</span>
+            <span class="text-gray-500 flex-shrink-0">{{ cat.percentage }}</span>
+          </div>
+          <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200">
+            <div class="h-2 rounded-full" :class="cat.colorClass" :style="{ width: cat.percentage }"></div>
+          </div>
+        </li>
+      </ul>
+    </div>
 
-      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 col-span-2">
-        <h3 class="text-lg font-semibold leading-6 text-gray-900">
-          Aktivitas Terbaru
-        </h3>
+    <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 flex-1 min-w-0">
+      <h3 class="text-lg font-semibold leading-6 text-gray-900">
+        Aktivitas Terbaru
+      </h3>
         <ul role="list" class="mt-4 divide-y divide-gray-200">
           <li v-for="activity in recentActivity" :key="activity.id" class="flex items-center space-x-4 py-4">
             <div class="flex-shrink-0">
