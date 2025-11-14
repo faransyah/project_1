@@ -14,7 +14,7 @@
         <div class="relative z-10">
           <div class="flex items-center justify-between">
             <span class="text-3xl font-bold text-white truncate">{{ stats.activeUnits }}</span>
-            <BoltIcon class="h-8 w-8 text-white opacity-50 flex-shrink-0" />
+            <BoltIcon class="h-8 w-8 text-yellow-400 opacity-100 flex-shrink-0" />
           </div>
           <p class="mt-2 text-sm font-medium text-blue-100 truncate">Unit Aktif</p>
         </div>
