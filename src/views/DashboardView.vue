@@ -80,17 +80,17 @@
 
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 
-      <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 to-blue-500 p-6 shadow-lg">
-        <div class="relative z-10">
-          <div class="flex items-center justify-between">
-            <span class="text-3xl font-bold text-white truncate">{{ stats.activeUnits }}</span>
-            <BoltIcon class="h-8 w-8 text-yellow-400 opacity-100 flex-shrink-0" />
+      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+        <div class="flex items-center justify-between">
+          <span class="text-3xl font-bold text-gray-900 truncate">{{ stats.activeUnits }}</span>
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700 flex-shrink-0">
+            <BoltIcon class="h-6 w-6" />
           </div>
-          <p class="mt-2 text-sm font-medium text-blue-100 truncate">Unit Aktif</p>
         </div>
+        <p class="mt-2 text-sm font-medium text-gray-500 truncate">Unit Aktif</p>
       </div>
 
-      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5">
+      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
         <div class="flex items-center justify-between">
           <span class="text-3xl font-bold text-gray-900 truncate">{{ stats.totalATK }}</span>
           <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700 flex-shrink-0">
@@ -100,7 +100,7 @@
         <p class="mt-2 text-sm font-medium text-gray-500 truncate">Total Master ATK</p>
       </div>
 
-      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5">
+      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
         <div class="flex items-center justify-between">
           <span class="text-3xl font-bold text-gray-900 truncate">{{ stats.totalStock }}</span>
           <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-700 flex-shrink-0">
@@ -110,7 +110,7 @@
         <p class="mt-2 text-sm font-medium text-gray-500 truncate">Total Stok (Semua Unit)</p>
       </div>
 
-      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5">
+      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
         <div class="flex items-center justify-between">
           <span class="text-3xl font-bold text-red-600 truncate">{{ lowStockItems.length }}</span>
           <div class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-700 flex-shrink-0">
@@ -144,6 +144,7 @@
         
         <div class="mt-4 flex items-center justify-center">
           <apexchart
+            ref="donutChartRef"
             type="donut"
             width="320"
             :options="donutChartOptions"
@@ -152,7 +153,16 @@
         </div>
         
         <div class="mt-6 space-y-3">
-          <div v-for="cat in categoryStats" :key="cat.name" class="flex items-center justify-between">
+          <div 
+            v-for="(cat, index) in categoryStats" 
+            :key="cat.name" 
+            @click="handleLegendClick(index)"
+            class="flex items-center justify-between rounded-md p-1 -m-1 cursor-pointer transition-all duration-200"
+            :class="{ 
+              'opacity-50 hover:opacity-100': selectedCategoryIndices.length > 0 && !selectedCategoryIndices.includes(index),
+              'bg-gray-100': selectedCategoryIndices.includes(index)
+            }"
+          >
             <div class="flex items-center">
               <span class="h-3 w-3 rounded-full" :class="cat.colorClass"></span>
               <span class="ml-2 text-sm text-gray-600">{{ cat.name }}</span>
@@ -160,7 +170,7 @@
             <span class="text-sm font-medium text-gray-900">{{ cat.percentage }}</span>
           </div>
         </div>
-      </div>
+        </div>
 
       <div class="col-span-12 rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 lg:col-span-7">
         <h2 class="text-lg font-semibold leading-6 text-gray-900">Permintaan Persetujuan</h2>
@@ -382,7 +392,7 @@ const onConfirm = () => {
 };
 
 // =========================================================
-//  Fungsi Handlers (Diperbarui)
+//  Fungsi Handlers
 // =========================================================
 
 const handleApprovalAction = (item, action) => {
@@ -441,25 +451,17 @@ const stats = ref({
   totalStock: '10,2k'
 });
 
-// =============================================
-//     PERBAIKAN LOGIKA DATA DI SINI
-// =============================================
-// Kita ubah string '10,2k' menjadi angka 10200
 const totalStockNumeric = 10200;
 
-// Data untuk Chart Kategori (Dengan nilai numerik NYATA dan WARNA BARU)
-const categoryStats = ref([
-  // 45% dari 10200
-  { name: 'Kertas & Dokumen', percentage: '45%', value: totalStockNumeric * 0.45, colorClass: 'bg-blue-600' },
-  // 25% dari 10200
-  { name: 'Tinta & Toner', percentage: '25%', value: totalStockNumeric * 0.25, colorClass: 'bg-green-500' },
-  // 20% dari 10200
-  { name: 'Alat Tulis', percentage: '20%', value: totalStockNumeric * 0.20, colorClass: 'bg-yellow-500' },
-  // 10% dari 10200
-  { name: 'Lain-lain', percentage: '10%', value: totalStockNumeric * 0.10, colorClass: 'bg-red-500' },
-]);
 // =============================================
-//     AKHIR PERBAIKAN LOGIKA DATA
+//     PERUBAHAN WARNA & LOGIKA DATA
+// =============================================
+const categoryStats = ref([
+  { name: 'Kertas & Dokumen', percentage: '45%', value: totalStockNumeric * 0.45, colorClass: 'bg-blue-600' },   // BIRU
+  { name: 'Tinta & Toner', percentage: '25%', value: totalStockNumeric * 0.25, colorClass: 'bg-green-500' }, // HIJAU
+  { name: 'Alat Tulis', percentage: '20%', value: totalStockNumeric * 0.20, colorClass: 'bg-yellow-500' }, // KUNING
+  { name: 'Lain-lain', percentage: '10%', value: totalStockNumeric * 0.10, colorClass: 'bg-red-500' },     // MERAH
+]);
 // =============================================
 
 
@@ -590,29 +592,132 @@ const barChartOptions = computed(() => ({
   }
 }));
 
-// --- Data untuk Donut Chart ---
-const donutChartSeries = computed(() => categoryStats.value.map(cat => cat.value));
+// =============================================
+//  DONUT CHART – INTERAKTIF MULTI-SELECT FIXED
+// =============================================
 
+const donutChartRef = ref(null);
+const donutChartTotalLabel = ref('Total Item');
+const donutChartTotalValue = ref(stats.value.totalStock);
+const selectedCategoryIndices = ref([]);
+
+// Hitung total nilai kategori yang terpilih
+const calculateSelectedTotal = () => {
+  return selectedCategoryIndices.value.reduce((sum, idx) => {
+    return sum + categoryStats.value[idx].value;
+  }, 0);
+};
+
+// Update teks tengah donut (label + total)
+const updateCenterLabel = () => {
+  const count = selectedCategoryIndices.value.length;
+
+  if (count === 0) {
+    donutChartTotalLabel.value = 'Total Item';
+    donutChartTotalValue.value = stats.value.totalStock;
+  } else if (count === 1) {
+    const idx = selectedCategoryIndices.value[0];
+    donutChartTotalLabel.value = categoryStats.value[idx].name;
+    donutChartTotalValue.value = categoryStats.value[idx].value.toLocaleString('id-ID');
+  } else {
+    donutChartTotalLabel.value = 'Total Terpilih';
+    donutChartTotalValue.value = calculateSelectedTotal().toLocaleString('id-ID');
+  }
+
+  // Update tampilan teks di tengah chart
+  if (donutChartRef.value) {
+    donutChartRef.value.updateOptions({
+      plotOptions: {
+        pie: {
+          donut: {
+            labels: {
+              total: {
+                label: donutChartTotalLabel.value,
+                formatter: () => donutChartTotalValue.value,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+};
+
+// Update terang/gelap pada slice
+const updateSliceOpacity = () => {
+  const selected = selectedCategoryIndices.value;
+
+  if (!donutChartRef.value) return;
+
+  // Jika tidak ada yang dipilih → semua terang (filter none)
+  // Jika ada yang dipilih → slice lain sedikit gelap
+  donutChartRef.value.updateOptions({
+    states: {
+      normal: {
+        filter: {
+          type: selected.length === 0 ? 'none' : 'lighten',
+          value: selected.length === 0 ? 0 : 0.5,
+        },
+      },
+      active: {
+        filter: { type: 'none' },
+      },
+      hover: {
+        filter: {
+          type: 'lighten',
+          value: 0.15,
+        },
+      },
+    },
+  });
+};
+
+// Klik pada legenda HTML
+const handleLegendClick = (index) => {
+  const pos = selectedCategoryIndices.value.indexOf(index);
+
+  if (pos >= 0) {
+    // Unselect
+    selectedCategoryIndices.value.splice(pos, 1);
+  } else {
+    // Select
+    selectedCategoryIndices.value.push(index);
+  }
+
+  // Toggle highlight slice Apex
+  if (donutChartRef.value) {
+    donutChartRef.value.toggleDataPointSelection(index);
+  }
+
+  // Update UI
+  updateCenterLabel();
+  updateSliceOpacity();
+};
+
+// Data series
+const donutChartSeries = computed(() =>
+  categoryStats.value.map((cat) => cat.value)
+);
+
+// Options (UI clean 10/10)
 const donutChartOptions = computed(() => ({
   chart: {
     type: 'donut',
     width: 320,
     fontFamily: 'Inter, sans-serif',
+    animations: { enabled: true },
+    events: {
+      dataPointSelection: () => {}, // disable default click
+    },
   },
-  labels: categoryStats.value.map(cat => cat.name),
-  // =============================================
-  //     PERBAIKAN LOGIKA WARNA DI SINI
-  // =============================================
-  colors: categoryStats.value.map(cat => {
-    if (cat.colorClass === 'bg-blue-600') return '#2563EB';  // Biru
-    if (cat.colorClass === 'bg-green-500') return '#22C55E'; // Hijau
-    if (cat.colorClass === 'bg-yellow-500') return '#EAB308'; // Kuning
-    if (cat.colorClass === 'bg-red-500') return '#EF4444';   // Merah
-    return '#E5E7EB'; // Fallback
+  labels: categoryStats.value.map((cat) => cat.name),
+  colors: categoryStats.value.map((cat) => {
+    if (cat.colorClass === 'bg-blue-600') return '#2563EB';
+    if (cat.colorClass === 'bg-green-500') return '#22C55E';
+    if (cat.colorClass === 'bg-yellow-500') return '#EAB308';
+    if (cat.colorClass === 'bg-red-500') return '#EF4444';
+    return '#A3A3A3';
   }),
-  // =============================================
-  //     AKHIR PERBAIKAN LOGIKA WARNA
-  // =============================================
   plotOptions: {
     pie: {
       donut: {
@@ -621,28 +726,34 @@ const donutChartOptions = computed(() => ({
           show: true,
           total: {
             show: true,
-            label: 'Total Item',
+            label: donutChartTotalLabel.value,
             color: '#6B7280',
-            formatter: () => stats.value.totalStock // Menampilkan string '10,2k'
-          }
-        }
-      }
-    }
-  },
-  dataLabels: {
-    enabled: false,
+            formatter: () => donutChartTotalValue.value,
+          },
+        },
+      },
+    },
   },
   legend: {
-    show: false, // Kita pakai legenda kustom di HTML
+    show: false, // Karena kamu pakai legenda custom di HTML
   },
   tooltip: {
     y: {
-      formatter: function (val) {
-        // 'val' sekarang akan menjadi 4590, 2550, dll.
-        return val.toLocaleString('id-ID') + " item"; 
-      }
-    }
-  }
+      formatter: (val) => val.toLocaleString('id-ID') + ' item',
+    },
+  },
+  dataLabels: { enabled: false },
+  states: {
+    normal: {
+      filter: { type: 'none', value: 0 },
+    },
+    active: {
+      filter: { type: 'none' },
+    },
+    hover: {
+      filter: { type: 'lighten', value: 0.15 },
+    },
+  },
 }));
 </script>
 
