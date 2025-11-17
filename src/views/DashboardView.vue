@@ -57,41 +57,13 @@
         <h3 class="text-lg font-semibold leading-6 text-gray-900">Tren Permintaan (6 Bulan Terakhir)</h3>
         <p class="mt-1 text-sm text-gray-500">Jumlah permintaan ATK yang disetujui.</p>
         
-        <div class="mt-6">
-          <div class="relative h-64 w-full">
-            <div class="absolute -left-8 top-0 flex h-full flex-col justify-between pr-2 text-right text-xs font-medium text-gray-500">
-              <span>{{ maxRequestValue }}</span>
-              <span>{{ Math.round(maxRequestValue * 0.75) }}</span>
-              <span>{{ Math.round(maxRequestValue * 0.5) }}</span>
-              <span>{{ Math.round(maxRequestValue * 0.25) }}</span>
-              <span>0</span>
-            </div>
-            
-            <div class="relative h-full w-full border-l border-b border-gray-200">
-              <div class="absolute inset-x-0 top-0 h-px bg-gray-200"></div>
-              <div class="absolute inset-x-0 top-1/4 h-px bg-gray-100"></div>
-              <div class="absolute inset-x-0 top-1/2 h-px bg-gray-100"></div>
-              <div class="absolute inset-x-0 top-3/4 h-px bg-gray-100"></div>
-
-              <div class="absolute inset-x-0 bottom-0 h-full flex items-end justify-between px-2">
-                <div v-for="month in requestTrendData" :key="month.name" class="w-full group">
-                  <div 
-                    class="relative w-full rounded-t-lg bg-blue-500 transition-all duration-300 hover:bg-blue-700" 
-                    :style="{ height: (month.value / maxRequestValue * 100) + '%' }"
-                  >
-                    <span class="absolute -top-6 left-1/2 -translate-x-1/2 rounded bg-gray-900 px-2 py-1 text-xs font-semibold text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100">
-                      {{ month.value }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="mt-2 flex justify-between pl-8 pr-2">
-            <span v-for="month in requestTrendData" :key="month.name" class="w-full text-center text-xs font-medium text-gray-500">
-              {{ month.name }}
-            </span>
-          </div>
+        <div class="mt-4 -ml-4">
+          <apexchart
+            type="bar"
+            height="320"
+            :options="barChartOptions"
+            :series="barChartSeries"
+          ></apexchart>
         </div>
         </div>
 
@@ -99,38 +71,13 @@
         <h3 class="text-lg font-semibold leading-6 text-gray-900">Stok Berdasarkan Kategori</h3>
         <p class="mt-1 text-sm text-gray-500">Distribusi jumlah item di gudang.</p>
         
-        <div class="relative mx-auto mt-6 h-48 w-48">
-          <svg class="h-full w-full" viewBox="0 0 36 36">
-            <circle cx="18" cy="18" r="15.9155" fill="none" class="text-gray-200" stroke-width="3.8"></circle>
-            
-            <circle cx="18" cy="18" r="15.9155" fill="none"
-              class="text-blue-600"
-              stroke-width="3.8"
-              :stroke-dasharray="categoryPercentages[0].dashArray"
-              :stroke-dashoffset="categoryPercentages[0].dashOffset"></circle>
-              
-            <circle cx="18" cy="18" r="15.9155" fill="none"
-              class="text-blue-500"
-              stroke-width="3.8"
-              :stroke-dasharray="categoryPercentages[1].dashArray"
-              :stroke-dashoffset="categoryPercentages[1].dashOffset"></circle>
-
-            <circle cx="18" cy="18" r="15.9155" fill="none"
-              class="text-blue-400"
-              stroke-width="3.8"
-              :stroke-dasharray="categoryPercentages[2].dashArray"
-              :stroke-dashoffset="categoryPercentages[2].dashOffset"></circle>
-              
-            <circle cx="18" cy="18" r="15.9155" fill="none"
-              class="text-blue-300"
-              stroke-width="3.8"
-              :stroke-dasharray="categoryPercentages[3].dashArray"
-              :stroke-dashoffset="categoryPercentages[3].dashOffset"></circle>
-          </svg>
-          <div class="absolute inset-0 flex flex-col items-center justify-center">
-            <span class="text-2xl font-bold text-gray-900">{{ stats.totalStock }}</span>
-            <span class="text-sm text-gray-500">Total Item</span>
-          </div>
+        <div class="mt-4 flex items-center justify-center">
+          <apexchart
+            type="donut"
+            width="320"
+            :options="donutChartOptions"
+            :series="donutChartSeries"
+          ></apexchart>
         </div>
         <div class="mt-6 space-y-3">
           <div v-for="cat in categoryStats" :key="cat.name" class="flex items-center justify-between">
@@ -289,7 +236,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'; // <-- 'computed' SANGAT PENTING
+import { ref, computed } from 'vue';
+// 1. Impor ApexCharts (sudah terdaftar global di main.js, tapi ini praktik yang baik)
+import VueApexCharts from 'vue3-apexcharts';
 
 // Impor ikon yang kita gunakan
 import {
@@ -323,7 +272,6 @@ const stats = ref({
   totalStock: '10,2k'
 });
 
-// DIPERBANYAK DATANYA
 const lowStockItems = ref([
   { id: 1, name: 'Kertas A4 Sinar Dunia 80gr', unit: 'UID Jatim', stock: 5 },
   { id: 2, name: 'Tinta Printer Epson 003 Black', unit: 'UID Jatim', stock: 8 },
@@ -334,7 +282,6 @@ const lowStockItems = ref([
   { id: 7, name: 'Lakban Bening 2 Inch', unit: 'UID Pusat', stock: 9 },
 ]);
 
-// DIPERBANYAK DATANYA
 const recentActivity = ref([
   { id: 1, type: 'masuk', item: 'Kertas A4 Sinar Dunia 80gr', qty: 200, user: 'Admin Gudang', time: 'Baru saja' },
   { id: 2, type: 'keluar', item: 'Spidol Boardmarker Hitam', qty: 50, user: 'User Jatim', time: '1 jam lalu' },
@@ -345,7 +292,6 @@ const recentActivity = ref([
   { id: 7, type: 'keluar', item: 'Kertas A4 Sinar Dunia 80gr', qty: 20, user: 'User Jatim', time: '2 hari lalu' },
 ]);
 
-// DIPERBANYAK DATANYA
 const pendingApprovals = ref([
   { id: 1, user: 'Andi (UID Jatim)', unit: 'UID Jatim', itemCount: 5, value: 'Rp 1.500.000' },
   { id: 2, user: 'Budi (UID Jabar)', unit: 'UID Jabar', itemCount: 2, value: 'Rp 800.000' },
@@ -354,7 +300,6 @@ const pendingApprovals = ref([
   { id: 5, user: 'Eka (UID Bali)', unit: 'UID Bali', itemCount: 12, value: 'Rp 3.200.000' },
 ]);
 
-// Data untuk Chart Kategori (Dengan nilai numerik untuk perhitungan)
 const categoryStats = ref([
   { name: 'Kertas & Dokumen', percentage: '45%', value: 45, colorClass: 'bg-blue-600' },
   { name: 'Tinta & Toner', percentage: '25%', value: 25, colorClass: 'bg-blue-500' },
@@ -362,24 +307,6 @@ const categoryStats = ref([
   { name: 'Lain-lain', percentage: '10%', value: 10, colorClass: 'bg-blue-300' },
 ]);
 
-// =============================================
-//     Computed Property untuk Donut Chart
-// =============================================
-const categoryPercentages = computed(() => {
-  // Keliling lingkaran = 100 (dari 2 * pi * 15.9155)
-  const total = categoryStats.value.reduce((sum, cat) => sum + cat.value, 0);
-  let cumulativePercentage = 0;
-
-  return categoryStats.value.map(cat => {
-    const percentage = (cat.value / total) * 100;
-    const dashArray = `${percentage}, 100`; // (panjang_terisi, keliling_total)
-    const dashOffset = `-${cumulativePercentage}`;
-    cumulativePercentage += percentage;
-    return { ...cat, dashArray, dashOffset };
-  });
-});
-
-// Data untuk Chart Tren Permintaan (Dengan nilai numerik)
 const requestTrendData = ref([
     { name: 'Jun', value: 300 },
     { name: 'Jul', value: 450 },
@@ -389,16 +316,6 @@ const requestTrendData = ref([
     { name: 'Nov', value: 900 },
 ]);
 
-// =============================================
-//     Computed Property untuk Bar Chart
-// =============================================
-const maxRequestValue = computed(() => {
-  // Ambil nilai tertinggi, bulatkan ke atas ke ratusan terdekat
-  const max = Math.max(...requestTrendData.value.map(month => month.value));
-  return Math.ceil(max / 100) * 100; // Cth: 900 -> 900, 750 -> 800
-});
-
-// Data untuk List ATK Teratas (DIPERBANYAK)
 const topRequestedItems = ref([
     { id: 2, name: 'Kertas A4 Sinar Dunia 80gr', category: 'Kertas & Dokumen', count: 120 },
     { id: 3, name: 'Spidol Boardmarker Hitam', category: 'Alat Tulis', count: 95 },
@@ -409,27 +326,146 @@ const topRequestedItems = ref([
     { id: 9, name: 'Pulpen Standard AE7 Hitam', category: 'Alat Tulis', count: 30 },
     { id: 8, name: 'Toner Printer HP 85A', category: 'Tinta & Toner', count: 25 },
 ]);
+
+// =============================================
+//     PERSIAPAN DATA UNTUK APEXCHARTS (BARU)
+// =============================================
+
+// --- Data untuk Bar Chart ---
+const barChartSeries = computed(() => [
+  {
+    name: 'Permintaan',
+    data: requestTrendData.value.map(month => month.value)
+  }
+]);
+
+const barChartOptions = computed(() => ({
+  chart: {
+    type: 'bar',
+    height: 320,
+    fontFamily: 'Inter, sans-serif',
+    toolbar: { show: false }, // Sembunyikan toolbar (menu hamburger)
+    zoom: { enabled: false }
+  },
+  plotOptions: {
+    bar: {
+      borderRadius: 4,
+      horizontal: false,
+      columnWidth: '55%',
+    },
+  },
+  dataLabels: {
+    enabled: false, // Sembunyikan label di atas batang
+  },
+  stroke: {
+    show: false,
+  },
+  xaxis: {
+    categories: requestTrendData.value.map(month => month.name),
+    labels: {
+      style: {
+        colors: '#6B7280', // text-gray-500
+        fontSize: '12px',
+      },
+    },
+    axisBorder: { show: false },
+    axisTicks: { show: false },
+  },
+  yaxis: {
+    labels: {
+      style: {
+        colors: '#6B7280', // text-gray-500
+        fontSize: '12px',
+      },
+      formatter: function (val) {
+        return val.toFixed(0); // Tampilkan angka bulat
+      }
+    },
+  },
+  grid: {
+    borderColor: '#E5E7EB', // border-gray-200
+    strokeDashArray: 4,
+    yaxis: {
+      lines: {
+        show: true,
+      },
+    },
+    xaxis: {
+      lines: {
+        show: false,
+      },
+    }
+  },
+  colors: ['#2563EB'], // bg-blue-600
+  tooltip: {
+    y: {
+      formatter: function (val) {
+        return val + " permintaan"
+      }
+    }
+  }
+}));
+
+// --- Data untuk Donut Chart ---
+const donutChartSeries = computed(() => categoryStats.value.map(cat => cat.value));
+
+const donutChartOptions = computed(() => ({
+  chart: {
+    type: 'donut',
+    width: 320,
+    fontFamily: 'Inter, sans-serif',
+  },
+  labels: categoryStats.value.map(cat => cat.name),
+  colors: categoryStats.value.map(cat => {
+    // Ambil warna Tailwind dari class
+    if (cat.colorClass === 'bg-blue-600') return '#2563EB';
+    if (cat.colorClass === 'bg-blue-500') return '#3B82F6';
+    if (cat.colorClass === 'bg-blue-400') return '#60A5FA';
+    if (cat.colorClass === 'bg-blue-300') return '#93C5FD';
+    return '#E5E7EB';
+  }),
+  plotOptions: {
+    pie: {
+      donut: {
+        size: '65%',
+        labels: {
+          show: true,
+          total: {
+            show: true,
+            label: 'Total Item',
+            color: '#6B7280',
+            formatter: () => stats.value.totalStock // Ambil dari data stats
+          }
+        }
+      }
+    }
+  },
+  dataLabels: {
+    enabled: false,
+  },
+  legend: {
+    show: false, // Kita pakai legenda kustom di HTML
+  },
+  tooltip: {
+    y: {
+      formatter: function (val) {
+        return val + " item"
+      }
+    }
+  }
+}));
+
+// Hapus computed property lama yang tidak dipakai
+// const maxRequestValue = computed(...) -> Dihapus (dihandle ApexCharts)
+// const categoryPercentages = computed(...) -> Dihapus (dihandle ApexCharts)
+
 </script>
 
 <style scoped>
 /* =========================================================
-  Style Kustom untuk Scrollbar & Animasi
+  Style Kustom untuk Scrollbar
   =========================================================
 */
-
-/* Animasi draw untuk segmen Donut Chart */
-@keyframes draw-circle {
-  from {
-    /* Mulai dari 0, keliling 100 */
-    stroke-dasharray: 0, 100;
-  }
-}
-
-svg circle:not(.text-gray-200) { /* Hanya terapkan animasi ke segmen warna */
-  animation: draw-circle 1s ease-out forwards;
-  transform: rotate(-90deg); /* Memulai dari atas */
-  transform-origin: 50% 50%;
-}
 
 /* Kustomisasi Scrollbar untuk panel-panel */
 .custom-scrollbar::-webkit-scrollbar {
