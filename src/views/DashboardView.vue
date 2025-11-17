@@ -22,6 +22,7 @@
       </div>
     </div>
   </Transition>
+
   <div v-if="confirmModal.show" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" @click="closeConfirmModal"></div>
 
@@ -440,6 +441,28 @@ const stats = ref({
   totalStock: '10,2k'
 });
 
+// =============================================
+//     PERBAIKAN LOGIKA DATA DI SINI
+// =============================================
+// Kita ubah string '10,2k' menjadi angka 10200
+const totalStockNumeric = 10200;
+
+// Data untuk Chart Kategori (Dengan nilai numerik NYATA dan WARNA BARU)
+const categoryStats = ref([
+  // 45% dari 10200
+  { name: 'Kertas & Dokumen', percentage: '45%', value: totalStockNumeric * 0.45, colorClass: 'bg-blue-600' },
+  // 25% dari 10200
+  { name: 'Tinta & Toner', percentage: '25%', value: totalStockNumeric * 0.25, colorClass: 'bg-green-500' },
+  // 20% dari 10200
+  { name: 'Alat Tulis', percentage: '20%', value: totalStockNumeric * 0.20, colorClass: 'bg-yellow-500' },
+  // 10% dari 10200
+  { name: 'Lain-lain', percentage: '10%', value: totalStockNumeric * 0.10, colorClass: 'bg-red-500' },
+]);
+// =============================================
+//     AKHIR PERBAIKAN LOGIKA DATA
+// =============================================
+
+
 const lowStockItems = ref([
   { id: 1, name: 'Kertas A4 Sinar Dunia 80gr', unit: 'UID Jatim', stock: 5 },
   { id: 2, name: 'Tinta Printer Epson 003 Black', unit: 'UID Jatim', stock: 8 },
@@ -466,13 +489,6 @@ const pendingApprovals = ref([
   { id: 3, user: 'Citra (UID Pusat)', unit: 'UID Pusat', itemCount: 8, value: 'Rp 2.100.000' },
   { id: 4, user: 'Dewi (UID Jateng)', unit: 'UID Jateng', itemCount: 3, value: 'Rp 500.000' },
   { id: 5, user: 'Eka (UID Bali)', unit: 'UID Bali', itemCount: 12, value: 'Rp 3.200.000' },
-]);
-
-const categoryStats = ref([
-  { name: 'Kertas & Dokumen', percentage: '45%', value: 45, colorClass: 'bg-blue-600' },
-  { name: 'Tinta & Toner', percentage: '25%', value: 25, colorClass: 'bg-blue-500' },
-  { name: 'Alat Tulis', percentage: '20%', value: 20, colorClass: 'bg-blue-400' },
-  { name: 'Lain-lain', percentage: '10%', value: 10, colorClass: 'bg-blue-300' },
 ]);
 
 const requestTrendData = ref([
@@ -584,13 +600,19 @@ const donutChartOptions = computed(() => ({
     fontFamily: 'Inter, sans-serif',
   },
   labels: categoryStats.value.map(cat => cat.name),
+  // =============================================
+  //     PERBAIKAN LOGIKA WARNA DI SINI
+  // =============================================
   colors: categoryStats.value.map(cat => {
-    if (cat.colorClass === 'bg-blue-600') return '#2563EB';
-    if (cat.colorClass === 'bg-blue-500') return '#3B82F6';
-    if (cat.colorClass === 'bg-blue-400') return '#60A5FA';
-    if (cat.colorClass === 'bg-blue-300') return '#93C5FD';
-    return '#E5E7EB';
+    if (cat.colorClass === 'bg-blue-600') return '#2563EB';  // Biru
+    if (cat.colorClass === 'bg-green-500') return '#22C55E'; // Hijau
+    if (cat.colorClass === 'bg-yellow-500') return '#EAB308'; // Kuning
+    if (cat.colorClass === 'bg-red-500') return '#EF4444';   // Merah
+    return '#E5E7EB'; // Fallback
   }),
+  // =============================================
+  //     AKHIR PERBAIKAN LOGIKA WARNA
+  // =============================================
   plotOptions: {
     pie: {
       donut: {
@@ -601,7 +623,7 @@ const donutChartOptions = computed(() => ({
             show: true,
             label: 'Total Item',
             color: '#6B7280',
-            formatter: () => stats.value.totalStock
+            formatter: () => stats.value.totalStock // Menampilkan string '10,2k'
           }
         }
       }
@@ -611,12 +633,13 @@ const donutChartOptions = computed(() => ({
     enabled: false,
   },
   legend: {
-    show: false,
+    show: false, // Kita pakai legenda kustom di HTML
   },
   tooltip: {
     y: {
       formatter: function (val) {
-        return val + " item"
+        // 'val' sekarang akan menjadi 4590, 2550, dll.
+        return val.toLocaleString('id-ID') + " item"; 
       }
     }
   }
@@ -649,31 +672,19 @@ const donutChartOptions = computed(() => ({
   scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
-/* =========================================================
-  BARU: Transisi "Pop In" & "Fade Out" untuk Toast
-  =========================================================
-*/
+/* Transisi "Pop In" & "Fade Out" untuk Toast */
 .toast-fade-enter-active {
   transition: all 0.3s ease-out;
 }
 .toast-fade-leave-active {
-  /* Durasi 'hilang' lebih cepat */
   transition: all 0.3s ease-in;
 }
 
-/* Muncul: 
-  - Dari atas (-20px) & sedikit kecil (scale 0.95)
-  - Menjadi normal (translateY(0) & scale(1))
-*/
 .toast-fade-enter-from {
   opacity: 0;
   transform: translateY(-20px) scale(0.95);
 }
 
-/* Hilang:
-  - Dari normal
-  - Menjadi transparan & tetap di tempat (tidak ada transform)
-*/
 .toast-fade-leave-to {
   opacity: 0;
 }
