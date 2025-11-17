@@ -1,4 +1,73 @@
 <template>
+  <Transition name="toast-fade">
+    <div 
+      v-if="toast.show" 
+      class="fixed top-6 right-6 z-[100] w-full max-w-sm rounded-lg shadow-lg"
+      :class="{ 
+        'bg-green-600 text-white': toast.type === 'success', 
+        'bg-red-600 text-white': toast.type === 'error' 
+      }"
+    >
+      <div class="relative flex items-center p-4">
+        <div class="flex-shrink-0">
+          <CheckCircleIcon v-if="toast.type === 'success'" class="h-6 w-6 text-white" />
+          <XCircleIcon v-if="toast.type === 'error'" class="h-6 w-6 text-white" />
+        </div>
+        <div class="ml-3 flex-1">
+          <p class="text-sm font-medium">{{ toast.message }}</p>
+        </div>
+        <button @click="toast.show = false" class="ml-4 flex-shrink-0 text-white opacity-70 hover:opacity-100">
+          <XMarkIcon class="h-5 w-5" />
+        </button>
+      </div>
+    </div>
+  </Transition>
+  <div v-if="confirmModal.show" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" @click="closeConfirmModal"></div>
+
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+      <div class="flex min-h-full items-center justify-center p-4 text-center">
+        <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl transition-all">
+          <div class="flex items-start">
+            <div 
+              class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10"
+              :class="confirmModal.iconBg"
+            >
+              <component :is="confirmModal.icon" class="h-6 w-6" :class="confirmModal.iconColor" />
+            </div>
+            <div class="ml-4 mt-0 text-left">
+              <h3 class="text-lg font-semibold leading-6 text-gray-900" id="modal-title">
+                {{ confirmModal.title }}
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500">
+                  {{ confirmModal.message }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <button 
+              type="button" 
+              @click="onConfirm"
+              class="inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors sm:w-auto"
+              :class="confirmModal.buttonClass"
+            >
+              {{ confirmModal.buttonText }}
+            </button>
+            <button 
+              type="button" 
+              @click="closeConfirmModal"
+              class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="space-y-6">
 
     <div>
@@ -65,7 +134,8 @@
             :series="barChartSeries"
           ></apexchart>
         </div>
-        </div>
+        
+      </div>
 
       <div class="col-span-12 rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 lg:col-span-4">
         <h3 class="text-lg font-semibold leading-6 text-gray-900">Stok Berdasarkan Kategori</h3>
@@ -79,6 +149,7 @@
             :series="donutChartSeries"
           ></apexchart>
         </div>
+        
         <div class="mt-6 space-y-3">
           <div v-for="cat in categoryStats" :key="cat.name" class="flex items-center justify-between">
             <div class="flex items-center">
@@ -221,23 +292,12 @@
       </div>
 
     </div>
-
-    <div v-if="globalActionMessage" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-70" @click="globalActionMessage = null">
-        <div class="rounded-lg bg-white p-6 shadow-2xl max-w-sm w-full" @click.stop>
-            <h3 class="text-lg font-semibold text-gray-900">Simulasi Aksi</h3>
-            <p class="mt-2 text-sm text-gray-600">{{ globalActionMessage }}</p>
-            <button @click="globalActionMessage = null" class="mt-4 w-full rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800">
-                Tutup
-            </button>
-        </div>
-    </div>
-
+    
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-// 1. Impor ApexCharts (sudah terdaftar global di main.js, tapi ini praktik yang baik)
+import { ref, computed, shallowRef } from 'vue'; 
 import VueApexCharts from 'vue3-apexcharts';
 
 // Impor ikon yang kita gunakan
@@ -250,18 +310,126 @@ import {
   ArrowUpIcon,
   DocumentCheckIcon,
   TrophyIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  XMarkIcon,
+  QuestionMarkCircleIcon,
+  NoSymbolIcon,
 } from '@heroicons/vue/24/outline';
 
-// State untuk pesan aksi global (Setujui/Tolak/Request)
-const globalActionMessage = ref(null);
 
-// --- HANDLERS UNTUK KLIK ---
+// =========================================================
+//  State untuk Toast Notifikasi
+// =========================================================
+const toast = ref({
+  show: false,
+  message: '',
+  type: 'success',
+});
+let toastTimeout = null;
+
+const triggerToast = (message, type = 'success') => {
+  if (toastTimeout) clearTimeout(toastTimeout); 
+  
+  toast.value.message = message;
+  toast.value.type = type;
+  toast.value.show = true;
+
+  toastTimeout = setTimeout(() => {
+    toast.value.show = false;
+  }, 3000); 
+};
+
+// =========================================================
+//  State untuk Modal Konfirmasi
+// =========================================================
+const confirmModal = ref({
+  show: false,
+  title: '',
+  message: '',
+  buttonText: '',
+  buttonClass: '',
+  icon: null,
+  iconBg: '',
+  iconColor: '',
+  onConfirmAction: () => {}, 
+});
+
+const openConfirmModal = ({ title, message, buttonText, buttonClass, icon, iconBg, iconColor, onConfirm }) => {
+  confirmModal.value = {
+    show: true,
+    title,
+    message,
+    buttonText,
+    buttonClass,
+    icon: shallowRef(icon),
+    iconBg,
+    iconColor,
+    onConfirmAction: onConfirm,
+  };
+};
+
+const closeConfirmModal = () => {
+  confirmModal.value.show = false;
+};
+
+const onConfirm = () => {
+  if (typeof confirmModal.value.onConfirmAction === 'function') {
+    confirmModal.value.onConfirmAction(); 
+  }
+  closeConfirmModal();
+};
+
+// =========================================================
+//  Fungsi Handlers (Diperbarui)
+// =========================================================
+
 const handleApprovalAction = (item, action) => {
-    globalActionMessage.value = `${action} permintaan dari ${item.user} untuk ${item.itemCount} item senilai ${item.value}. Logika backend akan dipicu di sini.`;
+  if (action === 'Setujui') {
+    openConfirmModal({
+      title: 'Konfirmasi Persetujuan',
+      message: `Apakah Anda yakin ingin menyetujui permintaan dari ${item.user} (${item.unit})?`,
+      buttonText: 'Ya, Setujui',
+      buttonClass: 'bg-blue-700 hover:bg-blue-800 focus-visible:outline-blue-700',
+      icon: CheckCircleIcon,
+      iconBg: 'bg-blue-100',
+      iconColor: 'text-blue-700',
+      onConfirm: () => {
+        console.log('LOGIC: Menyetujui item', item);
+        triggerToast('Permintaan berhasil disetujui.', 'success');
+      }
+    });
+  } else { // 'Tolak'
+    openConfirmModal({
+      title: 'Konfirmasi Penolakan',
+      message: `Apakah Anda yakin ingin menolak permintaan dari ${item.user} (${item.unit})? Tindakan ini tidak dapat dibatalkan.`,
+      buttonText: 'Ya, Tolak',
+      buttonClass: 'bg-red-700 hover:bg-red-800 focus-visible:outline-red-700',
+      icon: NoSymbolIcon,
+      iconBg: 'bg-red-100',
+      iconColor: 'text-red-700',
+      onConfirm: () => {
+        console.log('LOGIC: Menolak item', item);
+        triggerToast('Permintaan telah ditolak.', 'error');
+      }
+    });
+  }
 };
 
 const handleRequestStock = (item) => {
-    globalActionMessage.value = `Permintaan Request restock untuk item: ${item.name} (${item.stock} unit). Logika untuk membuat Purchase Request (PR) akan berjalan di sini.`;
+  openConfirmModal({
+    title: 'Konfirmasi Request Stok',
+    message: `Apakah Anda yakin ingin membuat permintaan restock untuk item: ${item.name} di ${item.unit}?`,
+    buttonText: 'Ya, Buat Request',
+    buttonClass: 'bg-blue-700 hover:bg-blue-800 focus-visible:outline-blue-700',
+    icon: QuestionMarkCircleIcon,
+    iconBg: 'bg-blue-100',
+    iconColor: 'text-blue-700',
+    onConfirm: () => {
+      console.log('LOGIC: Membuat request stok untuk', item);
+      triggerToast('Permintaan restock telah dibuat.', 'success');
+    }
+  });
 };
 
 
@@ -328,7 +496,7 @@ const topRequestedItems = ref([
 ]);
 
 // =============================================
-//     PERSIAPAN DATA UNTUK APEXCHARTS (BARU)
+//     PERSIAPAN DATA UNTUK APEXCHARTS
 // =============================================
 
 // --- Data untuk Bar Chart ---
@@ -344,7 +512,7 @@ const barChartOptions = computed(() => ({
     type: 'bar',
     height: 320,
     fontFamily: 'Inter, sans-serif',
-    toolbar: { show: false }, // Sembunyikan toolbar (menu hamburger)
+    toolbar: { show: false }, 
     zoom: { enabled: false }
   },
   plotOptions: {
@@ -355,7 +523,7 @@ const barChartOptions = computed(() => ({
     },
   },
   dataLabels: {
-    enabled: false, // Sembunyikan label di atas batang
+    enabled: false,
   },
   stroke: {
     show: false,
@@ -364,7 +532,7 @@ const barChartOptions = computed(() => ({
     categories: requestTrendData.value.map(month => month.name),
     labels: {
       style: {
-        colors: '#6B7280', // text-gray-500
+        colors: '#6B7280', 
         fontSize: '12px',
       },
     },
@@ -374,16 +542,16 @@ const barChartOptions = computed(() => ({
   yaxis: {
     labels: {
       style: {
-        colors: '#6B7280', // text-gray-500
+        colors: '#6B7280',
         fontSize: '12px',
       },
       formatter: function (val) {
-        return val.toFixed(0); // Tampilkan angka bulat
+        return val.toFixed(0);
       }
     },
   },
   grid: {
-    borderColor: '#E5E7EB', // border-gray-200
+    borderColor: '#E5E7EB', 
     strokeDashArray: 4,
     yaxis: {
       lines: {
@@ -396,7 +564,7 @@ const barChartOptions = computed(() => ({
       },
     }
   },
-  colors: ['#2563EB'], // bg-blue-600
+  colors: ['#2563EB'], 
   tooltip: {
     y: {
       formatter: function (val) {
@@ -417,7 +585,6 @@ const donutChartOptions = computed(() => ({
   },
   labels: categoryStats.value.map(cat => cat.name),
   colors: categoryStats.value.map(cat => {
-    // Ambil warna Tailwind dari class
     if (cat.colorClass === 'bg-blue-600') return '#2563EB';
     if (cat.colorClass === 'bg-blue-500') return '#3B82F6';
     if (cat.colorClass === 'bg-blue-400') return '#60A5FA';
@@ -434,7 +601,7 @@ const donutChartOptions = computed(() => ({
             show: true,
             label: 'Total Item',
             color: '#6B7280',
-            formatter: () => stats.value.totalStock // Ambil dari data stats
+            formatter: () => stats.value.totalStock
           }
         }
       }
@@ -444,7 +611,7 @@ const donutChartOptions = computed(() => ({
     enabled: false,
   },
   legend: {
-    show: false, // Kita pakai legenda kustom di HTML
+    show: false,
   },
   tooltip: {
     y: {
@@ -454,16 +621,11 @@ const donutChartOptions = computed(() => ({
     }
   }
 }));
-
-// Hapus computed property lama yang tidak dipakai
-// const maxRequestValue = computed(...) -> Dihapus (dihandle ApexCharts)
-// const categoryPercentages = computed(...) -> Dihapus (dihandle ApexCharts)
-
 </script>
 
 <style scoped>
 /* =========================================================
-  Style Kustom untuk Scrollbar
+  Style Kustom untuk Scrollbar & Transisi
   =========================================================
 */
 
@@ -482,10 +644,37 @@ const donutChartOptions = computed(() => ({
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #94a3b8; /* bg-slate-400 */
 }
-
-/* Fallback untuk Firefox (opsional tapi bagus) */
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+/* =========================================================
+  BARU: Transisi "Pop In" & "Fade Out" untuk Toast
+  =========================================================
+*/
+.toast-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.toast-fade-leave-active {
+  /* Durasi 'hilang' lebih cepat */
+  transition: all 0.3s ease-in;
+}
+
+/* Muncul: 
+  - Dari atas (-20px) & sedikit kecil (scale 0.95)
+  - Menjadi normal (translateY(0) & scale(1))
+*/
+.toast-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+}
+
+/* Hilang:
+  - Dari normal
+  - Menjadi transparan & tetap di tempat (tidak ada transform)
+*/
+.toast-fade-leave-to {
+  opacity: 0;
 }
 </style>
