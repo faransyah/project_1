@@ -1,4 +1,48 @@
 <template>
+  <Transition name="modal-fade">
+    <div v-if="isLogoutModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div 
+        class="absolute inset-0 bg-gray-900 bg-opacity-75"
+        @click="cancelLogout"
+      ></div>
+
+      <Transition name="modal-scale">
+        <div v-if="isLogoutModalOpen" class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl">
+          <div class="sm:flex sm:items-start">
+            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+              <ExclamationTriangleIcon class="h-6 w-6 text-red-600" aria-hidden="true" />
+            </div>
+            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+              <h3 class="text-lg font-semibold leading-6 text-gray-900" id="modal-title">
+                Konfirmasi Logout
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500">
+                  Apakah Anda yakin ingin keluar dari aplikasi?
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse sm:gap-3">
+            <button 
+              type="button" 
+              class="inline-flex w-full justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 sm:w-auto"
+              @click="confirmLogout"
+            >
+              Ya, Logout
+            </button>
+            <button 
+              type="button" 
+              class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 transition-colors hover:bg-gray-50 sm:mt-0 sm:w-auto"
+              @click="cancelLogout"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      </Transition>
+    </div>
+  </Transition>
   <div class="flex min-h-screen bg-gray-50">
     <aside
       class="fixed left-0 top-0 z-20 h-screen flex flex-col bg-blue-900 text-gray-300 shadow-lg transition-all duration-500 ease-in-out"
@@ -99,7 +143,7 @@
           </div>
 
           <button
-            @click="handleLogout"
+            @click="handleLogout" 
             class="absolute rounded-lg p-2 text-yellow-400 hover:bg-red-400 hover:text-white transition-all duration-500 ease-in-out"
             :class="[
               isSidebarOpen
@@ -137,7 +181,8 @@ import {
   ArchiveBoxIcon,
   BoltIcon,
   ArrowRightOnRectangleIcon,
-  ChevronDoubleLeftIcon
+  ChevronDoubleLeftIcon,
+  ExclamationTriangleIcon // <-- (1) Ikon baru diimpor
 } from '@heroicons/vue/24/outline';
 
 const navigation = shallowRef([
@@ -158,16 +203,54 @@ const isActive = (href) => {
   return current.startsWith(target);
 };
 
-// Logout
+// (2) Logika Modal & Logout
+const isLogoutModalOpen = ref(false);
+
+// Tombol logout sekarang hanya membuka modal
 const handleLogout = () => {
+  isLogoutModalOpen.value = true;
+};
+
+// Tombol "Batal" hanya menutup modal
+const cancelLogout = () => {
+  isLogoutModalOpen.value = false;
+};
+
+// Tombol "Ya, Logout" menjalankan logika asli
+const confirmLogout = () => {
   localStorage.removeItem('userLoggedIn');
   router.push({ name: 'Login' });
+  isLogoutModalOpen.value = false;
 };
+
 
 // Sidebar state
 const isSidebarOpen = ref(true);
 </script>
 
 <style scoped>
-/* Tidak perlu style tambahan */
-</style>
+/* (3) Transisi CSS untuk Modal */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-scale-enter-active {
+  transition: all 0.3s cubic-bezier(0.52, 0.02, 0.19, 1.02) 0.1s;
+}
+.modal-scale-leave-active {
+  transition: all 0.2s ease-in-out;
+}
+.modal-scale-enter-from {
+  opacity: 0;
+  transform: scale(0.9) translateY(20px);
+}
+.modal-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+</style>  
