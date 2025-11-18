@@ -123,55 +123,56 @@
 
     <div class="grid grid-cols-12 gap-6">
 
-      <div class="col-span-12 rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 lg:col-span-8">
-        <h3 class="text-lg font-semibold leading-6 text-gray-900">Tren Permintaan (6 Bulan Terakhir)</h3>
-        <p class="mt-1 text-sm text-gray-500">Jumlah permintaan ATK yang disetujui.</p>
+      <div class="col-span-12 flex flex-col lg:flex-row gap-6">
         
-        <div class="mt-4 -ml-4">
-          <apexchart
-            type="bar"
-            height="320"
-            :options="barChartOptions"
-            :series="barChartSeries"
-          ></apexchart>
-        </div>
-        
-      </div>
-
-      <div class="col-span-12 rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 lg:col-span-4">
-        <h3 class="text-lg font-semibold leading-6 text-gray-900">Stok Berdasarkan Kategori</h3>
-        <p class="mt-1 text-sm text-gray-500">Distribusi jumlah item di gudang.</p>
-        
-        <div class="mt-4 flex items-center justify-center">
-          <apexchart
-            ref="donutChartRef"
-            type="donut"
-            width="320"
-            :options="donutChartOptions"
-            :series="donutChartSeries"
-          ></apexchart>
-        </div>
-        
-        <div class="mt-6 space-y-3">
-          <div 
-            v-for="(cat, index) in categoryStats" 
-            :key="cat.name" 
-            @click="handleLegendClick(index)"
-            class="flex items-center justify-between rounded-md p-1 -m-1 cursor-pointer transition-all duration-200"
-            :class="{ 
-              'opacity-50 hover:opacity-100': selectedCategoryIndices.length > 0 && !selectedCategoryIndices.includes(index),
-              'bg-gray-100': selectedCategoryIndices.includes(index)
-            }"
-          >
-            <div class="flex items-center">
-              <span class="h-3 w-3 rounded-full" :class="cat.colorClass"></span>
-              <span class="ml-2 text-sm text-gray-600">{{ cat.name }}</span>
-            </div>
-            <span class="text-sm font-medium text-gray-900">{{ cat.percentage }}</span>
+        <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 w-full lg:w-[650px] lg:flex-shrink-0">
+          <h3 class="text-lg font-semibold leading-6 text-gray-900">Tren Permintaan (6 Bulan Terakhir)</h3>
+          <p class="mt-1 text-sm text-gray-500">Jumlah permintaan ATK yang disetujui.</p>
+          
+          <div class="mt-4 -ml-4">
+            <apexchart
+              type="bar"
+              height="320"
+              :options="barChartOptions"
+              :series="barChartSeries"
+            ></apexchart>
           </div>
         </div>
-        </div>
 
+        <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 w-full lg:flex-1">
+          <h3 class="text-lg font-semibold leading-6 text-gray-900">Stok Berdasarkan Kategori</h3>
+          <p class="mt-1 text-sm text-gray-500">Distribusi jumlah item di gudang.</p>
+          
+          <div class="mt-4 flex items-center justify-center">
+            <apexchart
+              ref="donutChartRef"
+              type="donut"
+              width="320"
+              :options="donutChartOptions"
+              :series="donutChartSeries"
+            ></apexchart>
+          </div>
+          
+          <div class="mt-6 space-y-3">
+            <div 
+              v-for="(cat, index) in categoryStats" 
+              :key="cat.name" 
+              @click="handleLegendClick(index)"
+              class="flex items-center justify-between rounded-md p-1 -m-1 cursor-pointer transition-all duration-200"
+              :class="{ 
+                'opacity-50 hover:opacity-100': selectedCategoryIndices.length > 0 && !selectedCategoryIndices.includes(index),
+                'bg-gray-100': selectedCategoryIndices.includes(index)
+              }"
+            >
+              <div class="flex items-center">
+                <span class="h-3 w-3 rounded-full" :class="cat.colorClass"></span>
+                <span class="ml-2 text-sm text-gray-600">{{ cat.name }}</span>
+              </div>
+              <span class="text-sm font-medium text-gray-900">{{ cat.percentage }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="col-span-12 rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5 lg:col-span-7">
         <h2 class="text-lg font-semibold leading-6 text-gray-900">Permintaan Persetujuan</h2>
         <p class="mt-1 text-sm text-gray-500">Permintaan barang yang menunggu persetujuan Anda.</p>
@@ -525,6 +526,7 @@ const barChartSeries = computed(() => [
   }
 ]);
 
+// Pastikan TIDAK ADA 'animations' di sini
 const barChartOptions = computed(() => ({
   chart: {
     type: 'bar',
