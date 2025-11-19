@@ -43,6 +43,7 @@
       </Transition>
     </div>
   </Transition>
+  
   <div class="flex min-h-screen bg-gray-50">
     <aside
       class="fixed left-0 top-0 z-20 h-screen flex flex-col bg-blue-900 text-gray-300 shadow-lg transition-all duration-500 ease-in-out"
@@ -127,7 +128,9 @@
                 : 'left-1/2 top-0 -translate-x-1/2'
             ]"
           >
-            <span class="font-semibold text-blue-900">A</span>
+            <span class="font-semibold text-blue-900 capitalize">
+              {{ currentUser.charAt(0) }}
+            </span>
           </div>
 
           <div
@@ -138,7 +141,9 @@
                 : 'opacity-0'
             ]"
           >
-            <p class="text-sm font-semibold text-white whitespace-nowrap">Admin</p>
+            <p class="text-sm font-semibold text-white whitespace-nowrap capitalize">
+              {{ currentUser }}
+            </p>
             <p class="text-xs text-gray-400 whitespace-nowrap">Online</p>
           </div>
 
@@ -170,7 +175,7 @@
 </template>
 
 <script setup>
-import { ref, shallowRef } from 'vue';
+import { ref, shallowRef, onMounted } from 'vue';
 import { useRouter, useRoute, RouterLink } from 'vue-router';
 
 import {
@@ -182,7 +187,7 @@ import {
   BoltIcon,
   ArrowRightOnRectangleIcon,
   ChevronDoubleLeftIcon,
-  ExclamationTriangleIcon // <-- (1) Ikon baru diimpor
+  ExclamationTriangleIcon 
 } from '@heroicons/vue/24/outline';
 
 const navigation = shallowRef([
@@ -196,6 +201,18 @@ const navigation = shallowRef([
 const router = useRouter();
 const route = useRoute();
 
+// --- LOGIKA USERNAME DINAMIS ---
+const currentUser = ref('Admin'); // Default name
+
+// Saat layout dimuat, cek local storage
+onMounted(() => {
+  const storedUser = localStorage.getItem('activeUser');
+  if (storedUser) {
+    currentUser.value = storedUser;
+  }
+});
+// -----------------------------
+
 // Active route check
 const isActive = (href) => {
   const current = route.path.replace(/\/+$/, '');
@@ -203,33 +220,29 @@ const isActive = (href) => {
   return current.startsWith(target);
 };
 
-// (2) Logika Modal & Logout
+// Logika Modal & Logout
 const isLogoutModalOpen = ref(false);
 
-// Tombol logout sekarang hanya membuka modal
 const handleLogout = () => {
   isLogoutModalOpen.value = true;
 };
 
-// Tombol "Batal" hanya menutup modal
 const cancelLogout = () => {
   isLogoutModalOpen.value = false;
 };
 
-// Tombol "Ya, Logout" menjalankan logika asli
 const confirmLogout = () => {
   localStorage.removeItem('userLoggedIn');
+  localStorage.removeItem('activeUser'); // Hapus nama user saat logout
   router.push({ name: 'Login' });
   isLogoutModalOpen.value = false;
 };
-
 
 // Sidebar state
 const isSidebarOpen = ref(true);
 </script>
 
 <style scoped>
-/* (3) Transisi CSS untuk Modal */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
   transition: opacity 0.3s ease;
@@ -253,4 +266,4 @@ const isSidebarOpen = ref(true);
   opacity: 0;
   transform: scale(0.95);
 }
-</style>  
+</style>

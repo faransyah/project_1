@@ -1,5 +1,5 @@
 <template>
-  <div class="font-inter flex min-h-screen flex-col items-center justify-center bg-blue-900 px-4 py-12 overflow-hidden">
+  <div class="font-inter subtle-bg-pattern flex min-h-screen flex-col items-center justify-center bg-blue-900 px-4 py-12 overflow-hidden">
     
     <Transition appear name="fade-in-up">
       <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl transition-all duration-300 hover:shadow-yellow-400/10">
@@ -120,8 +120,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { BoltIcon, EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid';
 
-// --- LOGIKA KODE ANDA TETAP SAMA ---
-
+// State
 const email = ref('');
 const password = ref('');
 const errorMsg = ref('');
@@ -134,10 +133,20 @@ const handleLogin = () => {
   errorMsg.value = '';
 
   setTimeout(() => {
+    // Logika Login (Admin)
     if (email.value === 'admin' && password.value === 'password') {
       localStorage.setItem('userLoggedIn', 'true');
+      localStorage.setItem('activeUser', 'Admin'); // <--- SIMPAN NAMA 'Admin'
       router.push('/dashboard'); 
-    } else {
+    } 
+    // Logika Login (User Rezza)
+    else if (email.value === 'rezza' && password.value === '123') {
+      localStorage.setItem('userLoggedIn', 'true');
+      localStorage.setItem('activeUser', 'Rezza'); // <--- SIMPAN NAMA 'Rezza'
+      router.push('/dashboard'); 
+    } 
+    // Login Gagal
+    else {
       errorMsg.value = 'Username atau password salah!';
     }
     isLoading.value = false;
