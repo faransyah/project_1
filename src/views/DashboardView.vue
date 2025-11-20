@@ -1,8 +1,8 @@
 <template>
-  <Transition name="toast-fade">
+  <Transition name="toast-slide-top">
     <div 
       v-if="toast.show" 
-      class="fixed top-6 right-6 z-[100] w-full max-w-sm rounded-lg shadow-lg"
+      class="fixed top-16 left-1/2 z-[100] w-full max-w-sm rounded-lg shadow-lg -translate-x-1/2"
       :class="{ 
         'bg-green-600 text-white': toast.type === 'success', 
         'bg-red-600 text-white': toast.type === 'error' 
@@ -13,10 +13,12 @@
           <CheckCircleIcon v-if="toast.type === 'success'" class="h-6 w-6 text-white" />
           <XCircleIcon v-if="toast.type === 'error'" class="h-6 w-6 text-white" />
         </div>
+        
         <div class="ml-3 flex-1">
           <p class="text-sm font-medium">{{ toast.message }}</p>
         </div>
-        <button @click="toast.show = false" class="ml-4 flex-shrink-0 text-white opacity-70 hover:opacity-100">
+        
+        <button @click="toast.show = false" class="ml-4 flex-shrink-0 text-white opacity-70 hover:opacity-100 transition-opacity">
           <XMarkIcon class="h-5 w-5" />
         </button>
       </div>
@@ -349,7 +351,7 @@ const triggerToast = (message, type = 'success') => {
 
   toastTimeout = setTimeout(() => {
     toast.value.show = false;
-  }, 3000); 
+  }, 3000); // durasi 3 detik
 };
 
 // =========================================================
@@ -785,12 +787,34 @@ const donutChartOptions = computed(() => ({
   scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
+/* =========================================
+   ANIMASI TOAST NOTIFICATION
+   ========================================= */
+
+/* 1. SLIDE TOP (PILIHAN UTAMA) 
+   Cocok untuk posisi: Tengah Atas / Center Top.
+   Efek: Turun dari atas dengan efek membal (bouncy), lalu naik kembali saat hilang.
+*/
+.toast-slide-top-enter-active{
+  transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.toast-slide-top-leave-active {
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); /* Efek membal halus */
+}
+
+.toast-slide-top-enter-from,
+.toast-slide-top-leave-to {
+  opacity: 0;
+  /* PENTING: translateX(-50%) wajib ada agar tetap di tengah */
+  transform: translateY(-20px) translateX(-50%); 
+}
+
 /* Transisi "Pop In" & "Fade Out" untuk Toast */
 .toast-fade-enter-active {
   transition: all 0.3s ease-out;
 }
 .toast-fade-leave-active {
-  transition: all 0.3s ease-in;
+  transition: all 0.8s ease-in;
 }
 
 .toast-fade-enter-from {
