@@ -1,183 +1,123 @@
 <template>
-  <Transition name="modal-fade">
-    <div v-if="isLogoutModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div 
-        class="absolute inset-0 bg-gray-900 bg-opacity-75"
-        @click="cancelLogout"
-      ></div>
+  <Transition name="modal-backdrop">
+    <div v-if="isLogoutModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeLogoutModal"></div>
+      
+      <Transition name="modal-content">
+        <div v-if="isLogoutModalOpen" class="relative w-full max-w-sm overflow-hidden rounded-3xl bg-white p-8 shadow-2xl ring-1 ring-white/50">
+          <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 to-orange-500"></div>
 
-      <Transition name="modal-scale">
-        <div v-if="isLogoutModalOpen" class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl">
-          <div class="sm:flex sm:items-start">
-            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-              <ExclamationTriangleIcon class="h-6 w-6 text-red-600" aria-hidden="true" />
+          <div class="flex flex-col items-center text-center">
+            <div class="group flex h-16 w-16 items-center justify-center rounded-full bg-red-50 ring-8 ring-red-50/50 mb-6 transition-transform duration-500 hover:rotate-12">
+              <ArrowRightOnRectangleIcon class="h-7 w-7 text-red-600 transition-transform group-hover:translate-x-1" />
             </div>
-            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-              <h3 class="text-lg font-semibold leading-6 text-gray-900" id="modal-title">
-                Konfirmasi Logout
-              </h3>
-              <div class="mt-2">
-                <p class="text-sm text-gray-500">
-                  Apakah Anda yakin ingin keluar dari aplikasi?
-                </p>
-              </div>
+            
+            <h3 class="text-xl font-bold text-slate-900 tracking-tight">Keluar Aplikasi?</h3>
+            <p class="mt-3 text-sm text-slate-500 leading-relaxed px-2">
+              Anda akan diarahkan kembali ke halaman login. Pastikan pekerjaan Anda aman.
+            </p>
+
+            <div class="mt-8 flex w-full gap-3">
+              <button 
+                @click="closeLogoutModal"
+                class="flex-1 rounded-xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 hover:shadow-sm transition-all duration-200"
+              >
+                Batal
+              </button>
+              <button 
+                @click="confirmLogout"
+                class="flex-1 rounded-xl bg-gradient-to-br from-red-600 to-red-700 py-3 text-sm font-semibold text-white shadow-lg shadow-red-600/30 hover:shadow-red-600/50 hover:scale-[1.02] active:scale-95 transition-all duration-200"
+              >
+                Ya, Keluar
+              </button>
             </div>
-          </div>
-          <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse sm:gap-3">
-            <button 
-              type="button" 
-              class="inline-flex w-full justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 sm:w-auto"
-              @click="confirmLogout"
-            >
-              Ya, Logout
-            </button>
-            <button 
-              type="button" 
-              class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 transition-colors hover:bg-gray-50 sm:mt-0 sm:w-auto"
-              @click="cancelLogout"
-            >
-              Batal
-            </button>
           </div>
         </div>
       </Transition>
     </div>
   </Transition>
-  
-  <div class="flex min-h-screen bg-gray-50">
-    <aside
-      class="fixed left-0 top-0 z-20 h-screen flex flex-col bg-blue-900 text-gray-300 shadow-lg transition-all duration-500 ease-in-out"
-      :class="isSidebarOpen ? 'w-64' : 'w-20'"
-    >
-      <div class="relative flex items-center justify-center border-b border-blue-700 p-6">
-        <BoltIcon class="h-8 w-8 text-yellow-400" />
 
-        <span
-          :class="[
-            isSidebarOpen ? 'w-auto opacity-100 ml-3 transition-all duration-500 delay-150' : 'w-0 opacity-0 ml-0',
-            'overflow-hidden whitespace-nowrap text-lg font-bold text-white'
-          ]"
-        >
-          ATK Icon Plus
-        </span>
+  <div class="min-h-screen bg-slate-50/50 font-inter text-slate-600 selection:bg-blue-500 selection:text-white">
+    
+    <div class="fixed top-0 left-0 z-0 h-96 w-96 rounded-full bg-blue-200/20 blur-3xl"></div>
+    <div class="fixed bottom-0 right-0 z-0 h-96 w-96 rounded-full bg-indigo-200/20 blur-3xl"></div>
+    <div class="fixed inset-0 z-0 pointer-events-none" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 32px 32px; opacity: 0.5;"></div>
 
-        <button
-          @click="isSidebarOpen = !isSidebarOpen"
-          class="absolute -right-3.5 top-1/2 -translate-y-1/2 z-30 grid h-8 w-8 place-items-center rounded-full border-2 border-white bg-blue-800 text-yellow-400 transition duration-300 hover:bg-yellow-400 hover:text-blue-900"
-        >
-          <ChevronDoubleLeftIcon
-            :class="[isSidebarOpen ? '' : 'rotate-180', 'h-4 w-4 transition-transform duration-500']"
-          />
-        </button>
-      </div>
+    <nav class="fixed top-0 inset-x-4 md:inset-x-0 z-50 h-16 md:top-0 md:mx-0 border border-white/60 bg-gray-200/80 backdrop-blur-xl shadow-sm ring-1 ring-black/5 transition-all duration-300">
+      <div class="mx-auto h-full px-4 sm:px-6">
+        <div class="flex h-full items-center justify-between">
 
-      <nav class="flex-1 overflow-y-auto p-4">
-        <ul class="space-y-1">
-          <li v-for="item in navigation" :key="item.name">
+          <div class="flex shrink-0 items-center gap-3 cursor-pointer group" @click="router.push('/dashboard')">
+            <div class="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white shadow-lg shadow-slate-900/20 transition-all duration-300 group-hover:shadow-slate-900/40 group-hover:scale-105">
+              <BoltIcon class="h-6 w-6 text-yellow-400" />
+              <div class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-yellow-400 ring-2 ring-white animate-pulse"></div>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-sm font-bold text-slate-900 leading-none tracking-tight">ATK Icon Plus</span>
+              <span class="text-[10px] font-semibold text-slate-400 mt-0.5 tracking-wide uppercase">Internal System</span>
+            </div>
+          </div>
+
+          <div class="hidden md:flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-full border border-slate-200/50 shadow-inner">
             <RouterLink
+              v-for="item in navigation"
+              :key="item.name"
               :to="item.href"
-              class="group flex items-center rounded-lg px-3 py-3 text-sm font-medium relative overflow-hidden transition-all duration-200"
-              :class="[
-                isActive(item.href)
-                  ? 'bg-blue-800 text-yellow-400 font-semibold shadow-md'
-                  : 'text-blue-200 hover:bg-blue-800 hover:text-white',
-                !isSidebarOpen && 'justify-center'
-              ]"
+              class="relative rounded-full px-5 py-2 text-xs font-bold transition-all duration-300 flex items-center gap-2"
+              :class="isActive(item.href) 
+                ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20 ring-1 ring-black/10 scale-105' 
+                : 'text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm'"
             >
-              <span
-                v-if="isActive(item.href)"
-                class="absolute inset-y-0 left-0 w-1 bg-yellow-400 rounded-r"
-              ></span>
-
-              <component
-                :is="item.icon"
-                class="h-5 w-5 flex-shrink-0 transition-colors duration-200"
-                :class="[
-                  isActive(item.href)
-                    ? 'text-yellow-400'
-                    : 'text-blue-300 group-hover:text-white',
-                  isSidebarOpen ? 'mr-3' : 'mr-0'
-                ]"
-              />
-
-              <span
-                :class="[
-                  isSidebarOpen ? 'w-auto opacity-100 transition-all duration-500 delay-150' : 'w-0 opacity-0',
-                  'truncate overflow-hidden'
-                ]"
-              >
-                {{ item.name }}
-              </span>
+              <component :is="item.icon" class="h-4 w-4" :class="isActive(item.href) ? 'text-yellow-400' : 'text-slate-400 group-hover:text-slate-600'" />
+              {{ item.name }}
             </RouterLink>
-          </li>
-        </ul>
-      </nav>
-
-      <div class="mt-auto border-t border-blue-700 p-4">
-        <div
-          :class="[
-            'relative w-full transition-all duration-500 ease-in-out',
-            isSidebarOpen ? 'h-10' : 'h-20'
-          ]"
-        >
-          <div
-            :class="[
-              'absolute flex h-10 w-10 items-center justify-center rounded-full bg-yellow-400 transition-all duration-500 ease-in-out',
-              isSidebarOpen
-                ? 'left-0 top-0'
-                : 'left-1/2 top-0 -translate-x-1/2'
-            ]"
-          >
-            <span class="font-semibold text-blue-900 capitalize">
-              {{ currentUser.charAt(0) }}
-            </span>
           </div>
 
-          <div
-            :class="[
-              'absolute left-12 top-1/2 -translate-y-1/2 overflow-hidden text-left transition-all duration-500',
-              isSidebarOpen
-                ? 'opacity-100 delay-150'
-                : 'opacity-0'
-            ]"
-          >
-            <p class="text-sm font-semibold text-white whitespace-nowrap capitalize">
-              {{ currentUser }}
-            </p>
-            <p class="text-xs text-gray-400 whitespace-nowrap">Online</p>
+          <div class="flex items-center gap-5">
+            
+            <div class="hidden sm:flex items-center gap-3 pr-1 cursor-default select-none">
+              
+              <div class="flex flex-col items-end">
+                 <span class="text-xs font-bold text-slate-700 leading-none">{{ currentUser }}</span>
+                 <span class="text-[10px] font-medium text-slate-400 leading-none mt-0.5 tracking-wide">Administrator</span>
+              </div>
+
+              <UserIcon class="h-5 w-5 text-slate-400" />
+            </div>
+
+            <div class="h-8 w-px bg-gradient-to-b from-transparent via-slate-200 to-transparent"></div>
+
+            <button 
+              @click="openLogoutModal"
+              class="group relative flex h-9 w-9 items-center justify-center rounded-full bg-red-50 border border-red-100 text-red-500 hover:bg-red-600 hover:border-red-600 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-red-600/20"
+              title="Keluar Sistem"
+            >
+              <ArrowRightOnRectangleIcon class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+            </button>
+
           </div>
 
-          <button
-            @click="handleLogout" 
-            class="absolute rounded-lg p-2 text-yellow-400 hover:bg-red-400 hover:text-white transition-all duration-500 ease-in-out"
-            :class="[
-              isSidebarOpen
-                ? 'right-0 top-1/2 -translate-y-1/2'
-                : 'left-1/2 top-12 -translate-x-1/2'
-            ]"
-            title="Logout"
-          >
-            <ArrowRightOnRectangleIcon class="h-5 w-5" />
-          </button>
         </div>
       </div>
-    </aside>
+    </nav>
 
-    <main
-      class="flex-1 min-h-screen p-6 lg:p-10 overflow-auto transition-all duration-500 ease-in-out"
-      :class="isSidebarOpen ? 'ml-64' : 'ml-20'"
-    >
-      <div class="rounded-lg bg-white p-6 shadow">
-        <router-view />
+    <main class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-28 pb-12">
+      <div class="min-h-[600px]">
+        <router-view v-slot="{ Component }">
+           <component :is="Component" />
+        </router-view>
       </div>
     </main>
+
   </div>
 </template>
 
 <script setup>
-import { ref, shallowRef, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter, useRoute, RouterLink } from 'vue-router';
 
+// Import Icons
 import {
   HomeIcon,
   UsersIcon,
@@ -186,84 +126,59 @@ import {
   ArchiveBoxIcon,
   BoltIcon,
   ArrowRightOnRectangleIcon,
-  ChevronDoubleLeftIcon,
-  ExclamationTriangleIcon 
+  UserIcon
 } from '@heroicons/vue/24/outline';
-
-const navigation = shallowRef([
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Manage Users', href: '/manage-users', icon: UsersIcon },
-  { name: 'Manage Units', href: '/manage-units', icon: BuildingOfficeIcon },
-  { name: 'Master ATK', href: '/master-atk', icon: ClipboardDocumentListIcon },
-  { name: 'Manage Stock', href: '/manage-stock', icon: ArchiveBoxIcon }
-]);
 
 const router = useRouter();
 const route = useRoute();
 
-// --- LOGIKA USERNAME DINAMIS ---
-const currentUser = ref('Admin'); // Default name
+// Menu Navigasi
+const navigation = [
+  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
+  { name: 'Users', href: '/manage-users', icon: UsersIcon },
+  { name: 'Units', href: '/manage-units', icon: BuildingOfficeIcon },
+  { name: 'Master ATK', href: '/master-atk', icon: ClipboardDocumentListIcon },
+  { name: 'Stock', href: '/manage-stock', icon: ArchiveBoxIcon }
+];
 
-// Saat layout dimuat, cek local storage
-onMounted(() => {
-  const storedUser = localStorage.getItem('activeUser');
-  if (storedUser) {
-    currentUser.value = storedUser;
-  }
-});
-// -----------------------------
-
-// Active route check
-const isActive = (href) => {
-  const current = route.path.replace(/\/+$/, '');
-  const target = href.replace(/\/+$/, '');
-  return current.startsWith(target);
-};
-
-// Logika Modal & Logout
+// State
+const currentUser = ref('Muhammad Rezza'); // Contoh nama user
 const isLogoutModalOpen = ref(false);
 
-const handleLogout = () => {
-  isLogoutModalOpen.value = true;
+// Lifecycle
+onMounted(() => {
+  const storedUser = localStorage.getItem('activeUser');
+  if (storedUser) currentUser.value = storedUser;
+});
+
+// Helper: Active State
+const isActive = (href) => {
+  return route.path.startsWith(href);
 };
 
-const cancelLogout = () => {
-  isLogoutModalOpen.value = false;
-};
+// Modal Actions
+const openLogoutModal = () => isLogoutModalOpen.value = true;
+const closeLogoutModal = () => isLogoutModalOpen.value = false;
 
 const confirmLogout = () => {
   localStorage.removeItem('userLoggedIn');
-  localStorage.removeItem('activeUser'); // Hapus nama user saat logout
-  router.push({ name: 'Login' });
+  localStorage.removeItem('activeUser');
+  router.push('/login');
   isLogoutModalOpen.value = false;
 };
-
-// Sidebar state
-const isSidebarOpen = ref(true);
 </script>
 
 <style scoped>
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-.modal-scale-enter-active {
-  transition: all 0.3s cubic-bezier(0.52, 0.02, 0.19, 1.02) 0.1s;
-}
-.modal-scale-leave-active {
-  transition: all 0.2s ease-in-out;
-}
-.modal-scale-enter-from {
-  opacity: 0;
-  transform: scale(0.9) translateY(20px);
-}
-.modal-scale-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
+.font-inter { font-family: 'Inter', sans-serif; }
+
+/* --- ANIMASI MODAL (Halus & Bouncy) --- */
+.modal-backdrop-enter-active, .modal-backdrop-leave-active { transition: opacity 0.3s ease; }
+.modal-backdrop-enter-from, .modal-backdrop-leave-to { opacity: 0; }
+
+.modal-content-enter-active { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.modal-content-leave-active { transition: all 0.2s ease-in; }
+.modal-content-enter-from { opacity: 0; transform: scale(0.9) translateY(20px); }
+.modal-content-leave-to { opacity: 0; transform: scale(0.95) translateY(10px); }
 </style>
