@@ -38,12 +38,8 @@
     </div>
   </Transition>
 
-  <div class="min-h-screen bg-slate-50/50 font-inter text-slate-600 selection:bg-blue-500 selection:text-white">
+  <div class="min-h-screen bg-slate-50/50 font-inter text-slate-600 selection:bg-cyan-500 selection:text-white">
     
-    <div class="fixed top-0 left-0 z-0 h-96 w-96 rounded-full bg-blue-200/20 blur-3xl"></div>
-    <div class="fixed bottom-0 right-0 z-0 h-96 w-96 rounded-full bg-indigo-200/20 blur-3xl"></div>
-    <div class="fixed inset-0 z-0 pointer-events-none" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 32px 32px; opacity: 0.5;"></div>
-
     <nav 
       class="fixed z-50 h-16 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center"
       :class="[
@@ -56,17 +52,32 @@
         <div class="flex h-full items-center justify-between">
 
           <div class="flex shrink-0 items-center gap-3 cursor-pointer group" @click="router.push('/dashboard')">
+            
             <div 
-              class="relative flex h-10 w-10 items-center justify-center rounded-xl text-white transition-all duration-300 group-hover:scale-105"
-              :class="isScrolled ? 'bg-slate-900 shadow-lg shadow-slate-900/20' : 'bg-slate-800 shadow-none'"
+              class="relative flex h-10 w-10 items-center justify-center rounded-md transition-all duration-300 group-hover:scale-105 overflow-hidden shadow-sm bg-[#FFE600]"
             >
-              <BoltIcon class="h-6 w-6 text-yellow-400" />
-              <div class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-yellow-400 ring-2 ring-white animate-pulse"></div>
+            <div class="absolute inset-0 flex items-center justify-center z-0">
+                 <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="opacity-90">
+                    <path d="M2 5C6 2 8 8 12 5C16 2 18 8 22 5" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M2 10C6 7 8 13 12 10C16 7 18 13 22 10" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M2 15C6 12 8 18 12 15C16 12 18 18 22 15" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
+                 </svg>
+              </div>
+              <svg 
+                viewBox="0 0 26 24" 
+                fill="currentColor" 
+                class="h-6 w-8 text-[#E30613] z-10 relative -rotate-6 scale-110 drop-shadow-sm"
+              >
+                <path d="M13 1L6 13.6H13L8 24L19 11H11L17 1Z" />
+              </svg>
             </div>
-            <div class="flex flex-col">
-              <span class="text-sm font-bold text-slate-900 leading-none tracking-tight">ATK Icon Plus</span>
-              <span class="text-[10px] font-semibold text-slate-400 mt-0.5 tracking-wide uppercase">Internal System</span>
+            
+
+            <div class="flex flex-col items-start">
+              <span class="text-xl font-extrabold leading-none tracking-tight text-[#009BDB]">PLN</span>
+              <span class="text-[10px] font-semibold text-slate-600 -mt-0.5 tracking-wide">Icon Plus</span>
             </div>
+
           </div>
 
           <div 
@@ -79,15 +90,16 @@
               :to="item.href"
               class="relative rounded-full px-5 py-2 text-xs font-bold transition-all duration-300 flex items-center gap-2"
               :class="isActive(item.href) 
-                ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20 ring-1 ring-black/10 scale-105' 
-                : 'text-slate-500 hover:text-slate-900 hover:bg-white/50'"
+                ? 'bg-[#009BDB] text-white shadow-md shadow-cyan-500/20 ring-1 ring-black/10 scale-105' 
+                : 'text-slate-500 hover:text-[#009BDB] hover:bg-white/50'"
             >
-              <component :is="item.icon" class="h-4 w-4" :class="isActive(item.href) ? 'text-yellow-400' : 'text-slate-400 group-hover:text-slate-600'" />
+              <component :is="item.icon" class="h-4 w-4" :class="isActive(item.href) ? 'text-white' : 'text-slate-400 group-hover:text-[#009BDB]'" />
               {{ item.name }}
             </RouterLink>
           </div>
 
           <div class="flex items-center gap-5">
+            
             <div class="hidden sm:flex items-center gap-3 pr-1 cursor-default select-none">
               <div class="flex flex-col items-end">
                  <span class="text-xs font-bold text-slate-700 leading-none">{{ currentUser }}</span>
@@ -95,9 +107,9 @@
               </div>
               <UserIcon class="h-5 w-5 text-slate-400" />
             </div>
-            
+
             <div class="h-8 w-px bg-gradient-to-b from-transparent via-slate-200 to-transparent"></div>
-            
+
             <button 
               @click="openLogoutModal"
               class="group relative flex h-9 w-9 items-center justify-center rounded-full bg-red-50 border border-red-100 text-red-500 hover:bg-red-600 hover:border-red-600 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-red-600/20"
@@ -105,6 +117,7 @@
             >
               <ArrowRightOnRectangleIcon class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
             </button>
+
           </div>
 
         </div>
@@ -123,41 +136,43 @@
 </template>
 
 <script setup>
-// 1. Tambahkan 'watch' pada import
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute, RouterLink } from 'vue-router';
 
 // Import Icons
 import {
-  HomeIcon, UsersIcon, BuildingOfficeIcon, ClipboardDocumentListIcon,
-  ArchiveBoxIcon, BoltIcon, ArrowRightOnRectangleIcon, UserIcon
-} from '@heroicons/vue/24/outline';
+  HomeIcon,
+  UsersIcon,
+  BuildingOfficeIcon,
+  ClipboardDocumentListIcon,
+  ArchiveBoxIcon,
+  ArrowRightOnRectangleIcon,
+  UserIcon
+} from '@heroicons/vue/24/outline'; // BoltIcon (outline)
+
+// Tambahkan import BoltSolidIcon untuk ikon petir solid
+import { BoltIcon as BoltSolidIcon } from '@heroicons/vue/24/solid'; // BoltIcon (solid)
 
 const router = useRouter();
 const route = useRoute();
 
-// State & Navbar Scroll Logic
+// --- State Scroll & Navbar ---
 const isScrolled = ref(false);
 
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 20;
 };
 
-// === FIX SCROLL POSITION ===
-// Setiap kali rute berubah (pindah halaman), reset scroll ke paling atas
+// Fix Scroll Position: Reset ke atas setiap pindah halaman
 watch(
   () => route.path, 
   () => {
-    // Reset posisi scroll ke 0,0 (Atas Kiri)
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); 
-    
-    // Reset juga style navbar agar kembali transparan (jika user di atas)
-    // atau biarkan handleScroll mengurusnya jika halaman pendek
     isScrolled.value = false;
   }
 );
 
-// Data Navigasi
+// --- Data Menu ---
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Users', href: '/manage-users', icon: UsersIcon },
@@ -166,10 +181,11 @@ const navigation = [
   { name: 'Stock', href: '/manage-stock', icon: ArchiveBoxIcon }
 ];
 
+// --- State User ---
 const currentUser = ref('Muhammad Rezza');
 const isLogoutModalOpen = ref(false);
 
-// Lifecycle Hooks
+// --- Lifecycle ---
 onMounted(() => {
   const storedUser = localStorage.getItem('activeUser');
   if (storedUser) currentUser.value = storedUser;
@@ -181,7 +197,7 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
 
-// Methods
+// --- Helper Methods ---
 const isActive = (href) => route.path.startsWith(href);
 const openLogoutModal = () => isLogoutModalOpen.value = true;
 const closeLogoutModal = () => isLogoutModalOpen.value = false;
@@ -198,7 +214,7 @@ const confirmLogout = () => {
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 .font-inter { font-family: 'Inter', sans-serif; }
 
-/* --- Animations --- */
+/* --- ANIMASI MODAL --- */
 .modal-backdrop-enter-active, .modal-backdrop-leave-active { transition: opacity 0.3s ease; }
 .modal-backdrop-enter-from, .modal-backdrop-leave-to { opacity: 0; }
 
