@@ -44,12 +44,22 @@
     <div class="fixed bottom-0 right-0 z-0 h-96 w-96 rounded-full bg-indigo-200/20 blur-3xl"></div>
     <div class="fixed inset-0 z-0 pointer-events-none" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 32px 32px; opacity: 0.5;"></div>
 
-    <nav class="fixed top-0 inset-x-4 md:inset-x-0 z-50 h-16 md:top-0 md:mx-0 border border-white/60 bg-gray-200/80 backdrop-blur-xl shadow-sm ring-1 ring-black/5 transition-all duration-300">
-      <div class="mx-auto h-full px-4 sm:px-6">
+    <nav 
+      class="fixed z-50 h-16 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center"
+      :class="[
+        isScrolled 
+          ? 'top-0 inset-x-4 md:inset-x-0 border border-white/60 bg-gray-200/80 backdrop-blur-xl shadow-lg shadow-slate-200/20 ring-1 ring-black/5' 
+          : 'top-0 inset-x-0 border-b border-transparent bg-slate-50/0 shadow-none'
+      ]"
+    >
+      <div class="w-full h-full px-4 sm:px-6">
         <div class="flex h-full items-center justify-between">
 
           <div class="flex shrink-0 items-center gap-3 cursor-pointer group" @click="router.push('/dashboard')">
-            <div class="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white shadow-lg shadow-slate-900/20 transition-all duration-300 group-hover:shadow-slate-900/40 group-hover:scale-105">
+            <div 
+              class="relative flex h-10 w-10 items-center justify-center rounded-xl text-white transition-all duration-300 group-hover:scale-105"
+              :class="isScrolled ? 'bg-slate-900 shadow-lg shadow-slate-900/20' : 'bg-slate-800 shadow-none'"
+            >
               <BoltIcon class="h-6 w-6 text-yellow-400" />
               <div class="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-yellow-400 ring-2 ring-white animate-pulse"></div>
             </div>
@@ -59,7 +69,10 @@
             </div>
           </div>
 
-          <div class="hidden md:flex items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-full border border-slate-200/50 shadow-inner">
+          <div 
+            class="hidden md:flex items-center gap-1.5 p-1.5 rounded-full border transition-all duration-500"
+            :class="isScrolled ? 'bg-slate-100/80 border-slate-200/50 shadow-inner' : 'bg-transparent border-transparent'"
+          >
             <RouterLink
               v-for="item in navigation"
               :key="item.name"
@@ -67,27 +80,24 @@
               class="relative rounded-full px-5 py-2 text-xs font-bold transition-all duration-300 flex items-center gap-2"
               :class="isActive(item.href) 
                 ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20 ring-1 ring-black/10 scale-105' 
-                : 'text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm'"
+                : 'text-slate-500 hover:text-slate-900 hover:bg-white/50'"
             >
               <component :is="item.icon" class="h-4 w-4" :class="isActive(item.href) ? 'text-yellow-400' : 'text-slate-400 group-hover:text-slate-600'" />
               {{ item.name }}
             </RouterLink>
           </div>
 
-          <div class="flex items-center gap-0.5">
-            
-            <div class="hidden sm:flex items-center gap-2 pr-1 cursor-default select-none">
-              
+          <div class="flex items-center gap-5">
+            <div class="hidden sm:flex items-center gap-3 pr-1 cursor-default select-none">
               <div class="flex flex-col items-end">
                  <span class="text-xs font-bold text-slate-700 leading-none">{{ currentUser }}</span>
                  <span class="text-[10px] font-medium text-slate-400 leading-none mt-0.5 tracking-wide">Administrator</span>
               </div>
-
               <UserIcon class="h-5 w-5 text-slate-400" />
             </div>
-
+            
             <div class="h-8 w-px bg-gradient-to-b from-transparent via-slate-200 to-transparent"></div>
-
+            
             <button 
               @click="openLogoutModal"
               class="group relative flex h-9 w-9 items-center justify-center rounded-full bg-red-50 border border-red-100 text-red-500 hover:bg-red-600 hover:border-red-600 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-red-600/20"
@@ -95,7 +105,6 @@
             >
               <ArrowRightOnRectangleIcon class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
             </button>
-
           </div>
 
         </div>
@@ -114,25 +123,41 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+// 1. Tambahkan 'watch' pada import
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute, RouterLink } from 'vue-router';
 
 // Import Icons
 import {
-  HomeIcon,
-  UsersIcon,
-  BuildingOfficeIcon,
-  ClipboardDocumentListIcon,
-  ArchiveBoxIcon,
-  BoltIcon,
-  ArrowRightOnRectangleIcon,
-  UserIcon
+  HomeIcon, UsersIcon, BuildingOfficeIcon, ClipboardDocumentListIcon,
+  ArchiveBoxIcon, BoltIcon, ArrowRightOnRectangleIcon, UserIcon
 } from '@heroicons/vue/24/outline';
 
 const router = useRouter();
 const route = useRoute();
 
-// Menu Navigasi
+// State & Navbar Scroll Logic
+const isScrolled = ref(false);
+
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 20;
+};
+
+// === FIX SCROLL POSITION ===
+// Setiap kali rute berubah (pindah halaman), reset scroll ke paling atas
+watch(
+  () => route.path, 
+  () => {
+    // Reset posisi scroll ke 0,0 (Atas Kiri)
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); 
+    
+    // Reset juga style navbar agar kembali transparan (jika user di atas)
+    // atau biarkan handleScroll mengurusnya jika halaman pendek
+    isScrolled.value = false;
+  }
+);
+
+// Data Navigasi
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Users', href: '/manage-users', icon: UsersIcon },
@@ -141,22 +166,23 @@ const navigation = [
   { name: 'Stock', href: '/manage-stock', icon: ArchiveBoxIcon }
 ];
 
-// State
-const currentUser = ref('Muhammad Rezza'); // Contoh nama user
+const currentUser = ref('Muhammad Rezza');
 const isLogoutModalOpen = ref(false);
 
-// Lifecycle
+// Lifecycle Hooks
 onMounted(() => {
   const storedUser = localStorage.getItem('activeUser');
   if (storedUser) currentUser.value = storedUser;
+  
+  window.addEventListener('scroll', handleScroll);
 });
 
-// Helper: Active State
-const isActive = (href) => {
-  return route.path.startsWith(href);
-};
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 
-// Modal Actions
+// Methods
+const isActive = (href) => route.path.startsWith(href);
 const openLogoutModal = () => isLogoutModalOpen.value = true;
 const closeLogoutModal = () => isLogoutModalOpen.value = false;
 
@@ -170,10 +196,9 @@ const confirmLogout = () => {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
 .font-inter { font-family: 'Inter', sans-serif; }
 
-/* --- ANIMASI MODAL (Halus & Bouncy) --- */
+/* --- Animations --- */
 .modal-backdrop-enter-active, .modal-backdrop-leave-active { transition: opacity 0.3s ease; }
 .modal-backdrop-enter-from, .modal-backdrop-leave-to { opacity: 0; }
 
