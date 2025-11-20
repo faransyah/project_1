@@ -74,9 +74,9 @@
             </RouterLink>
           </div>
 
-          <div class="flex items-center gap-5">
+          <div class="flex items-center gap-0.5">
             
-            <div class="hidden sm:flex items-center gap-3 pr-1 cursor-default select-none">
+            <div class="hidden sm:flex items-center gap-2 pr-1 cursor-default select-none">
               
               <div class="flex flex-col items-end">
                  <span class="text-xs font-bold text-slate-700 leading-none">{{ currentUser }}</span>
