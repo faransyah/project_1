@@ -1,280 +1,253 @@
-<!-- src/views/ManageStockView.vue -->
 <template>
-  <!-- Kontainer utama dengan jarak vertikal antar modul -->
   <div class="space-y-8">
-    
-    <!-- 1. Header Utama & Tombol Aksi -->
-    <div class="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-      <div class="min-w-0 flex-1">
-        <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">Manage Stock</h1>
-        <p class="mt-2 text-lg text-gray-600">
-          Lihat, filter, dan sesuaikan jumlah stok untuk semua item di semua unit.
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-6">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">Manage Stock</h1>
+        <p class="mt-2 text-base text-slate-500">
+          Lihat, filter, dan sesuaikan jumlah stok barang.
         </p>
       </div>
-      <div class="flex-shrink-0">
-        <!-- Tombol ini membuka modal untuk 'Item Baru' -->
-        <button 
-          type="button" 
-          @click="openAdjustModal(null)"
-          class="flex items-center rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
-        >
-          <PlusIcon class="-ml-1 mr-2 h-5 w-5" />
-          Tambah Entri Stok
-        </button>
+      <div class="hidden sm:flex flex-col items-end justify-center">
+        <div class="flex items-center gap-2 text-sm font-bold text-slate-700">
+          <CalendarDaysIcon class="h-4 w-4 text-slate-400" />
+          <span>{{ new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) }}</span>
+        </div>
+        <div class="flex items-center gap-1.5 mt-1">
+          <span class="relative flex h-1.5 w-1.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+          </span>
+          <span class="text-xs font-medium text-slate-500 tabular-nums tracking-wide">{{ currentTime }} WIB</span>
+        </div>
       </div>
     </div>
 
-    <!-- 2. Modul Filter dan Pencarian -->
-    <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5">
-      <h3 class="text-lg font-semibold leading-6 text-gray-900">Filter Stok</h3>
-      <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-6">
-        <!-- Input Pencarian -->
-        <div class="sm:col-span-3">
-          <label for="search_item" class="block text-sm font-medium leading-6 text-gray-900">Cari Nama Barang</label>
-          <div class="relative mt-2">
+    <div class="rounded-2xl bg-white p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] border border-slate-100">
+      
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+        
+        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2 whitespace-nowrap">
+          <ArchiveBoxIcon class="h-5 w-5 text-slate-400" />
+          Daftar Stok
+        </h2>
+
+        <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto items-center">
+          <div class="relative flex-1 sm:w-64 w-full">
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" />
+              <MagnifyingGlassIcon class="h-3.5 w-3.5 text-slate-400" />
             </div>
             <input 
               v-model="searchQuery"
               type="text" 
-              name="search_item" 
-              id="search_item"
-              class="block w-full rounded-md border-0 py-2.5 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm" 
-              placeholder="Ketik nama ATK..."
+              class="block w-full rounded-lg border-0 h-9 py-0 pl-10 text-slate-900 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 text-xs sm:leading-5 shadow-sm" 
+              placeholder="Cari nama barang..."
             />
           </div>
-        </div>
-        <!-- Filter berdasarkan Unit -->
-        <div class="sm:col-span-3">
-          <label for="filter_unit" class="block text-sm font-medium leading-6 text-gray-900">Filter Unit</label>
-          <div class="mt-2">
+          <div class="relative flex-1 sm:w-48 w-full">
             <select 
               v-model="selectedUnit"
-              id="filter_unit" 
-              name="filter_unit" 
-              class="block w-full rounded-md border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
+              class="block w-full rounded-lg border-0 h-9 py-0 pl-3 pr-8 text-slate-900 ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 text-xs sm:leading-5 shadow-sm cursor-pointer"
             >
               <option value="Semua Unit">Semua Unit</option>
               <option v-for="unit in uniqueUnits" :key="unit">{{ unit }}</option>
             </select>
           </div>
+          <button 
+            @click="openAdjustModal(null)"
+            class="inline-flex items-center justify-center rounded-lg bg-blue-600 h-9 px-4 text-xs font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95 whitespace-nowrap w-full sm:w-auto"
+          >
+            <PlusIcon class="mr-1.5 h-4 w-4" />
+            Tambah Stok
+          </button>
         </div>
       </div>
-    </div>
 
-    <!-- 
-      ======================================================================
-      PERBAIKAN DIMULAI DI SINI:
-      Saya meniru struktur card dan wrapper tabel dari file 'ManageUserView'
-      ======================================================================
-    -->
-    
-    <!-- 3. Tabel Daftar Stok Lengkap -->
-    <!-- SAYA TIRU: Menambahkan 'p-6' untuk padding card -->
-    <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-900/5">
-      <!-- SAYA TIRU: Menambahkan judul di dalam card -->
-      <h2 class="text-lg font-semibold leading-6 text-gray-900">Daftar Stok Lengkap</h2>
-
-      <!-- 
-        SAYA TIRU & PERBAIKI:
-        1. Menggunakan wrapper tabel yang sama persis ('mt-4 -mx-6 ...')
-        2. MENGGANTI 'overflow-hidden' menjadi 'overflow-x-auto'.
-           Ini adalah FIX UTAMA agar tabel bisa di-scroll horizontal
-           tanpa merusak layout sidebar.
-      -->
-      <div class="mt-4 -mx-6 overflow-x-auto shadow ring-1 ring-black ring-opacity-5 sm:-mx-6 md:mx-0 md:rounded-lg">
-        <table class="min-w-full divide-y divide-gray-300">
-          <thead class="bg-gray-50">
-            <tr>
-              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Nama Barang</th>
-              <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 lg:table-cell">Unit</th>
-              <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 md:table-cell">Kategori</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Stok Saat Ini</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-              <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6"><span class="sr-only">Aksi</span></th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 bg-white">
-            
-            <!-- Loop data stok yang sudah difilter -->
-            <tr v-for="item in filteredStock" :key="item.id" class="hover:bg-gray-50">
-              <td class="py-4 pl-4 pr-3 text-sm sm:pl-6">
-                <div class="font-medium text-gray-900">{{ item.name }}</div>
-                <div class="text-gray-500 lg:hidden">{{ item.unit }}</div> <!-- Tampilkan unit di mobile -->
-                <div class="text-gray-500 md:hidden">{{ item.kategori }}</div> <!-- Tampilkan kategori di mobile -->
-              </td>
-              <td class="hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">{{ item.unit }}</td>
-              <td class="hidden px-3 py-4 text-sm text-gray-500 md:table-cell">{{ item.kategori }}</td>
-              <td class="px-3 py-4 text-sm font-semibold text-gray-900">{{ item.stock }} Pcs</td>
-              <td class="px-3 py-4 text-sm text-gray-500">
-                <span 
-                  v-if="item.stock > item.threshold"
-                  class="inline-flex items-center rounded-full bg-green-100 px-3 py-0.5 text-xs font-medium text-green-800"
-                >
-                  Stok Aman
-                </span>
-                <span 
-                  v-else
-                  class="inline-flex items-center rounded-full bg-red-100 px-3 py-0.5 text-xs font-medium text-red-800"
-                >
-                  Stok Rendah
-                </span>
-              </td>
-              <td class="py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3">
-                <button 
-                  @click="openAdjustModal(item)"
-                  class="text-blue-600 hover:text-blue-800"
-                >
-                  Edit<span class="sr-only">, {{ item.name }}</span>
-                </button>
-                <!-- Tombol Hapus (DELETE) -->
-                <button 
-                  @click="handleDelete(item)"
-                  class="text-red-600 hover:text-red-800"
-                >
-                  Hapus<span class="sr-only">, {{ item.name }}</span>
-                </button>
-              </td>
-            </tr>
-            
-            <!-- Tampilan jika tidak ada hasil filter -->
-            <tr v-if="filteredStock.length === 0">
-              <td colspan="6" class="py-10 text-center text-sm text-gray-500">
-                Tidak ada barang yang cocok dengan pencarian Anda.
-              </td>
-            </tr>
-
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <!-- ======================================================================
-      PERBAIKAN SELESAI
-      ====================================================================== -->
-
-
-    <!-- 4. Modal Penyesuaian Stok (dan Tambah Stok Baru) -->
-    <!-- Logika modal ini sekarang menangani "Tambah" dan "Edit" -->
-    <div v-if="isModalOpen" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <!-- Backdrop -->
-      <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" @click="closeModal"></div>
-
-      <div class="fixed inset-0 z-10 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center">
-          
-          <!-- Panel Modal -->
-          <div class="relative transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-            <button @click="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-              <XMarkIcon class="h-6 w-6" />
-            </button>
-
-            <div>
-              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                <ArchiveBoxIcon class="h-6 w-6 text-blue-700" />
-              </div>
-              <div class="mt-3">
-                <h3 class="text-lg font-semibold leading-6 text-gray-900" id="modal-title">
-                  {{ isEditing ? 'Penyesuaian Stok' : 'Tambah Entri Stok Baru' }}
-                </h3>
-                <div class="mt-2">
-                  <!-- Tampilan untuk Mode EDIT -->
-                  <div v-if="isEditing">
-                    <p class="text-sm text-gray-700">Anda akan menyesuaikan stok untuk:</p>
-                    <p class="text-sm font-bold text-gray-900">{{ selectedItem.name }} ({{ selectedItem.unit }})</p>
-                    <p class="mt-1 text-sm text-gray-500">Stok saat ini: <span class="font-medium text-gray-800">{{ selectedItem.stock }} Pcs</span></p>
-                  </div>
-                  <!-- Tampilan untuk Mode TAMBAH BARU -->
-                  <div v-else>
-                    <p class="text-sm text-gray-500">Buat entri stok baru untuk sebuah item di unit tertentu.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Form Penyesuaian -->
-            <form @submit.prevent="handleStockAdjustment" class="mt-6 space-y-4">
+      <div class="overflow-hidden rounded-xl border border-slate-200">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500 sm:pl-6">Nama Barang</th>
+                <th scope="col" class="hidden px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500 lg:table-cell">Unit</th>
+                <th scope="col" class="hidden px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500 md:table-cell">Kategori</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Stok</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Status</th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6"><span class="sr-only">Aksi</span></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 bg-white">
               
-              <!-- Input Tambah Baru (hanya muncul saat mode 'Tambah Baru') -->
-              <template v-if="!isEditing">
-                <div>
-                  <label for="new_atk" class="block text-sm font-medium text-gray-700">Barang ATK</label>
-                  <select v-model="adjustmentForm.atkId" id="new_atk" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
-                    <option value="" disabled>Pilih Barang</option>
-                    <option v-for="atk in allATK" :key="atk.id" :value="atk.id">{{ atk.name }}</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="new_unit" class="block text-sm font-medium text-gray-700">Unit</label>
-                  <select v-model="adjustmentForm.unitId" id="new_unit" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
-                    <option value="" disabled>Pilih Unit</option>
-                    <option v-for="unit in allUnits" :key="unit.id" :value="unit.id">{{ unit.name }}</option>
-                  </select>
-                </div>
-              </template>
+              <tr v-if="filteredStock.length === 0">
+                <td colspan="6" class="py-12 text-center text-sm text-slate-500">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
+                      <ArchiveBoxIcon class="h-6 w-6 text-slate-300" />
+                    </div>
+                    <p>Tidak ada barang yang cocok.</p>
+                  </div>
+                </td>
+              </tr>
 
-              <!-- Input Edit (hanya muncul saat mode 'Edit') -->
-              <div v-if="isEditing">
-                <label for="adjustment_type" class="block text-sm font-medium text-gray-700">Jenis Penyesuaian</label>
-                <select v-model="adjustmentForm.type" id="adjustment_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
-                  <option value="tambah">Tambah Stok (Barang Masuk)</option>
-                  <option value="kurangi">Kurangi Stok (Barang Keluar)</option>
-                </select>
-              </div>
+              <tr v-for="item in filteredStock" :key="item.id" class="group hover:bg-slate-50/80 transition-colors">
+                
+                <td class="py-4 pl-4 pr-3 text-sm sm:pl-6">
+                  <div class="font-semibold text-slate-800">{{ item.name }}</div>
+                  <div class="text-xs text-slate-500 mt-0.5 lg:hidden">
+                    {{ item.unit }} <span class="mx-1">•</span> {{ item.kategori }}
+                  </div>
+                </td>
 
-              <div>
-                <label for="adjustment_qty" class="block text-sm font-medium text-gray-700">
-                  {{ isEditing ? 'Jumlah Penyesuaian (Pcs)' : 'Jumlah Stok Awal (Pcs)' }}
-                </label>
-                <input 
-                  v-model.number="adjustmentForm.qty"
-                  type="number" 
-                  id="adjustment_qty" 
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
-                  placeholder="0"
-                  min="0"
-                  required
-                />
-              </div>
+                <td class="hidden px-3 py-4 text-sm text-slate-500 lg:table-cell">{{ item.unit }}</td>
+                <td class="hidden px-3 py-4 text-sm text-slate-500 md:table-cell">{{ item.kategori }}</td>
 
-              <!-- Tombol Aksi Modal -->
-              <div class="mt-6 sm:flex sm:flex-row-reverse sm:gap-3">
-                <button 
-                  type="submit" 
-                  class="inline-flex w-full justify-center rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-800 sm:w-auto"
-                >
-                  {{ isEditing ? 'Simpan Penyesuaian' : 'Simpan Entri Baru' }}
-                </button>
-                <button 
-                  type="button" 
-                  @click="closeModal" 
-                  class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                >
-                  Batal
-                </button>
-              </div>
-            </form>
+                <td class="px-3 py-4 text-sm font-bold text-slate-700">
+                  {{ item.stock }} <span class="text-xs font-normal text-slate-400">Pcs</span>
+                </td>
 
-          </div>
+                <td class="px-3 py-4 text-sm">
+                  <span 
+                    class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
+                    :class="item.stock > item.threshold 
+                      ? 'bg-green-50 text-green-700 ring-green-600/20' 
+                      : 'bg-red-50 text-red-700 ring-red-600/20'"
+                  >
+                    {{ item.stock > item.threshold ? 'Aman' : 'Menipis' }}
+                  </span>
+                </td>
+
+                <td class="py-4 pl-3 pr-4 text-right text-xs font-medium sm:pr-6">
+                  <div class="flex items-center justify-end gap-2">
+                    <button 
+                      @click="openAdjustModal(item)" 
+                      class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-all font-semibold shadow-sm"
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      @click="handleDelete(item)" 
+                      class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition-all font-semibold shadow-sm"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
 
   </div>
+
+  <div v-if="isModalOpen" class="relative z-[60]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+      <div class="flex min-h-full items-center justify-center p-4 text-center">
+        <div class="relative transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg ring-1 ring-slate-900/5">
+          
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-3">
+              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                <ArchiveBoxIcon class="h-6 w-6" />
+              </div>
+              <h3 class="text-lg font-bold text-slate-900" id="modal-title">
+                {{ isEditing ? 'Penyesuaian Stok' : 'Tambah Entri Stok' }}
+              </h3>
+            </div>
+            <button @click="closeModal" class="text-slate-400 hover:text-slate-600 transition-colors">
+              <XMarkIcon class="h-6 w-6" />
+            </button>
+          </div>
+
+          <div class="mb-6">
+            <div v-if="isEditing" class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+              <p class="text-xs text-slate-500 uppercase font-bold tracking-wide mb-1">Item Terpilih</p>
+              <p class="text-sm font-bold text-slate-800">{{ selectedItem.name }}</p>
+              <p class="text-xs text-slate-500 mt-0.5">{{ selectedItem.unit }} • Saat ini: <span class="font-bold text-slate-700">{{ selectedItem.stock }} Pcs</span></p>
+            </div>
+            <p v-else class="text-sm text-slate-500">Buat entri stok baru untuk sebuah item di unit tertentu.</p>
+          </div>
+          
+          <form @submit.prevent="handleStockAdjustment" class="space-y-4">
+            
+            <template v-if="!isEditing">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Barang ATK</label>
+                <select v-model="adjustmentForm.atkId" class="block w-full rounded-lg border-slate-200 text-sm focus:border-blue-500 focus:ring-blue-500" required>
+                  <option value="" disabled>Pilih Barang</option>
+                  <option v-for="atk in allATK" :key="atk.id" :value="atk.id">{{ atk.name }}</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Unit</label>
+                <select v-model="adjustmentForm.unitId" class="block w-full rounded-lg border-slate-200 text-sm focus:border-blue-500 focus:ring-blue-500" required>
+                  <option value="" disabled>Pilih Unit</option>
+                  <option v-for="unit in allUnits" :key="unit.id" :value="unit.id">{{ unit.name }}</option>
+                </select>
+              </div>
+            </template>
+
+            <div v-if="isEditing">
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">Jenis Penyesuaian</label>
+              <select v-model="adjustmentForm.type" class="block w-full rounded-lg border-slate-200 text-sm focus:border-blue-500 focus:ring-blue-500">
+                <option value="tambah">Tambah Stok (Masuk)</option>
+                <option value="kurangi">Kurangi Stok (Keluar)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                {{ isEditing ? 'Jumlah Penyesuaian' : 'Stok Awal' }}
+              </label>
+              <input 
+                v-model.number="adjustmentForm.qty"
+                type="number" 
+                class="block w-full rounded-lg border-slate-200 text-sm focus:border-blue-500 focus:ring-blue-500" 
+                placeholder="0"
+                min="0"
+                required
+              />
+            </div>
+
+            <div class="flex gap-3 mt-6 pt-2">
+              <button 
+                type="button" 
+                @click="closeModal" 
+                class="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-all"
+              >
+                Batal
+              </button>
+              <button 
+                type="submit" 
+                class="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-all"
+              >
+                Simpan
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-// Impor ikon yang kita gunakan
-import {
-  MagnifyingGlassIcon,
-  PlusIcon,
-  ArchiveBoxIcon, // Untuk modal
-  XMarkIcon, // Untuk menutup modal
-} from '@heroicons/vue/24/outline';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { MagnifyingGlassIcon, PlusIcon, ArchiveBoxIcon, XMarkIcon, CalendarDaysIcon } from '@heroicons/vue/24/outline';
 
-// --- DATA SIMULASI (Mock Data) ---
-// Ini adalah daftar lengkap semua stok, tidak hanya yang rendah
+// --- TIME LOGIC ---
+const currentTime = ref('');
+let timeInterval = null;
+const updateTime = () => {
+  const now = new Date();
+  currentTime.value = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' }).replace(/\./g, ':');
+};
+onMounted(() => { updateTime(); timeInterval = setInterval(updateTime, 1000); });
+onUnmounted(() => { if (timeInterval) clearInterval(timeInterval); });
+
+// --- DATA SIMULASI ---
 const allStockItems = ref([
   { id: 1, name: 'Kertas A4 Sinar Dunia 80gr', sku: 'ATK-KRT-001', unit: 'UID Jatim', kategori: 'Kertas', stock: 5, threshold: 10, atkId: 2, unitId: 1 },
   { id: 2, name: 'Tinta Printer Epson 003 Black', sku: 'ATK-TNT-003', unit: 'UID Jatim', kategori: 'Tinta', stock: 8, threshold: 5, atkId: 3, unitId: 1 },
@@ -288,7 +261,6 @@ const allStockItems = ref([
   { id: 10, name: 'Kertas A4 Sinar Dunia 80gr', sku: 'ATK-KRT-001', unit: 'UID Jabar', kategori: 'Kertas', stock: 80, threshold: 20, atkId: 2, unitId: 2 },
 ]);
 
-// Data Master untuk form 'Tambah Baru'
 const allATK = ref([
   { id: 1, name: 'Pensil 2B Faber-Castell' },
   { id: 2, name: 'Kertas A4 Sinar Dunia 80gr' },
@@ -307,89 +279,53 @@ const allUnits = ref([
   { id: 3, name: 'UID Pusat' },
 ]);
 
-// --- LOGIKA FILTER ---
+// --- FILTER ---
 const searchQuery = ref('');
 const selectedUnit = ref('Semua Unit');
 
-// Mendapatkan daftar unit unik untuk dropdown filter
 const uniqueUnits = computed(() => {
   const units = allStockItems.value.map(item => item.unit);
-  return [...new Set(units)]; // Set() otomatis menghapus duplikat
+  return [...new Set(units)];
 });
 
-// Computed property untuk memfilter tabel secara real-time
 const filteredStock = computed(() => {
   return allStockItems.value.filter(item => {
-    // 1. Filter berdasarkan nama
     const nameMatch = item.name.toLowerCase().includes(searchQuery.value.toLowerCase());
-    
-    // 2. Filter berdasarkan unit
     const unitMatch = (selectedUnit.value === 'Semua Unit') || (item.unit === selectedUnit.value);
-    
     return nameMatch && unitMatch;
   });
 });
 
-
-// --- LOGIKA MODAL (Telah digabung) ---
+// --- MODAL LOGIC ---
 const isModalOpen = ref(false);
-const selectedItem = ref(null); // 'null' atau 'object'
-const isEditing = computed(() => !!selectedItem.value); // Cek apakah mode Edit
+const selectedItem = ref(null);
+const isEditing = computed(() => !!selectedItem.value);
 
-// Data untuk form di modal
-const adjustmentForm = ref({
-  type: 'tambah',
-  qty: 0,
-  atkId: '',
-  unitId: '',
-});
+const adjustmentForm = ref({ type: 'tambah', qty: 0, atkId: '', unitId: '' });
 
-// Fungsi untuk membuka modal
 const openAdjustModal = (item) => {
   if (item) {
-    // Mode Edit
     selectedItem.value = item;
-    adjustmentForm.value = {
-      type: 'tambah',
-      qty: 0,
-      atkId: item.atkId, // Data-data ini sudah ada
-      unitId: item.unitId, // Data-data ini sudah ada
-    };
+    adjustmentForm.value = { type: 'tambah', qty: 0, atkId: item.atkId, unitId: item.unitId };
   } else {
-    // Mode Tambah Baru
-    selectedItem.value = null; // Tidak ada item yang dipilih
-    adjustmentForm.value = {
-      type: 'tambah',
-      qty: 0,
-      atkId: '', // Kosongkan, user akan memilih
-      unitId: '', // Kosongkan, user akan memilih
-    };
+    selectedItem.value = null;
+    adjustmentForm.value = { type: 'tambah', qty: 0, atkId: '', unitId: '' };
   }
   isModalOpen.value = true;
 };
 
-// Fungsi untuk menutup modal
 const closeModal = () => {
   isModalOpen.value = false;
-  selectedItem.value = null; // Bersihkan item terpilih
+  selectedItem.value = null;
 };
 
-// Fungsi untuk memproses penyesuaian stok (CREATE / UPDATE)
 const handleStockAdjustment = () => {
   if (adjustmentForm.value.qty <= 0) {
-    // Pengecekan qty di 'Tambah' harus >= 0, di 'Edit' harus > 0
-    if (isEditing.value && adjustmentForm.value.qty <= 0) {
-      alert("Jumlah penyesuaian harus lebih besar dari 0.");
-      return;
-    }
-     if (!isEditing.value && adjustmentForm.value.qty < 0) {
-      alert("Jumlah stok awal tidak boleh minus.");
-      return;
-    }
+    alert("Jumlah harus lebih besar dari 0.");
+    return;
   }
 
   if (isEditing.value) {
-    // --- LOGIKA UPDATE ---
     const itemIndex = allStockItems.value.findIndex(item => item.id === selectedItem.value.id);
     if (itemIndex === -1) return;
 
@@ -397,64 +333,44 @@ const handleStockAdjustment = () => {
       allStockItems.value[itemIndex].stock += adjustmentForm.value.qty;
     } else {
       if (allStockItems.value[itemIndex].stock < adjustmentForm.value.qty) {
-        // PERBAIKAN: Menggunakan backtick (`) untuk template literal
-        alert(`Tidak bisa mengurangi stok. Stok saat ini (${allStockItems.value[itemIndex].stock}) lebih sedikit dari jumlah yang akan dikurangi (${adjustmentForm.value.qty}).`);
+        alert(`Stok tidak cukup. Saat ini: ${allStockItems.value[itemIndex].stock}`);
         return;
       }
       allStockItems.value[itemIndex].stock -= adjustmentForm.value.qty;
     }
-    console.log(`Stok ${allStockItems.value[itemIndex].name} disesuaikan. Stok baru: ${allStockItems.value[itemIndex].stock}`);
-
   } else {
-    // --- LOGIKA CREATE ---
     if (!adjustmentForm.value.atkId || !adjustmentForm.value.unitId) {
-      alert("Silakan pilih Barang ATK dan Unit.");
+      alert("Pilih Barang dan Unit.");
       return;
     }
-    
-    // Cek duplikat (atkId dan unitId yang sama tidak boleh ada)
-    const duplicate = allStockItems.value.find(item => 
-      item.atkId === adjustmentForm.value.atkId && 
-      item.unitId === adjustmentForm.value.unitId
-    );
+    const duplicate = allStockItems.value.find(item => item.atkId === adjustmentForm.value.atkId && item.unitId === adjustmentForm.value.unitId);
     if (duplicate) {
-      alert("Entri stok untuk barang dan unit tersebut sudah ada. Silakan edit entri yang ada.");
+      alert("Stok barang di unit ini sudah ada.");
       return;
     }
 
-    // Ambil detail nama dari master data
     const atk = allATK.value.find(a => a.id === adjustmentForm.value.atkId);
     const unit = allUnits.value.find(u => u.id === adjustmentForm.value.unitId);
     
     const newId = allStockItems.value.length > 0 ? Math.max(...allStockItems.value.map(i => i.id)) + 1 : 1;
-    const newEntry = {
+    allStockItems.value.push({
       id: newId,
       name: atk.name,
-      sku: `ATK-NEW-${newId}`, // Buat SKU dummy
+      sku: `ATK-NEW-${newId}`,
       unit: unit.name,
-      kategori: 'N/A', // Kategori bisa di-join dari master ATK
+      kategori: 'N/A',
       stock: adjustmentForm.value.qty,
-      threshold: 10, // Default threshold
+      threshold: 10,
       atkId: adjustmentForm.value.atkId,
       unitId: adjustmentForm.value.unitId,
-    };
-    
-    allStockItems.value.push(newEntry);
-    console.log(`Entri baru ditambahkan: ${newEntry.name}`);
+    });
   }
-  
-  // Tutup modal setelah berhasil
   closeModal();
 };
 
-// --- LOGIKA DELETE ---
 const handleDelete = (itemToDelete) => {
-  // PENTING: Menggunakan confirm() bawaan browser
-  // Di UI 10/10, ini seharusnya diganti modal konfirmasi yang cantik
-  if (confirm(`Apakah Anda yakin ingin menghapus entri stok untuk "${itemToDelete.name}" di "${itemToDelete.unit}"?`)) {
-    // Di API nyata: axios.delete(`/api/stock/${itemToDelete.id}`)
+  if (confirm(`Hapus stok "${itemToDelete.name}" di "${itemToDelete.unit}"?`)) {
     allStockItems.value = allStockItems.value.filter(item => item.id !== itemToDelete.id);
-    console.log(`Item ${itemToDelete.name} dihapus.`);
   }
 };
 </script>
