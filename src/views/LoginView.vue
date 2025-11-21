@@ -5,17 +5,29 @@
       <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl transition-all duration-300 hover:shadow-yellow-400/10">
         
         <div class="bg-blue-800 p-8 text-center border-b border-blue-700">
-          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-400 shadow-lg ring-4 ring-blue-700/50">
-            <BoltIcon class="h-10 w-10 text-blue-900 animate-pulse-subtle" />
+          
+          <div class="mx-auto relative flex h-14 w-14 items-center justify-center rounded-lg transition-all duration-300 hover:scale-105 overflow-hidden shadow-lg ring-4 ring-blue-700/50 bg-[#FFE600]">
+            <div class="absolute inset-0 flex items-center justify-center z-0">
+                 <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="opacity-90 scale-125">
+                    <path d="M2 5C6 2 8 8 12 5C16 2 18 8 22 5" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M2 10C6 7 8 13 12 10C16 7 18 13 22 10" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M2 15C6 12 8 18 12 15C16 12 18 18 22 15" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
+                 </svg>
+            </div>
+            <svg viewBox="0 0 26 24" fill="currentColor" class="h-7 w-9 text-[#E30613] z-10 relative -rotate-6 scale-110 drop-shadow-sm">
+              <path d="M13 1L6 13.6H13L8 24L19 11H11L17 1Z" />
+            </svg>
           </div>
-          <h2 class="mt-4 text-2xl font-bold tracking-tight text-white">
-            ATK Icon Plus
-          </h2>
-          <p class="mt-1 text-sm text-blue-100">
+
+          <div class="mt-4 flex flex-col items-center justify-center">
+            <span class="text-3xl font-extrabold leading-none tracking-tight text-white drop-shadow-sm">PLN</span>
+            <span class="text-sm font-bold text-yellow-400 -mt-0.5 tracking-wide">Icon Plus</span>
+          </div>
+
+          <p class="mt-2 text-sm font-medium text-blue-200">
             Sistem Manajemen Aset & Stok
           </p>
         </div>
-        
         <div class="p-8 pt-6">
           
           <form class="space-y-6" @submit.prevent="handleLogin">
@@ -23,7 +35,7 @@
             <div class="space-y-4">
               
               <div>
-                <label for="email" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Username / Email</label>
+                <label for="email" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Username</label>
                 <div class="relative group">
                   <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                     <EnvelopeIcon class="h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
@@ -110,7 +122,7 @@
     </Transition>
     
     <div class="mt-8 text-center text-xs text-blue-200/60">
-      &copy; 2024 ATK Icon Plus. All rights reserved.
+      &copy; 2025 PLN Icon Plus. All rights reserved.
     </div>
   </div>
 </template>
@@ -118,7 +130,8 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { BoltIcon, EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid';
+// BoltIcon dihapus karena tidak dipakai lagi
+import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid';
 
 // State
 const email = ref('');
@@ -136,13 +149,13 @@ const handleLogin = () => {
     // Logika Login (Admin)
     if (email.value === 'admin' && password.value === 'password') {
       localStorage.setItem('userLoggedIn', 'true');
-      localStorage.setItem('activeUser', 'Admin'); // <--- SIMPAN NAMA 'Admin'
+      localStorage.setItem('activeUser', 'Admin'); 
       router.push('/dashboard'); 
     } 
     // Logika Login (User Rezza)
     else if (email.value === 'rezza' && password.value === '123') {
       localStorage.setItem('userLoggedIn', 'true');
-      localStorage.setItem('activeUser', 'Rezza'); // <--- SIMPAN NAMA 'Rezza'
+      localStorage.setItem('activeUser', 'Rezza'); 
       router.push('/dashboard'); 
     } 
     // Login Gagal
@@ -167,22 +180,6 @@ const handleLogin = () => {
                     linear-gradient(90deg, rgba(0, 83, 155, 0.1) 1px, transparent 1px);
   background-size: 40px 40px;
   background-position: center center;
-}
-
-/* Animasi Pulse Logo */
-.animate-pulse-subtle {
-  animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse-subtle {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(0.95);
-  }
 }
 
 /* Animasi "Pop-in" Kartu */

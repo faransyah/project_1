@@ -52,7 +52,6 @@
         <div class="flex h-full items-center justify-between">
 
           <div class="flex shrink-0 items-center gap-3 cursor-pointer group" @click="router.push('/dashboard')">
-            
             <div 
               class="relative flex h-10 w-10 items-center justify-center rounded-md transition-all duration-300 group-hover:scale-105 overflow-hidden shadow-sm bg-[#FFE600]"
             >
@@ -71,13 +70,10 @@
                 <path d="M13 1L6 13.6H13L8 24L19 11H11L17 1Z" />
               </svg>
             </div>
-            
-
             <div class="flex flex-col items-start">
               <span class="text-xl font-extrabold leading-none tracking-tight text-[#009BDB]">PLN</span>
               <span class="text-[10px] font-semibold text-slate-600 -mt-0.5 tracking-wide">Icon Plus</span>
             </div>
-
           </div>
 
           <div 
