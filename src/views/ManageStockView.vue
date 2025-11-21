@@ -1,12 +1,58 @@
 <template>
+  <Transition name="toast-slide-top">
+    <div v-if="toast.show" class="fixed top-20 left-1/2 z-[100] w-full max-w-sm -translate-x-1/2 transform px-4">
+      <div class="flex items-center overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-xl ring-1 transition-all"
+        :class="{ 
+          'bg-white/95 text-slate-800 ring-slate-200': true, 
+          'border-l-4 border-green-500': toast.type === 'success', 
+          'border-l-4 border-red-500': toast.type === 'error' 
+        }">
+        <div class="flex-shrink-0">
+          <CheckCircleIcon v-if="toast.type === 'success'" class="h-6 w-6 text-green-500" />
+          <XCircleIcon v-if="toast.type === 'error'" class="h-6 w-6 text-red-500" />
+        </div>
+        <div class="ml-3 flex-1"><p class="text-sm font-semibold">{{ toast.message }}</p></div>
+        <button @click="toast.show = false" class="ml-4 flex-shrink-0 text-slate-400 hover:text-slate-600 transition-colors"><XMarkIcon class="h-5 w-5" /></button>
+      </div>
+    </div>
+  </Transition>
+
+  <div v-if="confirmModal.show" class="relative z-[60]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" @click="closeConfirmModal"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+      <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg ring-1 ring-slate-900/5">
+          <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 transition-colors" :class="confirmModal.iconBg">
+                <component :is="confirmModal.icon" class="h-6 w-6" :class="confirmModal.iconColor" />
+              </div>
+              <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                <h3 class="text-lg font-bold leading-6 text-slate-900" id="modal-title">{{ confirmModal.title }}</h3>
+                <div class="mt-2"><p class="text-sm text-slate-500 leading-relaxed">{{ confirmModal.message }}</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-slate-50/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3">
+            <button type="button" @click="onConfirm" class="inline-flex w-full justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:scale-[1.02] active:scale-95 sm:w-auto" :class="confirmModal.buttonClass">{{ confirmModal.buttonText }}</button>
+            <button type="button" @click="closeConfirmModal" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 transition-all sm:mt-0 sm:w-auto">Batal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="space-y-8">
+    
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-6">
+      
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">Manage Stock</h1>
         <p class="mt-2 text-base text-slate-500">
           Lihat, filter, dan sesuaikan jumlah stok barang.
         </p>
       </div>
+      
       <div class="hidden sm:flex flex-col items-end justify-center">
         <div class="flex items-center gap-2 text-sm font-bold text-slate-700">
           <CalendarDaysIcon class="h-4 w-4 text-slate-400" />
@@ -32,6 +78,7 @@
         </h2>
 
         <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto items-center">
+          
           <div class="relative flex-1 sm:w-64 w-full">
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <MagnifyingGlassIcon class="h-3.5 w-3.5 text-slate-400" />
@@ -39,19 +86,21 @@
             <input 
               v-model="searchQuery"
               type="text" 
-              class="block w-full rounded-lg border-0 h-9 py-0 pl-10 text-slate-900 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 text-xs sm:leading-5 shadow-sm" 
+              class="block w-full rounded-lg border-0 h-9 py-0 pl-10 text-slate-900 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 text-xs font-medium sm:leading-5 shadow-sm" 
               placeholder="Cari nama barang..."
             />
           </div>
+
           <div class="relative flex-1 sm:w-48 w-full">
             <select 
               v-model="selectedUnit"
-              class="block w-full rounded-lg border-0 h-9 py-0 pl-3 pr-8 text-slate-900 ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 text-xs sm:leading-5 shadow-sm cursor-pointer"
+              class="block w-full rounded-lg border-0 h-9 py-0 pl-3 pr-8 text-slate-900 ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 text-xs font-medium sm:leading-5 shadow-sm cursor-pointer"
             >
               <option value="Semua Unit">Semua Unit</option>
               <option v-for="unit in uniqueUnits" :key="unit">{{ unit }}</option>
             </select>
           </div>
+
           <button 
             @click="openAdjustModal(null)"
             class="inline-flex items-center justify-center rounded-lg bg-blue-600 h-9 px-4 text-xs font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95 whitespace-nowrap w-full sm:w-auto"
@@ -234,8 +283,37 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { MagnifyingGlassIcon, PlusIcon, ArchiveBoxIcon, XMarkIcon, CalendarDaysIcon } from '@heroicons/vue/24/outline';
+import { ref, computed, onMounted, onUnmounted, shallowRef } from 'vue';
+// Import Icons termasuk NoSymbolIcon untuk delete modal
+import { 
+  MagnifyingGlassIcon, PlusIcon, ArchiveBoxIcon, XMarkIcon, CalendarDaysIcon, 
+  CheckCircleIcon, XCircleIcon, NoSymbolIcon, QuestionMarkCircleIcon 
+} from '@heroicons/vue/24/outline';
+
+// --- TOAST LOGIC ---
+const toast = ref({ show: false, message: '', type: 'success' });
+let toastTimeout = null;
+const triggerToast = (message, type = 'success') => {
+  if (toastTimeout) clearTimeout(toastTimeout); 
+  toast.value.message = message; toast.value.type = type; toast.value.show = true;
+  toastTimeout = setTimeout(() => { toast.value.show = false; }, 3000);
+};
+
+// --- CONFIRM MODAL LOGIC ---
+const confirmModal = ref({ 
+  show: false, title: '', message: '', buttonText: '', buttonClass: '', icon: null, iconBg: '', iconColor: '', onConfirmAction: () => {} 
+});
+
+const openConfirmModal = ({ title, message, buttonText, buttonClass, icon, iconBg, iconColor, onConfirm }) => {
+  confirmModal.value = { show: true, title, message, buttonText, buttonClass, icon: shallowRef(icon), iconBg, iconColor, onConfirmAction: onConfirm };
+};
+
+const closeConfirmModal = () => { confirmModal.value.show = false; };
+
+const onConfirm = () => { 
+  if (typeof confirmModal.value.onConfirmAction === 'function') { confirmModal.value.onConfirmAction(); } 
+  closeConfirmModal(); 
+};
 
 // --- TIME LOGIC ---
 const currentTime = ref('');
@@ -247,7 +325,7 @@ const updateTime = () => {
 onMounted(() => { updateTime(); timeInterval = setInterval(updateTime, 1000); });
 onUnmounted(() => { if (timeInterval) clearInterval(timeInterval); });
 
-// --- DATA SIMULASI ---
+// --- DATA & FILTER ---
 const allStockItems = ref([
   { id: 1, name: 'Kertas A4 Sinar Dunia 80gr', sku: 'ATK-KRT-001', unit: 'UID Jatim', kategori: 'Kertas', stock: 5, threshold: 10, atkId: 2, unitId: 1 },
   { id: 2, name: 'Tinta Printer Epson 003 Black', sku: 'ATK-TNT-003', unit: 'UID Jatim', kategori: 'Tinta', stock: 8, threshold: 5, atkId: 3, unitId: 1 },
@@ -260,47 +338,22 @@ const allStockItems = ref([
   { id: 9, name: 'Stabilo Boss Kuning', sku: 'ATK-ATS-009', unit: 'UID Pusat', kategori: 'Alat Tulis', stock: 40, threshold: 15, atkId: 9, unitId: 3 },
   { id: 10, name: 'Kertas A4 Sinar Dunia 80gr', sku: 'ATK-KRT-001', unit: 'UID Jabar', kategori: 'Kertas', stock: 80, threshold: 20, atkId: 2, unitId: 2 },
 ]);
+const allATK = ref([{ id: 1, name: 'Pensil 2B' }, { id: 2, name: 'Kertas A4' }, { id: 3, name: 'Tinta Epson' }, { id: 4, name: 'Spidol' }, { id: 5, name: 'Baterai' }, { id: 6, name: 'Map' }, { id: 7, name: 'Buku Tulis' }, { id: 8, name: 'Toner HP' }, { id: 9, name: 'Stabilo' }]);
+const allUnits = ref([{ id: 1, name: 'UID Jatim' }, { id: 2, name: 'UID Jabar' }, { id: 3, name: 'UID Pusat' }]);
 
-const allATK = ref([
-  { id: 1, name: 'Pensil 2B Faber-Castell' },
-  { id: 2, name: 'Kertas A4 Sinar Dunia 80gr' },
-  { id: 3, name: 'Tinta Printer Epson 003 Black' },
-  { id: 4, name: 'Spidol Boardmarker Hitam' },
-  { id: 5, name: 'Baterai ABC AA (Isi 4)' },
-  { id: 6, name: 'Map Snelhecter Biru' },
-  { id: 7, name: 'Buku Tulis Sinar Dunia (Isi 50)' },
-  { id: 8, name: 'Toner Printer HP 85A' },
-  { id: 9, name: 'Stabilo Boss Kuning' },
-]);
-
-const allUnits = ref([
-  { id: 1, name: 'UID Jatim' },
-  { id: 2, name: 'UID Jabar' },
-  { id: 3, name: 'UID Pusat' },
-]);
-
-// --- FILTER ---
 const searchQuery = ref('');
 const selectedUnit = ref('Semua Unit');
-
-const uniqueUnits = computed(() => {
-  const units = allStockItems.value.map(item => item.unit);
-  return [...new Set(units)];
-});
-
-const filteredStock = computed(() => {
-  return allStockItems.value.filter(item => {
-    const nameMatch = item.name.toLowerCase().includes(searchQuery.value.toLowerCase());
-    const unitMatch = (selectedUnit.value === 'Semua Unit') || (item.unit === selectedUnit.value);
-    return nameMatch && unitMatch;
-  });
-});
+const uniqueUnits = computed(() => [...new Set(allStockItems.value.map(item => item.unit))]);
+const filteredStock = computed(() => allStockItems.value.filter(item => {
+  const nameMatch = item.name.toLowerCase().includes(searchQuery.value.toLowerCase());
+  const unitMatch = (selectedUnit.value === 'Semua Unit') || (item.unit === selectedUnit.value);
+  return nameMatch && unitMatch;
+}));
 
 // --- MODAL LOGIC ---
 const isModalOpen = ref(false);
 const selectedItem = ref(null);
 const isEditing = computed(() => !!selectedItem.value);
-
 const adjustmentForm = ref({ type: 'tambah', qty: 0, atkId: '', unitId: '' });
 
 const openAdjustModal = (item) => {
@@ -313,64 +366,67 @@ const openAdjustModal = (item) => {
   }
   isModalOpen.value = true;
 };
-
-const closeModal = () => {
-  isModalOpen.value = false;
-  selectedItem.value = null;
-};
+const closeModal = () => { isModalOpen.value = false; selectedItem.value = null; };
 
 const handleStockAdjustment = () => {
   if (adjustmentForm.value.qty <= 0) {
-    alert("Jumlah harus lebih besar dari 0.");
+    // Gunakan triggerToast error daripada alert bawaan untuk konsistensi
+    triggerToast("Jumlah harus lebih besar dari 0.", 'error');
     return;
   }
 
   if (isEditing.value) {
     const itemIndex = allStockItems.value.findIndex(item => item.id === selectedItem.value.id);
     if (itemIndex === -1) return;
-
     if (adjustmentForm.value.type === 'tambah') {
-      allStockItems.value[itemIndex].stock += adjustmentForm.value.qty;
+        allStockItems.value[itemIndex].stock += adjustmentForm.value.qty;
     } else {
-      if (allStockItems.value[itemIndex].stock < adjustmentForm.value.qty) {
-        alert(`Stok tidak cukup. Saat ini: ${allStockItems.value[itemIndex].stock}`);
-        return;
+      if (allStockItems.value[itemIndex].stock < adjustmentForm.value.qty) { 
+        triggerToast(`Stok tidak cukup. Saat ini: ${allStockItems.value[itemIndex].stock}`, 'error'); 
+        return; 
       }
       allStockItems.value[itemIndex].stock -= adjustmentForm.value.qty;
     }
+    triggerToast('Stok berhasil diperbarui.', 'success');
   } else {
-    if (!adjustmentForm.value.atkId || !adjustmentForm.value.unitId) {
-      alert("Pilih Barang dan Unit.");
-      return;
+    if (!adjustmentForm.value.atkId || !adjustmentForm.value.unitId) { 
+        triggerToast("Pilih Barang dan Unit.", 'error'); 
+        return; 
     }
     const duplicate = allStockItems.value.find(item => item.atkId === adjustmentForm.value.atkId && item.unitId === adjustmentForm.value.unitId);
-    if (duplicate) {
-      alert("Stok barang di unit ini sudah ada.");
-      return;
+    if (duplicate) { 
+        triggerToast("Stok barang di unit ini sudah ada.", 'error'); 
+        return; 
     }
-
     const atk = allATK.value.find(a => a.id === adjustmentForm.value.atkId);
     const unit = allUnits.value.find(u => u.id === adjustmentForm.value.unitId);
-    
     const newId = allStockItems.value.length > 0 ? Math.max(...allStockItems.value.map(i => i.id)) + 1 : 1;
-    allStockItems.value.push({
-      id: newId,
-      name: atk.name,
-      sku: `ATK-NEW-${newId}`,
-      unit: unit.name,
-      kategori: 'N/A',
-      stock: adjustmentForm.value.qty,
-      threshold: 10,
-      atkId: adjustmentForm.value.atkId,
-      unitId: adjustmentForm.value.unitId,
-    });
+    allStockItems.value.push({ id: newId, name: atk.name, sku: `ATK-NEW-${newId}`, unit: unit.name, kategori: 'N/A', stock: adjustmentForm.value.qty, threshold: 10, atkId: adjustmentForm.value.atkId, unitId: adjustmentForm.value.unitId });
+    triggerToast('Entri stok baru berhasil ditambahkan.', 'success');
   }
   closeModal();
 };
 
 const handleDelete = (itemToDelete) => {
-  if (confirm(`Hapus stok "${itemToDelete.name}" di "${itemToDelete.unit}"?`)) {
-    allStockItems.value = allStockItems.value.filter(item => item.id !== itemToDelete.id);
-  }
+  // Panggil Modal Konfirmasi Kustom
+  openConfirmModal({
+    title: 'Hapus Stok',
+    message: `Apakah Anda yakin ingin menghapus stok "${itemToDelete.name}" di "${itemToDelete.unit}"? Data yang dihapus tidak dapat dikembalikan.`,
+    buttonText: 'Hapus',
+    buttonClass: 'bg-red-600 hover:bg-red-700 focus-visible:outline-red-600',
+    icon: NoSymbolIcon,
+    iconBg: 'bg-red-100',
+    iconColor: 'text-red-600',
+    onConfirm: () => {
+      allStockItems.value = allStockItems.value.filter(item => item.id !== itemToDelete.id);
+      triggerToast('Entri stok berhasil dihapus.', 'error');
+    }
+  });
 };
 </script>
+
+<style scoped>
+.toast-slide-top-enter-active{ transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.toast-slide-top-leave-active { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.toast-slide-top-enter-from, .toast-slide-top-leave-to { opacity: 0; transform: translateY(-20px) translateX(-50%); }
+</style>

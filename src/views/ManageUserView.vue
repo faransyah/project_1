@@ -1,5 +1,49 @@
 <template>
-  <div class="space-y-8">    
+  <Transition name="toast-slide-top">
+    <div v-if="toast.show" class="fixed top-20 left-1/2 z-[100] w-full max-w-sm -translate-x-1/2 transform px-4">
+      <div class="flex items-center overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-xl ring-1 transition-all"
+        :class="{ 
+          'bg-white/95 text-slate-800 ring-slate-200': true, 
+          'border-l-4 border-green-500': toast.type === 'success', 
+          'border-l-4 border-red-500': toast.type === 'error' 
+        }">
+        <div class="flex-shrink-0">
+          <CheckCircleIcon v-if="toast.type === 'success'" class="h-6 w-6 text-green-500" />
+          <XCircleIcon v-if="toast.type === 'error'" class="h-6 w-6 text-red-500" />
+        </div>
+        <div class="ml-3 flex-1"><p class="text-sm font-semibold">{{ toast.message }}</p></div>
+        <button @click="toast.show = false" class="ml-4 flex-shrink-0 text-slate-400 hover:text-slate-600 transition-colors"><XMarkIcon class="h-5 w-5" /></button>
+      </div>
+    </div>
+  </Transition>
+
+  <div v-if="confirmModal.show" class="relative z-[60]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" @click="closeConfirmModal"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+      <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg ring-1 ring-slate-900/5">
+          <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 transition-colors" :class="confirmModal.iconBg">
+                <component :is="confirmModal.icon" class="h-6 w-6" :class="confirmModal.iconColor" />
+              </div>
+              <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                <h3 class="text-lg font-bold leading-6 text-slate-900" id="modal-title">{{ confirmModal.title }}</h3>
+                <div class="mt-2"><p class="text-sm text-slate-500 leading-relaxed">{{ confirmModal.message }}</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-slate-50/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3">
+            <button type="button" @click="onConfirm" class="inline-flex w-full justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:scale-[1.02] active:scale-95 sm:w-auto" :class="confirmModal.buttonClass">{{ confirmModal.buttonText }}</button>
+            <button type="button" @click="closeConfirmModal" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 transition-all sm:mt-0 sm:w-auto">Batal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-8"> 
+    
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-6">
       
       <div>
@@ -122,12 +166,73 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-// Import Icon yang dibutuhkan untuk UI baru
-import { PlusIcon, CalendarDaysIcon, UserGroupIcon, UserIcon } from '@heroicons/vue/24/outline';
+import { ref, onMounted, onUnmounted, shallowRef } from 'vue';
+// Import Icon tambahan (CheckCircle, XCircle, NoSymbol, dll) untuk Toast & Modal
+import { 
+  PlusIcon, 
+  CalendarDaysIcon, 
+  UserGroupIcon, 
+  UserIcon, 
+  CheckCircleIcon, 
+  XCircleIcon, 
+  XMarkIcon, 
+  NoSymbolIcon 
+} from '@heroicons/vue/24/outline';
 import UserFormModal from '../components/UserFormModal.vue';
 
-// --- LOGIKA JAM REAL-TIME (Agar header berfungsi) ---
+// --- TOAST LOGIC (Notifikasi Popup) ---
+const toast = ref({ show: false, message: '', type: 'success' });
+let toastTimeout = null;
+
+const triggerToast = (message, type = 'success') => {
+  if (toastTimeout) clearTimeout(toastTimeout); 
+  
+  toast.value.message = message;
+  toast.value.type = type;
+  toast.value.show = true;
+
+  toastTimeout = setTimeout(() => {
+    toast.value.show = false;
+  }, 3000); // Durasi tampil 3 detik
+};
+
+// --- CONFIRM MODAL LOGIC (Pengganti window.confirm) ---
+const confirmModal = ref({ 
+  show: false, 
+  title: '', 
+  message: '', 
+  buttonText: '', 
+  buttonClass: '', 
+  icon: null, 
+  iconBg: '', 
+  iconColor: '', 
+  onConfirmAction: () => {} 
+});
+
+const openConfirmModal = ({ title, message, buttonText, buttonClass, icon, iconBg, iconColor, onConfirm }) => {
+  confirmModal.value = { 
+    show: true, 
+    title, 
+    message, 
+    buttonText, 
+    buttonClass, 
+    icon: shallowRef(icon), 
+    iconBg, 
+    iconColor, 
+    onConfirmAction: onConfirm 
+  };
+};
+
+const closeConfirmModal = () => { confirmModal.value.show = false; };
+
+const onConfirm = () => { 
+  if (typeof confirmModal.value.onConfirmAction === 'function') { 
+    confirmModal.value.onConfirmAction(); 
+  } 
+  closeConfirmModal(); 
+};
+
+// --- LOGIKA JAM REAL-TIME ---
 const currentTime = ref('');
 let timeInterval = null;
 
@@ -150,7 +255,6 @@ onMounted(() => {
 onUnmounted(() => {
   if (timeInterval) clearInterval(timeInterval);
 });
-// ----------------------------------------------------
 
 // --- DATABASE SIMULASI ---
 const users = ref([
@@ -187,18 +291,42 @@ const handleSave = (userFromModal) => {
     if (index !== -1) {
       users.value[index] = { ...users.value[index], ...userFromModal };
     }
+    // Trigger Toast Berhasil Update
+    triggerToast('Data user berhasil diperbarui.', 'success');
   } else {
     // --- CREATE ---
     const newId = users.value.length > 0 ? Math.max(...users.value.map(u => u.id)) + 1 : 1;
     users.value.push({ ...userFromModal, id: newId });
+    // Trigger Toast Berhasil Tambah
+    triggerToast('User baru berhasil ditambahkan.', 'success');
   }
   closeModal();
 };
 
 // Delete
 const handleDelete = (userId) => {
-  if (confirm('Apakah Anda yakin ingin menghapus user ini?')) {
-    users.value = users.value.filter(u => u.id !== userId);
-  }
+  // Ganti confirm() biasa dengan Custom Modal
+  openConfirmModal({
+    title: 'Hapus User',
+    message: 'Apakah Anda yakin ingin menghapus user ini? Data yang dihapus tidak dapat dikembalikan.',
+    buttonText: 'Hapus',
+    buttonClass: 'bg-red-600 hover:bg-red-700 focus-visible:outline-red-600',
+    icon: NoSymbolIcon,
+    iconBg: 'bg-red-100',
+    iconColor: 'text-red-600',
+    onConfirm: () => {
+      // Logic Hapus
+      users.value = users.value.filter(u => u.id !== userId);
+      // Trigger Toast Berhasil Hapus
+      triggerToast('User berhasil dihapus.', 'error'); 
+    }
+  });
 };
 </script>
+
+<style scoped>
+/* Animasi Toast */
+.toast-slide-top-enter-active{ transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.toast-slide-top-leave-active { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.toast-slide-top-enter-from, .toast-slide-top-leave-to { opacity: 0; transform: translateY(-20px) translateX(-50%); }
+</style>
