@@ -81,21 +81,24 @@
           </div>
 
           <div 
-            class="hidden md:flex items-center gap-1.5 p-1.5 rounded-full border transition-all duration-500"
+            class="hidden md:flex items-center gap-1 p-1.5 rounded-full border transition-all duration-500"
             :class="isScrolled ? 'bg-slate-100/80 border-slate-200/50 shadow-inner' : 'bg-transparent border-transparent'"
           >
-            <RouterLink
-              v-for="item in navigation"
-              :key="item.name"
-              :to="item.href"
-              class="relative rounded-full px-5 py-2 text-xs font-bold transition-all duration-300 flex items-center gap-2"
-              :class="isActive(item.href) 
-                ? 'bg-[#009BDB] text-white shadow-md shadow-cyan-500/20 ring-1 ring-black/10 scale-105' 
-                : 'text-slate-500 hover:text-[#009BDB] hover:bg-white/50'"
-            >
-              <component :is="item.icon" class="h-4 w-4" :class="isActive(item.href) ? 'text-white' : 'text-slate-400 group-hover:text-[#009BDB]'" />
-              {{ item.name }}
-            </RouterLink>
+            <template v-for="(item, index) in navigation" :key="item.name">
+              
+              <RouterLink
+                :to="item.href"
+                class="relative rounded-full px-6 py-2 text-xs font-bold transition-all duration-300 flex items-center justify-center"
+                :class="isActive(item.href) 
+                  ? 'bg-[#009BDB] text-white shadow-md shadow-cyan-500/20 ring-1 ring-black/10 scale-105' 
+                  : 'text-slate-500 hover:text-[#009BDB] hover:bg-white/50'"
+              >
+                {{ item.name }}
+              </RouterLink>
+
+              <div v-if="index < navigation.length - 1" class="h-4 w-px bg-slate-300/50 mx-1"></div>
+
+            </template>
           </div>
 
           <div class="flex items-center gap-5">
@@ -124,7 +127,7 @@
       </div>
     </nav>
 
-    <main class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-28 pb-12">
+    <main class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 pb-12">
       <div class="min-h-[600px]">
         <router-view v-slot="{ Component }">
            <component :is="Component" />
@@ -141,11 +144,6 @@ import { useRouter, useRoute, RouterLink } from 'vue-router';
 
 // Import Icons
 import {
-  HomeIcon,
-  UsersIcon,
-  BuildingOfficeIcon,
-  ClipboardDocumentListIcon,
-  ArchiveBoxIcon,
   ArrowRightOnRectangleIcon,
   UserIcon
 } from '@heroicons/vue/24/outline'; // BoltIcon (outline)
@@ -174,11 +172,11 @@ watch(
 
 // --- Data Menu ---
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Users', href: '/manage-users', icon: UsersIcon },
-  { name: 'Units', href: '/manage-units', icon: BuildingOfficeIcon },
-  { name: 'Master ATK', href: '/master-atk', icon: ClipboardDocumentListIcon },
-  { name: 'Stock', href: '/manage-stock', icon: ArchiveBoxIcon }
+  { name: 'Dashboard', href: '/dashboard' },
+  { name: 'Users', href: '/manage-users' },
+  { name: 'Units', href: '/manage-units' },
+  { name: 'Master ATK', href: '/master-atk' },
+  { name: 'Stock', href: '/manage-stock' }
 ];
 
 // --- State User ---
