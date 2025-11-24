@@ -1,4 +1,5 @@
 <template>
+  <!-- TOAST NOTIFICATION -->
   <Transition name="toast-slide-top">
     <div v-if="toast.show" class="fixed top-20 left-1/2 z-[100] w-full max-w-sm -translate-x-1/2 transform px-4">
       <div class="flex items-center overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-xl ring-1 transition-all"
@@ -17,6 +18,7 @@
     </div>
   </Transition>
 
+  <!-- CONFIRM DELETE MODAL -->
   <div v-if="confirmModal.show" class="relative z-[60]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" @click="closeConfirmModal"></div>
     <div class="fixed inset-0 z-10 overflow-y-auto">
@@ -42,12 +44,15 @@
     </div>
   </div>
   
+  <!-- MAIN CONTENT -->
   <div class="space-y-8">
+    
+    <!-- HEADER -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-6">
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">Master Data ATK</h1>
         <p class="mt-2 text-base text-slate-500">
-          Kelola semua jenis barang ATK yang tersedia di sistem.
+          Kelola katalog barang ATK (Alat Tulis Kantor) yang tersedia di sistem.
         </p>
       </div>
       <div class="hidden sm:flex flex-col items-end justify-center">
@@ -65,22 +70,43 @@
       </div>
     </div>
 
+    <!-- CARD CONTAINER -->
     <div class="rounded-2xl bg-white p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] border border-slate-100">
       
-      <div class="flex items-center justify-between mb-6">
+      <!-- TOOLBAR: TITLE, SEARCH, ADD BUTTON -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
           <ClipboardDocumentListIcon class="h-5 w-5 text-slate-400" />
           Daftar ATK
         </h2>
-        <button 
-          @click="openModal(null)"
-          class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95"
-        >
-          <PlusIcon class="mr-1.5 h-4 w-4" />
-          Tambah ATK
-        </button>
+
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <!-- SEARCH INPUT -->
+          <div class="relative w-full sm:w-64">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon class="h-4 w-4 text-slate-400" />
+            </div>
+            <input 
+              v-model="searchQuery"
+              @input="handleSearch"
+              type="text" 
+              class="block w-full rounded-lg border-0 py-2 pl-10 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 transition-shadow" 
+              placeholder="Cari nama barang..."
+            >
+          </div>
+
+          <!-- ADD BUTTON -->
+          <button 
+            @click="openModal(null)"
+            class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95 whitespace-nowrap"
+          >
+            <PlusIcon class="mr-1.5 h-4 w-4" />
+            Tambah ATK
+          </button>
+        </div>
       </div>
 
+      <!-- TABLE -->
       <div class="overflow-hidden rounded-xl border border-slate-200">
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
@@ -91,18 +117,22 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200 bg-white">
-            <tr v-if="items.length === 0">
+            
+            <!-- EMPTY STATE -->
+            <tr v-if="filteredItems.length === 0">
               <td colspan="3" class="py-12 text-center text-sm text-slate-500">
                 <div class="flex flex-col items-center justify-center">
                   <div class="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
                     <ClipboardDocumentListIcon class="h-6 w-6 text-slate-300" />
                   </div>
-                  <p>Belum ada data ATK.</p>
+                  <p v-if="searchQuery">Tidak ada ATK yang cocok dengan "<strong>{{ searchQuery }}</strong>"</p>
+                  <p v-else>Belum ada data ATK.</p>
                 </div>
               </td>
             </tr>
 
-            <tr v-for="item in items" :key="item.id" class="group hover:bg-slate-50/80 transition-colors">
+            <!-- DATA ROWS -->
+            <tr v-for="item in paginatedItems" :key="item.id" class="group hover:bg-slate-50/80 transition-colors">
               <td class="py-4 pl-4 pr-3 text-sm font-semibold text-slate-800 sm:pl-6">
                 {{ item.name }}
               </td>
@@ -130,6 +160,37 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- PAGINATION FOOTER -->
+        <div v-if="filteredItems.length > 0" class="flex items-center justify-between border-t border-slate-200 bg-slate-50/50 px-4 py-3 sm:px-6">
+          <div class="flex flex-1 justify-between sm:hidden">
+            <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50">Previous</button>
+            <button @click="currentPage < totalPages ? currentPage++ : null" :disabled="currentPage === totalPages" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50">Next</button>
+          </div>
+          <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm text-slate-700">
+                Menampilkan <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> sampai <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, filteredItems.length) }}</span> dari <span class="font-medium">{{ filteredItems.length }}</span> hasil
+              </p>
+            </div>
+            <div>
+              <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50">
+                  <span class="sr-only">Previous</span>
+                  <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
+                </button>
+                <span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-900 ring-1 ring-inset ring-slate-300 focus:outline-offset-0 bg-white">
+                  Hal {{ currentPage }} / {{ totalPages }}
+                </span>
+                <button @click="currentPage < totalPages ? currentPage++ : null" :disabled="currentPage === totalPages" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50">
+                  <span class="sr-only">Next</span>
+                  <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -143,9 +204,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, shallowRef } from 'vue';
-// Import Icons
-import { PlusIcon, CalendarDaysIcon, ClipboardDocumentListIcon, CheckCircleIcon, XCircleIcon, XMarkIcon, NoSymbolIcon, QuestionMarkCircleIcon } from '@heroicons/vue/24/outline';
+import { ref, computed, onMounted, onUnmounted, shallowRef } from 'vue';
+import { 
+  PlusIcon, CalendarDaysIcon, ClipboardDocumentListIcon, 
+  CheckCircleIcon, XCircleIcon, XMarkIcon, NoSymbolIcon, 
+  MagnifyingGlassIcon, ChevronLeftIcon, ChevronRightIcon 
+} from '@heroicons/vue/24/outline';
 import ATKFormModal from '../components/ATKFormModal.vue';
 
 // --- TOAST LOGIC ---
@@ -175,7 +239,7 @@ const updateTime = () => {
 onMounted(() => { updateTime(); timeInterval = setInterval(updateTime, 1000); });
 onUnmounted(() => { if (timeInterval) clearInterval(timeInterval); });
 
-// --- DATABASE SIMULASI ---
+// --- DATABASE SIMULASI (30 DATA) ---
 const items = ref([
   { id: 1, name: 'Pensil 2B Faber-Castell', category: 'Alat Tulis' },
   { id: 2, name: 'Kertas A4 Sinar Dunia 80gr', category: 'Kertas & Dokumen' },
@@ -186,9 +250,52 @@ const items = ref([
   { id: 7, name: 'Stopmap Kertas Warna Biru', category: 'Kertas & Dokumen' },
   { id: 8, name: 'Stiker Label A4 103', category: 'Kertas & Dokumen' },
   { id: 9, name: 'Toner HP 12A LaserJet', category: 'Tinta & Toner' },
-  { id: 10, name: 'Lakban Bening 2 Inch', category: 'Perlengkapan Kantor' },
+  { id: 10, name: 'Lakban Bening 2 Inch', category: 'Lain-lain' },
+  { id: 11, name: 'Buku Tulis Sinar Dunia 38 Lembar', category: 'Alat Tulis' },
+  { id: 12, name: 'Penghapus Karet Staedtler', category: 'Alat Tulis' },
+  { id: 13, name: 'Penggaris Besi 30cm', category: 'Alat Tulis' },
+  { id: 14, name: 'Gunting Besar Joyko', category: 'Lain-lain' },
+  { id: 15, name: 'Cutter Kenko Besar', category: 'Lain-lain' },
+  { id: 16, name: 'Isi Staples No. 10', category: 'Lain-lain' },
+  { id: 17, name: 'Stapler HD-10 Max', category: 'Lain-lain' },
+  { id: 18, name: 'Klip Kertas Trigonal No. 3', category: 'Lain-lain' },
+  { id: 19, name: 'Binder Clip 260 (51mm)', category: 'Lain-lain' },
+  { id: 20, name: 'Post-it Notes 3x3 Kuning', category: 'Kertas & Dokumen' },
+  { id: 21, name: 'Amplop Coklat Tali Folio', category: 'Kertas & Dokumen' },
+  { id: 22, name: 'Amplop Putih Panjang (90)', category: 'Kertas & Dokumen' },
+  { id: 23, name: 'Lem Stick Glukol', category: 'Lain-lain' },
+  { id: 24, name: 'Double Tape 1 Inch', category: 'Lain-lain' },
+  { id: 25, name: 'Tinta Printer Epson 003 Cyan', category: 'Tinta & Toner' },
+  { id: 26, name: 'Tinta Printer Epson 003 Magenta', category: 'Tinta & Toner' },
+  { id: 27, name: 'Tinta Printer Epson 003 Yellow', category: 'Tinta & Toner' },
+  { id: 28, name: 'Spidol Permanent Hitam', category: 'Alat Tulis' },
+  { id: 29, name: 'Box File Bindex', category: 'Kertas & Dokumen' },
+  { id: 30, name: 'Ordner Bantex Biru', category: 'Kertas & Dokumen' },
 ]);
 
+// --- SEARCH & PAGINATION LOGIC ---
+const searchQuery = ref('');
+const currentPage = ref(1);
+const itemsPerPage = 10;
+
+const filteredItems = computed(() => {
+  return items.value.filter(item => 
+    item.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
+const paginatedItems = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredItems.value.slice(start, end);
+});
+
+const totalPages = computed(() => Math.ceil(filteredItems.value.length / itemsPerPage));
+
+const handleSearch = () => { currentPage.value = 1; };
+
+// --- MODAL & ACTIONS ---
 const showModal = ref(false);
 const selectedItem = ref(null); 
 
@@ -203,16 +310,23 @@ const closeModal = () => {
 };
 
 const handleSave = (item) => {
-  if (item.id) {
-    const index = items.value.findIndex(i => i.id === item.id);
-    if (index !== -1) items.value[index] = item;
-    triggerToast('Data ATK berhasil diperbarui.', 'success');
-  } else {
-    const newId = items.value.length > 0 ? Math.max(...items.value.map(i => i.id)) + 1 : 1;
-    items.value.push({ ...item, id: newId });
-    triggerToast('ATK baru berhasil ditambahkan.', 'success');
+  // Simulasi error acak (opsional) atau validasi bisa ditaruh di sini
+  try {
+    if (item.id) {
+      // UPDATE
+      const index = items.value.findIndex(i => i.id === item.id);
+      if (index !== -1) items.value[index] = item;
+      triggerToast('Data ATK berhasil diperbarui.', 'success'); // IJO
+    } else {
+      // CREATE
+      const newId = items.value.length > 0 ? Math.max(...items.value.map(i => i.id)) + 1 : 1;
+      items.value.push({ ...item, id: newId });
+      triggerToast('ATK baru berhasil ditambahkan.', 'success'); // IJO
+    }
+    closeModal();
+  } catch (error) {
+    triggerToast('Gagal menyimpan data ATK.', 'error'); // MERAH
   }
-  closeModal();
 };
 
 const handleDelete = (itemId) => {
@@ -225,8 +339,18 @@ const handleDelete = (itemId) => {
     iconBg: 'bg-red-100',
     iconColor: 'text-red-600',
     onConfirm: () => {
-      items.value = items.value.filter(i => i.id !== itemId);
-      triggerToast('ATK berhasil dihapus.', 'error');
+      try {
+        items.value = items.value.filter(i => i.id !== itemId);
+        
+        // Cek halaman kosong setelah hapus
+        if (paginatedItems.value.length === 0 && currentPage.value > 1) {
+          currentPage.value--;
+        }
+
+        triggerToast('ATK berhasil dihapus.', 'success'); // IJO
+      } catch (error) {
+        triggerToast('Gagal menghapus ATK.', 'error'); // MERAH
+      }
     }
   });
 };

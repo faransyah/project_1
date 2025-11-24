@@ -36,7 +36,7 @@ const performAutoLogout = () => {
   // Menggunakan Backticks (`) agar bisa memasukkan variabel ${TIMEOUT_MINUTES}
   alert(`Sesi Anda telah berakhir karena tidak ada aktivitas selama ${TIMEOUT_MINUTES} menit.`);
 
-  router.push('/'); 
+  router.push('/login'); 
 };
 
 onMounted(() => {

@@ -1,4 +1,5 @@
 <template>
+  <!-- TOAST NOTIFICATION -->
   <Transition name="toast-slide-top">
     <div v-if="toast.show" class="fixed top-20 left-1/2 z-[100] w-full max-w-sm -translate-x-1/2 transform px-4">
       <div class="flex items-center overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-xl ring-1 transition-all"
@@ -17,6 +18,7 @@
     </div>
   </Transition>
 
+  <!-- CONFIRM DELETE MODAL -->
   <div v-if="confirmModal.show" class="relative z-[60]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" @click="closeConfirmModal"></div>
     <div class="fixed inset-0 z-10 overflow-y-auto">
@@ -28,7 +30,7 @@
                 <component :is="confirmModal.icon" class="h-6 w-6" :class="confirmModal.iconColor" />
               </div>
               <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                <h3 class="text-lg font-bold leading-6 text-slate-900">{{ confirmModal.title }}</h3>
+                <h3 class="text-lg font-bold leading-6 text-slate-900" id="modal-title">{{ confirmModal.title }}</h3>
                 <div class="mt-2"><p class="text-sm text-slate-500 leading-relaxed">{{ confirmModal.message }}</p></div>
               </div>
             </div>
@@ -41,74 +43,17 @@
       </div>
     </div>
   </div>
-
-  <Transition name="modal-fade">
-    <div v-if="showModal" class="relative z-[70]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
-
-      <div class="fixed inset-0 z-10 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-          <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-100">
-            
-            <div class="bg-white px-4 py-4 sm:px-6 border-b border-slate-100 flex justify-between items-center">
-              <h3 class="text-lg font-bold leading-6 text-slate-800">
-                {{ formState.id ? 'Edit User' : 'Tambah User Baru' }}
-              </h3>
-              <button @click="closeModal" class="text-slate-400 hover:text-slate-500">
-                <XMarkIcon class="h-6 w-6" />
-              </button>
-            </div>
-
-            <form @submit.prevent="saveUser">
-              <div class="px-4 py-6 sm:px-6 space-y-5">
-                <div>
-                  <label class="block text-sm font-medium leading-6 text-slate-700">Nama Lengkap</label>
-                  <input type="text" v-model="formState.name" required class="mt-2 block w-full rounded-md border-0 py-2.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 px-3" placeholder="Masukkan nama...">
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium leading-6 text-slate-700">Email</label>
-                  <input type="email" v-model="formState.email" required class="mt-2 block w-full rounded-md border-0 py-2.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 px-3" placeholder="contoh@email.com">
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium leading-6 text-slate-700">Peran (Role)</label>
-                  <select v-model="formState.role" class="mt-2 block w-full rounded-md border-0 py-2.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 px-3">
-                    <option value="User">User</option>
-                    <option value="Admin">Admin</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium leading-6 text-slate-700">
-                    Password <span v-if="formState.id" class="text-slate-400 font-normal text-xs">(Biarkan kosong jika tidak diubah)</span>
-                  </label>
-                  <input type="password" v-model="formState.password" :required="!formState.id" class="mt-2 block w-full rounded-md border-0 py-2.5 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6 px-3" placeholder="••••••••">
-                </div>
-              </div>
-
-              <div class="bg-slate-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-2 border-t border-slate-100">
-                <button type="submit" class="inline-flex w-full justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:w-auto transition-colors">
-                  {{ formState.id ? 'Simpan Perubahan' : 'Tambah User' }}
-                </button>
-                <button type="button" @click="closeModal" class="mt-3 inline-flex w-full justify-center rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto transition-colors">
-                  Batal
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Transition>
-
-
-  <div class="space-y-8"> 
+  
+  <!-- MAIN CONTENT -->
+  <div class="space-y-8">
     
+    <!-- HEADER -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-6">
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">Manage Users</h1>
-        <p class="mt-2 text-base text-slate-500">Kelola pengguna yang dapat mengakses sistem.</p>
+        <p class="mt-2 text-base text-slate-500">
+          Kelola pengguna yang dapat mengakses sistem (Admin & User).
+        </p>
       </div>
       <div class="hidden sm:flex flex-col items-end justify-center">
         <div class="flex items-center gap-2 text-sm font-bold text-slate-700">
@@ -125,8 +70,10 @@
       </div>
     </div>
 
+    <!-- CARD CONTAINER -->
     <div class="rounded-2xl bg-white p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] border border-slate-100">
       
+      <!-- TOOLBAR -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
           <UserGroupIcon class="h-5 w-5 text-slate-400" />
@@ -134,6 +81,7 @@
         </h2>
 
         <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <!-- SEARCH -->
           <div class="relative w-full sm:w-64">
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <MagnifyingGlassIcon class="h-4 w-4 text-slate-400" />
@@ -147,6 +95,7 @@
             >
           </div>
 
+          <!-- ADD BUTTON -->
           <button 
             @click="openModal(null)"
             class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 active:scale-95 whitespace-nowrap"
@@ -157,6 +106,7 @@
         </div>
       </div>
 
+      <!-- TABLE -->
       <div class="overflow-hidden rounded-xl border border-slate-200">
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
@@ -211,6 +161,7 @@
           </tbody>
         </table>
 
+        <!-- PAGINATION -->
         <div v-if="filteredUsers.length > 0" class="flex items-center justify-between border-t border-slate-200 bg-slate-50/50 px-4 py-3 sm:px-6">
           <div class="flex flex-1 justify-between sm:hidden">
             <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50">Previous</button>
@@ -239,19 +190,58 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
+
+  <!-- USER FORM MODAL -->
+  <UserFormModal
+    :show="showModal"
+    :user-to-edit="selectedUser"
+    @close="closeModal"
+    @save="handleSave"
+  />
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, shallowRef } from 'vue';
 import { 
-  PlusIcon, CalendarDaysIcon, UserGroupIcon, UserIcon, CheckCircleIcon, XCircleIcon, XMarkIcon, NoSymbolIcon,
+  PlusIcon, CalendarDaysIcon, UserGroupIcon, UserIcon, 
+  CheckCircleIcon, XCircleIcon, XMarkIcon, NoSymbolIcon,
   MagnifyingGlassIcon, ChevronLeftIcon, ChevronRightIcon 
 } from '@heroicons/vue/24/outline';
 
-// --- STATE: DATABASE USER (DUMMY) ---
+import UserFormModal from '../components/UserFormModal.vue';
+
+// --- TOAST LOGIC ---
+const toast = ref({ show: false, message: '', type: 'success' });
+let toastTimeout = null;
+const triggerToast = (message, type = 'success') => {
+  if (toastTimeout) clearTimeout(toastTimeout); 
+  toast.value.message = message; toast.value.type = type; toast.value.show = true;
+  toastTimeout = setTimeout(() => { toast.value.show = false; }, 3000);
+};
+
+// --- CONFIRM MODAL LOGIC ---
+const confirmModal = ref({ show: false, title: '', message: '', buttonText: '', buttonClass: '', icon: null, iconBg: '', iconColor: '', onConfirmAction: () => {} });
+const openConfirmModal = ({ title, message, buttonText, buttonClass, icon, iconBg, iconColor, onConfirm }) => {
+  confirmModal.value = { show: true, title, message, buttonText, buttonClass, icon: shallowRef(icon), iconBg, iconColor, onConfirmAction: onConfirm };
+};
+const closeConfirmModal = () => { confirmModal.value.show = false; };
+const onConfirm = () => { if (typeof confirmModal.value.onConfirmAction === 'function') { confirmModal.value.onConfirmAction(); } closeConfirmModal(); };
+
+// --- TIME LOGIC ---
+const currentTime = ref('');
+let timeInterval = null;
+const updateTime = () => {
+  const now = new Date();
+  currentTime.value = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' }).replace(/\./g, ':');
+};
+onMounted(() => { updateTime(); timeInterval = setInterval(updateTime, 1000); });
+onUnmounted(() => { if (timeInterval) clearInterval(timeInterval); });
+
+// --- DATABASE SIMULASI ---
 const users = ref([
   { id: 1, name: 'Admin Utama', email: 'admin@pln.co.id', role: 'Admin', password: 'password-admin' },
   { id: 2, name: 'Budi Santoso', email: 'budi.jatim@pln.co.id', role: 'User', password: 'password-budi' },
@@ -267,10 +257,10 @@ const users = ref([
   { id: 12, name: 'Lukman Hakim', email: 'lukman.kalbar@pln.co.id', role: 'Admin', password: 'password-lukman' },
 ]);
 
-// --- LOGIC: SEARCH & PAGINATION ---
+// --- SEARCH & PAGINATION LOGIC ---
 const searchQuery = ref('');
 const currentPage = ref(1);
-const itemsPerPage = 5;
+const itemsPerPage = 10;
 
 const filteredUsers = computed(() => {
   return users.value.filter(user => {
@@ -292,106 +282,84 @@ const totalPages = computed(() => Math.ceil(filteredUsers.value.length / itemsPe
 
 const handleSearch = () => { currentPage.value = 1; };
 
-// --- LOGIC: MODAL FORM (GABUNGAN) ---
+// --- MODAL & ACTIONS ---
 const showModal = ref(false);
+const selectedUser = ref(null); 
 
-// State untuk inputan Form
-const formState = ref({
-  id: null,
-  name: '',
-  email: '',
-  role: 'User',
-  password: ''
-});
-
-// Buka Modal (Bisa untuk Add atau Edit)
 const openModal = (user) => {
-  if (user) {
-    // Mode EDIT: Isi form dengan data user yg diklik
-    formState.value = { ...user, password: '' }; // Kosongkan password biar aman
-  } else {
-    // Mode ADD: Reset form jadi kosong
-    formState.value = { id: null, name: '', email: '', role: 'User', password: '' };
-  }
+  selectedUser.value = user ? { ...user } : null;
   showModal.value = true;
 };
 
-// Tutup Modal
-const closeModal = () => { showModal.value = false; };
-
-// Simpan Data (Create / Update)
-const saveUser = () => {
-  if (formState.value.id) {
-    // UPDATE
-    const index = users.value.findIndex(u => u.id === formState.value.id);
-    if (index !== -1) {
-      users.value[index] = { ...users.value[index], ...formState.value };
-    }
-    triggerToast('Data user berhasil diperbarui.', 'success');
-  } else {
-    // CREATE
-    const newId = users.value.length > 0 ? Math.max(...users.value.map(u => u.id)) + 1 : 1;
-    users.value.push({ ...formState.value, id: newId });
-    triggerToast('User baru berhasil ditambahkan.', 'success');
-  }
-  closeModal();
+const closeModal = () => {
+  showModal.value = false;
+  selectedUser.value = null;
 };
 
-// --- LOGIC: DELETE ---
+// HANDLE SAVE
+const handleSave = (userData) => {
+  try {
+    if (userData.id) {
+      // UPDATE
+      const index = users.value.findIndex(u => u.id === userData.id);
+      if (index !== -1) {
+        const finalData = { ...userData };
+        // Jika password kosong, gunakan password lama
+        // (Jika UserFormModal mengirimkan password, itu berarti sudah diubah oleh user)
+        if (!finalData.password) {
+           finalData.password = users.value[index].password;
+        }
+        users.value[index] = finalData;
+        triggerToast('Data user berhasil diperbarui.', 'success'); // Hijau
+      } else {
+        throw new Error('User not found');
+      }
+    } else {
+      // CREATE
+      const newId = users.value.length > 0 ? Math.max(...users.value.map(u => u.id)) + 1 : 1;
+      users.value.push({ ...userData, id: newId });
+      triggerToast('User baru berhasil ditambahkan.', 'success'); // Hijau
+    }
+    closeModal();
+  } catch (error) {
+    triggerToast('Gagal menyimpan data user.', 'error'); // Merah
+  }
+};
+
+// HANDLE DELETE
 const handleDelete = (userId) => {
   openConfirmModal({
     title: 'Hapus User',
     message: 'Apakah Anda yakin ingin menghapus user ini? Data yang dihapus tidak dapat dikembalikan.',
     buttonText: 'Hapus',
-    buttonClass: 'bg-red-600 hover:bg-red-700',
+    buttonClass: 'bg-red-600 hover:bg-red-700 focus-visible:outline-red-600',
     icon: NoSymbolIcon,
     iconBg: 'bg-red-100',
     iconColor: 'text-red-600',
     onConfirm: () => {
-      users.value = users.value.filter(u => u.id !== userId);
-      if (paginatedUsers.value.length === 0 && currentPage.value > 1) {
-        currentPage.value--;
+      try {
+        // 1. Eksekusi Hapus
+        users.value = users.value.filter(u => u.id !== userId);
+        
+        // 2. Cek Pagination
+        if (paginatedUsers.value.length === 0 && currentPage.value > 1) {
+          currentPage.value--;
+        }
+
+        // 3. SUKSES -> Hijau
+        triggerToast('User berhasil dihapus.', 'success');
+        
+      } catch (error) {
+        // 4. GAGAL -> Merah
+        triggerToast('Gagal menghapus user.', 'error');
       }
-      triggerToast('User berhasil dihapus.', 'error'); 
     }
   });
 };
-
-// --- UTILITIES: TOAST, CONFIRM & CLOCK ---
-const toast = ref({ show: false, message: '', type: 'success' });
-let toastTimeout = null;
-const triggerToast = (message, type = 'success') => {
-  if (toastTimeout) clearTimeout(toastTimeout);
-  toast.value = { show: true, message, type };
-  toastTimeout = setTimeout(() => { toast.value.show = false; }, 3000);
-};
-
-const confirmModal = ref({ show: false, title: '', message: '', onConfirmAction: () => {} });
-const openConfirmModal = (config) => { 
-  confirmModal.value = { show: true, ...config, onConfirmAction: config.onConfirm }; 
-};
-const closeConfirmModal = () => { confirmModal.value.show = false; };
-const onConfirm = () => { confirmModal.value.onConfirmAction(); closeConfirmModal(); };
-
-const currentTime = ref('');
-let timeInterval = null;
-onMounted(() => {
-  const updateTime = () => {
-    currentTime.value = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/\./g, ':');
-  };
-  updateTime();
-  timeInterval = setInterval(updateTime, 1000);
-});
-onUnmounted(() => { if (timeInterval) clearInterval(timeInterval); });
 </script>
 
 <style scoped>
-/* Animasi Toast */
 .toast-slide-top-enter-active{ transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .toast-slide-top-leave-active { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 .toast-slide-top-enter-from, .toast-slide-top-leave-to { opacity: 0; transform: translateY(-20px) translateX(-50%); }
-
-/* Animasi Modal Fade */
-.modal-fade-enter-active, .modal-fade-leave-active { transition: opacity 0.2s ease; }
-.modal-fade-enter-from, .modal-fade-leave-to { opacity: 0; }
 </style>

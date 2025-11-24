@@ -1,4 +1,3 @@
-<!-- src/components/UnitFormModal.vue -->
 <template>
   <!-- Overlay -->
   <div v-if="show" @click="onClose" class="fixed inset-0 z-40 bg-gray-900 bg-opacity-75 transition-opacity"></div>
@@ -72,7 +71,16 @@
           <button type="button" @click="onClose" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
             Batal
           </button>
-          <button type="submit" class="rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-800">
+          
+          <!-- TOMBOL SIMPAN -->
+          <button 
+            type="submit" 
+            :disabled="!isModified"
+            class="rounded-md px-3 py-2 text-sm font-semibold shadow-sm transition-all flex items-center"
+            :class="!isModified 
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+              : 'bg-blue-700 text-white hover:bg-blue-800'"
+          >
             Simpan
           </button>
         </div>
@@ -83,33 +91,47 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
-// Impor ikon untuk form
 import { 
   BuildingOfficeIcon,
   MapPinIcon,
-  XMarkIcon,
+  XMarkIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
   show: Boolean,
-  unitToEdit: Object, // 'null' atau 'object'
+  unitToEdit: Object, 
 });
 
 const emit = defineEmits(['close', 'save']);
 
 // State lokal untuk form
 const localUnit = ref({});
+// Simpan data asli untuk perbandingan
+const originalUnit = ref({});
+
 const isEditing = computed(() => !!localUnit.value.id);
 
-// 'watch' untuk menyalin props ke state lokal saat modal dibuka
+// Computed Property: Mengecek apakah ada perubahan
+const isModified = computed(() => {
+  // Mode TAMBAH: Tombol selalu nyala (return true)
+  if (!isEditing.value) return true;
+
+  // Mode EDIT: Cek apakah field berbeda dari data asli
+  return localUnit.value.name !== originalUnit.value.name || 
+         localUnit.value.location !== originalUnit.value.location;
+});
+
+// Watcher
 watch(() => props.show, (newVal) => {
   if (newVal) {
     if (props.unitToEdit) {
-      // Mode Edit: Salin data
+      // Mode Edit: Salin data ke form DAN simpan data asli
       localUnit.value = { ...props.unitToEdit };
+      originalUnit.value = { ...props.unitToEdit };
     } else {
       // Mode Tambah: Reset form
       localUnit.value = { name: '', location: '' };
+      originalUnit.value = {};
     }
   }
 });
@@ -119,7 +141,6 @@ const onClose = () => {
 };
 
 const onSave = () => {
-  // Kirim data 'localUnit' kembali ke parent (ManageUnitView)
   emit('save', localUnit.value);
 };
 </script>

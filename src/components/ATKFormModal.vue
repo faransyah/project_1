@@ -1,4 +1,3 @@
-<!-- src/components/ATKFormModal.vue -->
 <template>
   <!-- Overlay -->
   <div v-if="show" @click="onClose" class="fixed inset-0 z-40 bg-gray-900 bg-opacity-75 transition-opacity"></div>
@@ -21,7 +20,7 @@
               Masukkan detail untuk master barang ATK.
             </p>
           </div>
-          <button @click="onClose" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+          <button @click="onClose" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
             <XMarkIcon class="h-6 w-6" />
           </button>
         </div>
@@ -72,10 +71,19 @@
         
         <!-- Footer Modal -->
         <div class="flex justify-end space-x-3 border-t border-gray-200 bg-gray-50 p-6 rounded-b-2xl">
-          <button type="button" @click="onClose" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+          <button type="button" @click="onClose" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors">
             Batal
           </button>
-          <button type="submit" class="rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-800">
+          
+          <!-- TOMBOL SIMPAN (Dimodifikasi: Disabled jika tidak ada perubahan) -->
+          <button 
+            type="submit" 
+            :disabled="!isModified"
+            class="rounded-md px-3 py-2 text-sm font-semibold shadow-sm transition-all"
+            :class="!isModified 
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+              : 'bg-blue-700 text-white hover:bg-blue-800'"
+          >
             Simpan
           </button>
         </div>
@@ -86,7 +94,6 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue';
-// Impor ikon untuk form
 import { 
   ClipboardDocumentListIcon,
   PencilIcon,
@@ -102,15 +109,31 @@ const props = defineProps({
 const emit = defineEmits(['close', 'save']);
 
 const localItem = ref({});
+// Simpan data asli untuk validasi perubahan
+const originalItem = ref({});
+
 const isEditing = computed(() => !!localItem.value.id);
+
+// Validasi: Tombol mati jika tidak ada perubahan
+const isModified = computed(() => {
+  // Mode TAMBAH: Selalu true (nyala)
+  if (!isEditing.value) return true;
+
+  // Mode EDIT: Cek perbedaan field
+  return localItem.value.name !== originalItem.value.name || 
+         localItem.value.category !== originalItem.value.category;
+});
 
 watch(() => props.show, (newVal) => {
   if (newVal) {
     if (props.itemToEdit) {
+      // Edit: Salin data ke localItem DAN originalItem
       localItem.value = { ...props.itemToEdit };
+      originalItem.value = { ...props.itemToEdit };
     } else {
-      // Default ke kategori paling umum
+      // Tambah: Default ke kategori paling umum
       localItem.value = { name: '', category: 'Alat Tulis' };
+      originalItem.value = {};
     }
   }
 });

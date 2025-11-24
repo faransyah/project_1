@@ -1,4 +1,3 @@
-<!-- src/components/StockFormModal.vue -->
 <template>
   <!-- Overlay -->
   <div v-if="show" @click="onClose" class="fixed inset-0 z-40 bg-gray-900 bg-opacity-75 transition-opacity"></div>
@@ -116,10 +115,19 @@
         
         <!-- Footer Modal -->
         <div class="flex justify-end space-x-3 border-t border-gray-200 bg-gray-50 p-6 rounded-b-2xl">
-          <button type="button" @click="onClose" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+          <button type="button" @click="onClose" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors">
             Batal
           </button>
-          <button type="submit" class="rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-800">
+          
+          <!-- TOMBOL SIMPAN (VALIDASI) -->
+          <button 
+            type="submit" 
+            :disabled="!isModified"
+            class="rounded-md px-3 py-2 text-sm font-semibold shadow-sm transition-all"
+            :class="!isModified 
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+              : 'bg-blue-700 text-white hover:bg-blue-800'"
+          >
             Simpan
           </button>
         </div>
@@ -147,15 +155,45 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'save']);
 
+// State lokal untuk form
 const localEntry = ref({});
+// Simpan data asli untuk validasi edit
+const originalEntry = ref({});
+
 const isEditing = computed(() => !!localEntry.value.id);
+
+// Computed Property: Cek apakah form valid dan berubah
+const isModified = computed(() => {
+  // 1. Validasi Wajib: ATK dan Unit harus dipilih, Harga & Stok tidak boleh minus
+  if (!localEntry.value.atkId || !localEntry.value.unitId) return false;
+  if (localEntry.value.price < 0 || localEntry.value.stock < 0) return false;
+
+  // 2. Jika Mode TAMBAH: Tombol nyala asal validasi di atas lolos
+  if (!isEditing.value) return true;
+
+  // 3. Jika Mode EDIT: Cek apakah ada perubahan field dari data asli
+  return localEntry.value.atkId !== originalEntry.value.atkId ||
+         localEntry.value.unitId !== originalEntry.value.unitId ||
+         localEntry.value.price !== originalEntry.value.price ||
+         localEntry.value.stock !== originalEntry.value.stock;
+});
 
 watch(() => props.show, (newVal) => {
   if (newVal) {
     if (props.stockToEdit) {
-      localEntry.value = { ...props.stockToEdit };
+      // Mode Edit: Clone data ke local dan original
+      // Pastikan field yang mungkin kosong diberikan nilai default agar form tidak null
+      const data = { 
+        ...props.stockToEdit,
+        price: props.stockToEdit.price ?? 0, // Default 0 jika undefined
+        stock: props.stockToEdit.stock ?? 0  // Default 0 jika undefined
+      };
+      localEntry.value = { ...data };
+      originalEntry.value = { ...data };
     } else {
+      // Mode Tambah: Reset form
       localEntry.value = { atkId: '', unitId: '', price: 0, stock: 0 };
+      originalEntry.value = {};
     }
   }
 });
@@ -165,11 +203,6 @@ const onClose = () => {
 };
 
 const onSave = () => {
-  // Validasi sederhana
-  if (localEntry.value.price < 0 || localEntry.value.stock < 0) {
-    alert("Harga dan Stok tidak boleh minus.");
-    return;
-  }
   emit('save', localEntry.value);
 };
 </script>

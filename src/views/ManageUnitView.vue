@@ -1,4 +1,5 @@
 <template>
+  <!-- TOAST NOTIFICATION -->
   <Transition name="toast-slide-top">
     <div v-if="toast.show" class="fixed top-20 left-1/2 z-[100] w-full max-w-sm -translate-x-1/2 transform px-4">
       <div class="flex items-center overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-xl ring-1 transition-all"
@@ -17,6 +18,7 @@
     </div>
   </Transition>
 
+  <!-- CONFIRM DELETE MODAL -->
   <div v-if="confirmModal.show" class="relative z-[60]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" @click="closeConfirmModal"></div>
     <div class="fixed inset-0 z-10 overflow-y-auto">
@@ -42,8 +44,10 @@
     </div>
   </div>
 
+  <!-- MAIN CONTENT -->
   <div class="space-y-8">
     
+    <!-- HEADER -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-6">
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">Manage Units</h1>
@@ -68,8 +72,10 @@
       </div>
     </div>
 
+    <!-- CARD CONTAINER -->
     <div class="rounded-2xl bg-white p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] border border-slate-100">
       
+      <!-- TOOLBAR: TITLE, SEARCH, ADD BUTTON -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
           <BuildingOfficeIcon class="h-5 w-5 text-slate-400" />
@@ -77,6 +83,7 @@
         </h2>
 
         <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <!-- SEARCH INPUT -->
           <div class="relative w-full sm:w-64">
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <MagnifyingGlassIcon class="h-4 w-4 text-slate-400" />
@@ -90,6 +97,7 @@
             >
           </div>
 
+          <!-- ADD BUTTON -->
           <button 
             @click="openModal(null)"
             class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95 whitespace-nowrap"
@@ -100,6 +108,7 @@
         </div>
       </div>
 
+      <!-- TABLE -->
       <div class="overflow-hidden rounded-xl border border-slate-200">
         <table class="min-w-full divide-y divide-slate-200">
           <thead class="bg-slate-50">
@@ -111,6 +120,7 @@
           </thead>
           <tbody class="divide-y divide-slate-200 bg-white">
             
+            <!-- EMPTY STATE -->
             <tr v-if="filteredUnits.length === 0">
               <td colspan="3" class="py-12 text-center text-sm text-slate-500">
                 <div class="flex flex-col items-center justify-center">
@@ -123,6 +133,7 @@
               </td>
             </tr>
 
+            <!-- DATA ROWS -->
             <tr v-for="unit in paginatedUnits" :key="unit.id" class="group hover:bg-slate-50/80 transition-colors">
               <td class="py-4 pl-4 pr-3 text-sm font-semibold text-slate-800 sm:pl-6">
                 {{ unit.name }}
@@ -153,6 +164,7 @@
           </tbody>
         </table>
 
+        <!-- PAGINATION FOOTER -->
         <div v-if="filteredUnits.length > 0" class="flex items-center justify-between border-t border-slate-200 bg-slate-50/50 px-4 py-3 sm:px-6">
           <div class="flex flex-1 justify-between sm:hidden">
             <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50">Previous</button>
@@ -186,6 +198,7 @@
     </div>
   </div>
 
+  <!-- UNIT FORM MODAL -->
   <UnitFormModal
     :show="showModal"
     :unit-to-edit="selectedUnit"
@@ -196,13 +209,14 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, shallowRef } from 'vue';
-// Import Icons (Added MagnifyingGlass, ChevronLeft, ChevronRight)
+// Import Icons
 import { 
   PlusIcon, CalendarDaysIcon, BuildingOfficeIcon, MapPinIcon, 
   CheckCircleIcon, XCircleIcon, XMarkIcon, NoSymbolIcon, 
   MagnifyingGlassIcon, ChevronLeftIcon, ChevronRightIcon 
 } from '@heroicons/vue/24/outline';
 
+// Import Component Modal
 import UnitFormModal from '../components/UnitFormModal.vue';
 
 // --- TOAST LOGIC ---
@@ -298,28 +312,55 @@ const showModal = ref(false);
 const selectedUnit = ref(null); 
 
 const openModal = (unit) => {
+  // Saat Edit, data 'unit' akan disalin ke 'selectedUnit'
+  // 'UnitFormModal' akan menggunakan 'watch' untuk mengisi form
   selectedUnit.value = unit ? { ...unit } : null;
   showModal.value = true;
 };
 
 const closeModal = () => {
   showModal.value = false;
-  selectedUnit.value = null;
+  selectedUnit.value = null; 
 };
 
+// HANDLE SAVE (CREATE & UPDATE)
 const handleSave = (unit) => {
-  if (unit.id) {
-    const index = units.value.findIndex(u => u.id === unit.id);
-    if (index !== -1) units.value[index] = unit;
-    triggerToast('Data unit berhasil diperbarui.', 'success');
-  } else {
-    const newId = units.value.length > 0 ? Math.max(...units.value.map(u => u.id)) + 1 : 1;
-    units.value.push({ ...unit, id: newId });
-    triggerToast('Unit baru berhasil ditambahkan.', 'success');
+  try {
+    // Validasi Duplikat: Cek apakah Nama & Lokasi sudah ada (case-insensitive)
+    const isDuplicate = units.value.some(u => 
+      u.name.trim().toLowerCase() === unit.name.trim().toLowerCase() &&
+      u.location.trim().toLowerCase() === unit.location.trim().toLowerCase() &&
+      u.id !== unit.id // Abaikan diri sendiri jika sedang edit
+    );
+
+    if (isDuplicate) {
+      triggerToast('Gagal: Unit dengan nama dan lokasi ini sudah ada!', 'error');
+      return; // Stop eksekusi, modal jangan ditutup
+    }
+
+    if (unit.id) {
+      // UPDATE LOGIC
+      const index = units.value.findIndex(u => u.id === unit.id);
+      if (index !== -1) {
+        units.value[index] = unit;
+        triggerToast('Data unit berhasil diperbarui.', 'success'); // Hijau
+      } else {
+        throw new Error('Unit not found');
+      }
+    } else {
+      // CREATE LOGIC
+      const newId = units.value.length > 0 ? Math.max(...units.value.map(u => u.id)) + 1 : 1;
+      units.value.push({ ...unit, id: newId });
+      triggerToast('Unit baru berhasil ditambahkan.', 'success'); // Hijau
+    }
+    
+    closeModal(); // Tutup modal hanya jika sukses
+  } catch (error) {
+    triggerToast('Gagal menyimpan data unit.', 'error'); // Merah
   }
-  closeModal();
 };
 
+// HANDLE DELETE
 const handleDelete = (unitId) => {
   openConfirmModal({
     title: 'Hapus Unit',
@@ -330,12 +371,22 @@ const handleDelete = (unitId) => {
     iconBg: 'bg-red-100',
     iconColor: 'text-red-600',
     onConfirm: () => {
-      units.value = units.value.filter(u => u.id !== unitId);
-      // Logic mundur halaman jika data terakhir di halaman tersebut dihapus
-      if (paginatedUnits.value.length === 0 && currentPage.value > 1) {
-        currentPage.value--;
+      try {
+        // 1. Eksekusi Hapus
+        units.value = units.value.filter(u => u.id !== unitId);
+        
+        // 2. Cek Pagination (Mundur jika halaman kosong)
+        if (paginatedUnits.value.length === 0 && currentPage.value > 1) {
+          currentPage.value--;
+        }
+
+        // 3. SUKSES -> Hijau
+        triggerToast('Unit berhasil dihapus.', 'success');
+        
+      } catch (error) {
+        // 4. GAGAL -> Merah
+        triggerToast('Gagal menghapus unit.', 'error');
       }
-      triggerToast('Unit berhasil dihapus.', 'error');
     }
   });
 };
