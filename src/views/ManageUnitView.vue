@@ -285,15 +285,17 @@ const searchQuery = ref('');
 const currentPage = ref(1);
 const itemsPerPage = 10; // Set ke 10 sesuai permintaan
 
-// Filter Search (Nama atau Lokasi)
+// Filter Search (Nama atau Lokasi) & Sort Ascending
 const filteredUnits = computed(() => {
-  return units.value.filter(unit => {
-    const search = searchQuery.value.toLowerCase();
-    return (
-      unit.name.toLowerCase().includes(search) ||
-      unit.location.toLowerCase().includes(search)
-    );
-  });
+  return units.value
+    .filter(unit => {
+      const search = searchQuery.value.toLowerCase();
+      return (
+        unit.name.toLowerCase().includes(search) ||
+        unit.location.toLowerCase().includes(search)
+      );
+    })
+    .sort((a, b) => a.name.localeCompare(b.name)); // <-- SORT ASCENDING (A-Z)
 });
 
 // Potong untuk Pagination

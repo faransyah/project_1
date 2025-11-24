@@ -262,14 +262,17 @@ const searchQuery = ref('');
 const currentPage = ref(1);
 const itemsPerPage = 10;
 
+// Filter Search & SORT ASCENDING (A-Z)
 const filteredUsers = computed(() => {
-  return users.value.filter(user => {
-    const search = searchQuery.value.toLowerCase();
-    return (
-      user.name.toLowerCase().includes(search) ||
-      user.email.toLowerCase().includes(search)
-    );
-  });
+  return users.value
+    .filter(user => {
+      const search = searchQuery.value.toLowerCase();
+      return (
+        user.name.toLowerCase().includes(search) ||
+        user.email.toLowerCase().includes(search)
+      );
+    })
+    .sort((a, b) => a.name.localeCompare(b.name)); // <-- SORT ASCENDING (A-Z) DITAMBAHKAN
 });
 
 const paginatedUsers = computed(() => {

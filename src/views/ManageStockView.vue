@@ -397,13 +397,15 @@ const uniqueCategories = computed(() => [...new Set(allStockItems.value.map(item
 
 // Filter Logic
 const filteredStock = computed(() => {
-  return allStockItems.value.filter(item => {
-    const search = searchQuery.value.toLowerCase();
-    const matchName = item.name.toLowerCase().includes(search);
-    const matchUnit = selectedUnit.value === 'Semua Unit' || item.unit === selectedUnit.value;
-    const matchCat = selectedCategory.value === 'Semua Kategori' || item.kategori === selectedCategory.value;
-    return matchName && matchUnit && matchCat;
-  });
+  return allStockItems.value
+    .filter(item => {
+      const search = searchQuery.value.toLowerCase();
+      const matchName = item.name.toLowerCase().includes(search);
+      const matchUnit = selectedUnit.value === 'Semua Unit' || item.unit === selectedUnit.value;
+      const matchCat = selectedCategory.value === 'Semua Kategori' || item.kategori === selectedCategory.value;
+      return matchName && matchUnit && matchCat;
+    })
+    .sort((a, b) => a.name.localeCompare(b.name)); // <-- Tambahan: Urutkan A-Z berdasarkan nama
 });
 
 // Pagination Logic

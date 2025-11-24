@@ -250,21 +250,21 @@ const items = ref([
   { id: 7, name: 'Stopmap Kertas Warna Biru', category: 'Kertas & Dokumen' },
   { id: 8, name: 'Stiker Label A4 103', category: 'Kertas & Dokumen' },
   { id: 9, name: 'Toner HP 12A LaserJet', category: 'Tinta & Toner' },
-  { id: 10, name: 'Lakban Bening 2 Inch', category: 'Lain-lain' },
+  { id: 10, name: 'Lakban Bening 2 Inch', category: 'Perlengkapan' },
   { id: 11, name: 'Buku Tulis Sinar Dunia 38 Lembar', category: 'Alat Tulis' },
   { id: 12, name: 'Penghapus Karet Staedtler', category: 'Alat Tulis' },
   { id: 13, name: 'Penggaris Besi 30cm', category: 'Alat Tulis' },
-  { id: 14, name: 'Gunting Besar Joyko', category: 'Lain-lain' },
-  { id: 15, name: 'Cutter Kenko Besar', category: 'Lain-lain' },
-  { id: 16, name: 'Isi Staples No. 10', category: 'Lain-lain' },
-  { id: 17, name: 'Stapler HD-10 Max', category: 'Lain-lain' },
-  { id: 18, name: 'Klip Kertas Trigonal No. 3', category: 'Lain-lain' },
-  { id: 19, name: 'Binder Clip 260 (51mm)', category: 'Lain-lain' },
+  { id: 14, name: 'Gunting Besar Joyko', category: 'Perlengkapan' },
+  { id: 15, name: 'Cutter Kenko Besar', category: 'Perlengkapan' },
+  { id: 16, name: 'Isi Staples No. 10', category: 'Perlengkapan' },
+  { id: 17, name: 'Stapler HD-10 Max', category: 'Perlengkapan' },
+  { id: 18, name: 'Klip Kertas Trigonal No. 3', category: 'Perlengkapan' },
+  { id: 19, name: 'Binder Clip 260 (51mm)', category: 'Perlengkapan' },
   { id: 20, name: 'Post-it Notes 3x3 Kuning', category: 'Kertas & Dokumen' },
   { id: 21, name: 'Amplop Coklat Tali Folio', category: 'Kertas & Dokumen' },
   { id: 22, name: 'Amplop Putih Panjang (90)', category: 'Kertas & Dokumen' },
-  { id: 23, name: 'Lem Stick Glukol', category: 'Lain-lain' },
-  { id: 24, name: 'Double Tape 1 Inch', category: 'Lain-lain' },
+  { id: 23, name: 'Lem Stick Glukol', category: 'Perlengkapan' },
+  { id: 24, name: 'Double Tape 1 Inch', category: 'Perlengkapan' },
   { id: 25, name: 'Tinta Printer Epson 003 Cyan', category: 'Tinta & Toner' },
   { id: 26, name: 'Tinta Printer Epson 003 Magenta', category: 'Tinta & Toner' },
   { id: 27, name: 'Tinta Printer Epson 003 Yellow', category: 'Tinta & Toner' },
@@ -278,11 +278,14 @@ const searchQuery = ref('');
 const currentPage = ref(1);
 const itemsPerPage = 10;
 
+// Filter Search & SORT ASCENDING (A-Z)
 const filteredItems = computed(() => {
-  return items.value.filter(item => 
-    item.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+  return items.value
+    .filter(item => 
+      item.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      item.category.toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
+    .sort((a, b) => a.name.localeCompare(b.name)); // <-- PENGURUTAN A-Z DITAMBAHKAN
 });
 
 const paginatedItems = computed(() => {
@@ -309,14 +312,18 @@ const closeModal = () => {
   selectedItem.value = null;
 };
 
+// HANDLE SAVE (CREATE & UPDATE)
 const handleSave = (item) => {
-  // Simulasi error acak (opsional) atau validasi bisa ditaruh di sini
   try {
     if (item.id) {
       // UPDATE
       const index = items.value.findIndex(i => i.id === item.id);
-      if (index !== -1) items.value[index] = item;
-      triggerToast('Data ATK berhasil diperbarui.', 'success'); // IJO
+      if (index !== -1) {
+        items.value[index] = item;
+        triggerToast('Data ATK berhasil diperbarui.', 'success'); // IJO
+      } else {
+        throw new Error('Item not found');
+      }
     } else {
       // CREATE
       const newId = items.value.length > 0 ? Math.max(...items.value.map(i => i.id)) + 1 : 1;
@@ -329,6 +336,7 @@ const handleSave = (item) => {
   }
 };
 
+// HANDLE DELETE
 const handleDelete = (itemId) => {
   openConfirmModal({
     title: 'Hapus ATK',
@@ -340,16 +348,19 @@ const handleDelete = (itemId) => {
     iconColor: 'text-red-600',
     onConfirm: () => {
       try {
+        // 1. Eksekusi Hapus
         items.value = items.value.filter(i => i.id !== itemId);
         
-        // Cek halaman kosong setelah hapus
+        // 2. Cek Pagination
         if (paginatedItems.value.length === 0 && currentPage.value > 1) {
           currentPage.value--;
         }
 
-        triggerToast('ATK berhasil dihapus.', 'success'); // IJO
+        // 3. SUKSES -> IJO
+        triggerToast('ATK berhasil dihapus.', 'success');
       } catch (error) {
-        triggerToast('Gagal menghapus ATK.', 'error'); // MERAH
+        // 4. GAGAL -> MERAH
+        triggerToast('Gagal menghapus ATK.', 'error');
       }
     }
   });
