@@ -43,6 +43,7 @@
   </div>
 
   <div class="space-y-8">
+    
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-6">
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">Manage Units</h1>
@@ -69,18 +70,34 @@
 
     <div class="rounded-2xl bg-white p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] border border-slate-100">
       
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
           <BuildingOfficeIcon class="h-5 w-5 text-slate-400" />
           Daftar Unit
         </h2>
-        <button 
-          @click="openModal(null)"
-          class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95"
-        >
-          <PlusIcon class="mr-1.5 h-4 w-4" />
-          Tambah Unit
-        </button>
+
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div class="relative w-full sm:w-64">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <MagnifyingGlassIcon class="h-4 w-4 text-slate-400" />
+            </div>
+            <input 
+              v-model="searchQuery"
+              @input="handleSearch"
+              type="text" 
+              class="block w-full rounded-lg border-0 py-2 pl-10 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 transition-shadow" 
+              placeholder="Cari unit atau lokasi..."
+            >
+          </div>
+
+          <button 
+            @click="openModal(null)"
+            class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95 whitespace-nowrap"
+          >
+            <PlusIcon class="mr-1.5 h-4 w-4" />
+            Tambah Unit
+          </button>
+        </div>
       </div>
 
       <div class="overflow-hidden rounded-xl border border-slate-200">
@@ -93,18 +110,20 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200 bg-white">
-            <tr v-if="units.length === 0">
+            
+            <tr v-if="filteredUnits.length === 0">
               <td colspan="3" class="py-12 text-center text-sm text-slate-500">
                 <div class="flex flex-col items-center justify-center">
                   <div class="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
                     <BuildingOfficeIcon class="h-6 w-6 text-slate-300" />
                   </div>
-                  <p>Belum ada data unit.</p>
+                  <p v-if="searchQuery">Tidak ada unit yang cocok dengan "<strong>{{ searchQuery }}</strong>"</p>
+                  <p v-else>Belum ada data unit.</p>
                 </div>
               </td>
             </tr>
 
-            <tr v-for="unit in units" :key="unit.id" class="group hover:bg-slate-50/80 transition-colors">
+            <tr v-for="unit in paginatedUnits" :key="unit.id" class="group hover:bg-slate-50/80 transition-colors">
               <td class="py-4 pl-4 pr-3 text-sm font-semibold text-slate-800 sm:pl-6">
                 {{ unit.name }}
               </td>
@@ -133,6 +152,36 @@
             </tr>
           </tbody>
         </table>
+
+        <div v-if="filteredUnits.length > 0" class="flex items-center justify-between border-t border-slate-200 bg-slate-50/50 px-4 py-3 sm:px-6">
+          <div class="flex flex-1 justify-between sm:hidden">
+            <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1" class="relative inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50">Previous</button>
+            <button @click="currentPage < totalPages ? currentPage++ : null" :disabled="currentPage === totalPages" class="relative ml-3 inline-flex items-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50">Next</button>
+          </div>
+          <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm text-slate-700">
+                Menampilkan <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> sampai <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, filteredUnits.length) }}</span> dari <span class="font-medium">{{ filteredUnits.length }}</span> hasil
+              </p>
+            </div>
+            <div>
+              <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50">
+                  <span class="sr-only">Previous</span>
+                  <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
+                </button>
+                <span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-900 ring-1 ring-inset ring-slate-300 focus:outline-offset-0 bg-white">
+                  Hal {{ currentPage }} / {{ totalPages }}
+                </span>
+                <button @click="currentPage < totalPages ? currentPage++ : null" :disabled="currentPage === totalPages" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50">
+                  <span class="sr-only">Next</span>
+                  <ChevronRightIcon class="h-5 w-5" aria-hidden="true" />
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -146,9 +195,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, shallowRef } from 'vue';
-// Import Icons
-import { PlusIcon, CalendarDaysIcon, BuildingOfficeIcon, MapPinIcon, CheckCircleIcon, XCircleIcon, XMarkIcon, NoSymbolIcon, QuestionMarkCircleIcon } from '@heroicons/vue/24/outline';
+import { ref, computed, onMounted, onUnmounted, shallowRef } from 'vue';
+// Import Icons (Added MagnifyingGlass, ChevronLeft, ChevronRight)
+import { 
+  PlusIcon, CalendarDaysIcon, BuildingOfficeIcon, MapPinIcon, 
+  CheckCircleIcon, XCircleIcon, XMarkIcon, NoSymbolIcon, 
+  MagnifyingGlassIcon, ChevronLeftIcon, ChevronRightIcon 
+} from '@heroicons/vue/24/outline';
+
 import UnitFormModal from '../components/UnitFormModal.vue';
 
 // --- TOAST LOGIC ---
@@ -212,6 +266,34 @@ const units = ref([
   { id: 30, name: 'UID Kaltara', location: 'Tanjung Selor' },
 ]);
 
+// --- SEARCH & PAGINATION LOGIC (NEW) ---
+const searchQuery = ref('');
+const currentPage = ref(1);
+const itemsPerPage = 10; // Set ke 10 sesuai permintaan
+
+// Filter Search (Nama atau Lokasi)
+const filteredUnits = computed(() => {
+  return units.value.filter(unit => {
+    const search = searchQuery.value.toLowerCase();
+    return (
+      unit.name.toLowerCase().includes(search) ||
+      unit.location.toLowerCase().includes(search)
+    );
+  });
+});
+
+// Potong untuk Pagination
+const paginatedUnits = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredUnits.value.slice(start, end);
+});
+
+const totalPages = computed(() => Math.ceil(filteredUnits.value.length / itemsPerPage));
+
+const handleSearch = () => { currentPage.value = 1; };
+
+// --- MODAL & ACTIONS ---
 const showModal = ref(false);
 const selectedUnit = ref(null); 
 
@@ -249,6 +331,10 @@ const handleDelete = (unitId) => {
     iconColor: 'text-red-600',
     onConfirm: () => {
       units.value = units.value.filter(u => u.id !== unitId);
+      // Logic mundur halaman jika data terakhir di halaman tersebut dihapus
+      if (paginatedUnits.value.length === 0 && currentPage.value > 1) {
+        currentPage.value--;
+      }
       triggerToast('Unit berhasil dihapus.', 'error');
     }
   });
