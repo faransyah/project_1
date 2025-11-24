@@ -80,10 +80,11 @@
           Daftar Stok
         </h2>
 
-        <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+        <!-- Tambahkan items-center agar sejajar vertikal -->
+        <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto items-center">
           
-          <!-- SEARCH -->
-          <div class="relative w-full sm:w-56">
+          <!-- SEARCH (Ubah lebar jadi sm:w-48 dan tambah h-10) -->
+          <div class="relative w-full sm:w-48">
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <MagnifyingGlassIcon class="h-4 w-4 text-slate-400" />
             </div>
@@ -91,39 +92,39 @@
               v-model="searchQuery"
               @input="handleFilterChange"
               type="text" 
-              class="block w-full rounded-lg border-0 py-2 pl-10 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 transition-shadow" 
+              class="block w-full rounded-lg border-0 h-10 py-1.5 pl-10 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 transition-shadow" 
               placeholder="Cari nama barang..."
             >
           </div>
 
-          <!-- FILTER UNIT -->
+          <!-- FILTER UNIT (Lebar sm:w-48 tetap, tambah h-10) -->
           <div class="relative w-full sm:w-48">
             <select 
               v-model="selectedUnit"
               @change="handleFilterChange"
-              class="block w-full rounded-lg border-0 py-2 pl-3 pr-8 text-slate-900 ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 cursor-pointer"
+              class="block w-full rounded-lg border-0 h-10 py-1.5 pl-3 pr-8 text-slate-900 ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 cursor-pointer"
             >
               <option value="Semua Unit">Semua Unit</option>
               <option v-for="unit in uniqueUnits" :key="unit">{{ unit }}</option>
             </select>
           </div>
 
-          <!-- FILTER KATEGORI -->
-          <div class="relative w-full sm:w-40">
+          <!-- FILTER KATEGORI (Ubah lebar jadi sm:w-48 dan tambah h-10) -->
+          <div class="relative w-full sm:w-48">
             <select 
               v-model="selectedCategory"
               @change="handleFilterChange"
-              class="block w-full rounded-lg border-0 py-2 pl-3 pr-8 text-slate-900 ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 cursor-pointer"
+              class="block w-full rounded-lg border-0 h-10 py-1.5 pl-3 pr-8 text-slate-900 ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 cursor-pointer"
             >
               <option value="Semua Kategori">Semua Kategori</option>
               <option v-for="cat in uniqueCategories" :key="cat">{{ cat }}</option>
             </select>
           </div>
 
-          <!-- BUTTON ADD -->
+          <!-- BUTTON ADD (Tambah h-10 agar tingginya sama persis dengan input) -->
           <button 
             @click="openStockModal(null)"
-            class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95 whitespace-nowrap"
+            class="inline-flex items-center justify-center rounded-lg bg-blue-600 h-10 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95 whitespace-nowrap w-full sm:w-auto"
           >
             <PlusIcon class="mr-1.5 h-4 w-4" />
             Tambah Stok
