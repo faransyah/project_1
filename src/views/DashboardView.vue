@@ -548,7 +548,7 @@ const handleApprovalAction = (item, action) => {
       iconColor: 'text-red-600',
       onConfirm: () => {
         console.log('LOGIC: Menolak item', item);
-        triggerToast('Permintaan telah ditolak.', 'error');
+        triggerToast('Permintaan telah ditolak.', 'success');
       }
     });
   }
