@@ -52,7 +52,7 @@
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">Manage Units</h1>
         <p class="mt-2 text-base text-slate-500">
-          Kelola unit terdaftar (UID, UIP, dll.) yang ada di sistem.
+          Kelola Data Master Unit PLN (Referensi tabel: <code>c_master_unit</code>).
         </p>
       </div>
       <div class="hidden sm:flex flex-col items-end justify-center">
@@ -75,7 +75,7 @@
     <!-- CARD CONTAINER -->
     <div class="rounded-2xl bg-white p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] border border-slate-100">
       
-      <!-- TOOLBAR: TITLE, SEARCH, ADD BUTTON -->
+      <!-- TOOLBAR -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
           <BuildingOfficeIcon class="h-5 w-5 text-slate-400" />
@@ -83,8 +83,7 @@
         </h2>
 
         <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <!-- SEARCH INPUT -->
-          <div class="relative w-full sm:w-64">
+          <div class="relative w-full sm:w-72">
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <MagnifyingGlassIcon class="h-4 w-4 text-slate-400" />
             </div>
@@ -93,11 +92,10 @@
               @input="handleSearch"
               type="text" 
               class="block w-full rounded-lg border-0 py-2 pl-10 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 transition-shadow" 
-              placeholder="Cari unit atau lokasi..."
+              placeholder="Cari alias, nama, atau alamat..."
             >
           </div>
 
-          <!-- ADD BUTTON -->
           <button 
             @click="openModal(null)"
             class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95 whitespace-nowrap"
@@ -110,59 +108,97 @@
 
       <!-- TABLE -->
       <div class="overflow-hidden rounded-xl border border-slate-200">
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
-            <tr>
-              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500 sm:pl-6">Nama Unit</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Lokasi</th>
-              <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6"><span class="sr-only">Aksi</span></th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200 bg-white">
-            
-            <!-- EMPTY STATE -->
-            <tr v-if="filteredUnits.length === 0">
-              <td colspan="3" class="py-12 text-center text-sm text-slate-500">
-                <div class="flex flex-col items-center justify-center">
-                  <div class="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
-                    <BuildingOfficeIcon class="h-6 w-6 text-slate-300" />
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500 sm:pl-6">Identitas Unit</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Kontak & Lokasi</th>
+                <th scope="col" class="px-3 py-3.5 text-center text-xs font-bold uppercase tracking-wide text-slate-500">Status</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Tanggal Dibuat</th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6"><span class="sr-only">Aksi</span></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 bg-white">
+              
+              <tr v-if="filteredUnits.length === 0">
+                <td colspan="5" class="py-12 text-center text-sm text-slate-500">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
+                      <BuildingOfficeIcon class="h-6 w-6 text-slate-300" />
+                    </div>
+                    <p v-if="searchQuery">Tidak ada unit yang cocok dengan "<strong>{{ searchQuery }}</strong>"</p>
+                    <p v-else>Belum ada data unit.</p>
                   </div>
-                  <p v-if="searchQuery">Tidak ada unit yang cocok dengan "<strong>{{ searchQuery }}</strong>"</p>
-                  <p v-else>Belum ada data unit.</p>
-                </div>
-              </td>
-            </tr>
+                </td>
+              </tr>
 
-            <!-- DATA ROWS -->
-            <tr v-for="unit in paginatedUnits" :key="unit.id" class="group hover:bg-slate-50/80 transition-colors">
-              <td class="py-4 pl-4 pr-3 text-sm font-semibold text-slate-800 sm:pl-6">
-                {{ unit.name }}
-              </td>
-              <td class="px-3 py-4 text-sm text-slate-500">
-                <span class="inline-flex items-center gap-1.5 rounded-md bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-500/10">
-                  <MapPinIcon class="h-3 w-3 text-slate-400" />
-                  {{ unit.location }}
-                </span>
-              </td>
-              <td class="py-4 pl-3 pr-4 text-right text-xs font-medium sm:pr-6">
-                <div class="flex items-center justify-end gap-2">
-                  <button 
-                    @click="openModal(unit)" 
-                    class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-all font-semibold shadow-sm"
+              <tr v-for="unit in paginatedUnits" :key="unit.id" class="group hover:bg-slate-50/80 transition-colors">
+                <!-- KOLOM 1: IDENTITAS (Alias & Nama) -->
+                <td class="py-4 pl-4 pr-3 sm:pl-6">
+                  <div class="flex items-start gap-3">
+                    <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 font-bold text-xs border border-blue-100">
+                       {{ unit.alias.split(' ').map(n => n[0]).join('').substring(0,2) }}
+                    </div>
+                    <div>
+                      <div class="text-sm font-bold text-slate-800">{{ unit.alias }}</div>
+                      <div class="text-xs text-slate-500 mt-0.5 line-clamp-2" :title="unit.name">{{ unit.name }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- KOLOM 2: KONTAK (Alamat & Telepon) -->
+                <td class="px-3 py-4">
+                  <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-1.5 text-sm text-slate-600">
+                      <PhoneIcon class="h-3.5 w-3.5 text-slate-400" />
+                      <span class="font-medium">{{ unit.phone }}</span>
+                    </div>
+                    <div class="flex items-start gap-1.5 text-xs text-slate-500 mt-1">
+                      <MapPinIcon class="h-3.5 w-3.5 text-slate-400 flex-shrink-0 mt-0.5" />
+                      <span class="line-clamp-2" :title="unit.address">{{ unit.address }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- KOLOM 3: STATUS -->
+                <td class="px-3 py-4 text-center">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset"
+                    :class="unit.is_active 
+                      ? 'bg-green-50 text-green-700 ring-green-600/20' 
+                      : 'bg-slate-100 text-slate-500 ring-slate-500/20'"
                   >
-                    Edit
-                  </button>
-                  <button 
-                    @click="handleDelete(unit.id)" 
-                    class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition-all font-semibold shadow-sm"
-                  >
-                    Hapus
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                    <span class="h-1.5 w-1.5 rounded-full mr-1.5" :class="unit.is_active ? 'bg-green-600' : 'bg-slate-400'"></span>
+                    {{ unit.is_active ? 'Aktif' : 'Non-Aktif' }}
+                  </span>
+                </td>
+
+                <!-- KOLOM 4: TANGGAL -->
+                <td class="px-3 py-4 text-sm text-slate-500 whitespace-nowrap">
+                  {{ unit.created_at }}
+                </td>
+
+                <!-- KOLOM 5: AKSI -->
+                <td class="py-4 pl-3 pr-4 text-right text-xs font-medium sm:pr-6">
+                  <div class="flex items-center justify-end gap-2">
+                    <button 
+                      @click="openModal(unit)" 
+                      class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-all font-semibold shadow-sm"
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      @click="handleDelete(unit.id)" 
+                      class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition-all font-semibold shadow-sm"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <!-- PAGINATION FOOTER -->
         <div v-if="filteredUnits.length > 0" class="flex items-center justify-between border-t border-slate-200 bg-slate-50/50 px-4 py-3 sm:px-6">
@@ -211,12 +247,11 @@
 import { ref, computed, onMounted, onUnmounted, shallowRef } from 'vue';
 // Import Icons
 import { 
-  PlusIcon, CalendarDaysIcon, BuildingOfficeIcon, MapPinIcon, 
+  PlusIcon, CalendarDaysIcon, BuildingOfficeIcon, MapPinIcon, PhoneIcon,
   CheckCircleIcon, XCircleIcon, XMarkIcon, NoSymbolIcon, 
   MagnifyingGlassIcon, ChevronLeftIcon, ChevronRightIcon 
 } from '@heroicons/vue/24/outline';
 
-// Import Component Modal
 import UnitFormModal from '../components/UnitFormModal.vue';
 
 // --- TOAST LOGIC ---
@@ -246,38 +281,28 @@ const updateTime = () => {
 onMounted(() => { updateTime(); timeInterval = setInterval(updateTime, 1000); });
 onUnmounted(() => { if (timeInterval) clearInterval(timeInterval); });
 
-// --- DATABASE SIMULASI ---
+// --- DATABASE SIMULASI (SESUAI c_master_unit + detail tambahan) ---
 const units = ref([
-  { id: 1, name: 'UID Jatim', location: 'Surabaya' },
-  { id: 2, name: 'UID Jabar', location: 'Bandung' },
-  { id: 3, name: 'UID Pusat', location: 'Jakarta' },
-  { id: 4, name: 'UID Jateng', location: 'Semarang' },
-  { id: 5, name: 'UID Bali', location: 'Denpasar' },
-  { id: 6, name: 'UID Sulsel', location: 'Makassar' },
-  { id: 7, name: 'UID Sumut', location: 'Medan' },
-  { id: 8, name: 'UID Sumbar', location: 'Padang' },
-  { id: 9, name: 'UID Sumsel', location: 'Palembang' },
-  { id: 10, name: 'UID Kaltim', location: 'Samarinda' },
-  { id: 11, name: 'UID Kalsel', location: 'Banjarmasin' },
-  { id: 12, name: 'UID Kalbar', location: 'Pontianak' },
-  { id: 13, name: 'UID Kalteng', location: 'Palangkaraya' },
-  { id: 14, name: 'UID Papua', location: 'Jayapura' },
-  { id: 15, name: 'UID Banten', location: 'Serang' },
-  { id: 16, name: 'UID DIY', location: 'Yogyakarta' },
-  { id: 17, name: 'UID Lampung', location: 'Bandar Lampung' },
-  { id: 18, name: 'UID Riau', location: 'Pekanbaru' },
-  { id: 19, name: 'UID Kepri', location: 'Tanjung Pinang' },
-  { id: 20, name: 'UID Aceh', location: 'Banda Aceh' },
-  { id: 21, name: 'UID NTB', location: 'Mataram' },
-  { id: 22, name: 'UID NTT', location: 'Kupang' },
-  { id: 23, name: 'UID Sulut', location: 'Manado' },
-  { id: 24, name: 'UID Sulteng', location: 'Palu' },
-  { id: 25, name: 'UID Sultra', location: 'Kendari' },
-  { id: 26, name: 'UID Maluku', location: 'Ambon' },
-  { id: 27, name: 'UID Malut', location: 'Ternate' },
-  { id: 28, name: 'UID Gorontalo', location: 'Gorontalo' },
-  { id: 29, name: 'UID Babel', location: 'Pangkal Pinang' },
-  { id: 30, name: 'UID Kaltara', location: 'Tanjung Selor' },
+  { id: 1, alias: 'UID Jatim', name: 'PT PLN (Persero) Unit Induk Distribusi Jawa Timur', address: 'Jl. Embong Trengguli No. 19-21, Surabaya', phone: '(031) 5340651', is_active: 1, created_at: '15/01/2023' },
+  { id: 2, alias: 'UID Jabar', name: 'PT PLN (Persero) Unit Induk Distribusi Jawa Barat', address: 'Jl. Asia Afrika No. 63, Bandung', phone: '(022) 4230747', is_active: 1, created_at: '20/02/2023' },
+  { id: 3, alias: 'UID Jaya', name: 'PT PLN (Persero) Unit Induk Distribusi Jakarta Raya', address: 'Jl. M.I. Ridwan Rais No. 1, Jakarta Pusat', phone: '(021) 3454000', is_active: 1, created_at: '10/03/2023' },
+  { id: 4, alias: 'UID Jateng', name: 'PT PLN (Persero) Unit Induk Distribusi Jawa Tengah & DIY', address: 'Jl. Teuku Umar No. 47, Semarang', phone: '(024) 8411991', is_active: 1, created_at: '05/04/2023' },
+  { id: 5, alias: 'UID Bali', name: 'PT PLN (Persero) Unit Induk Distribusi Bali', address: 'Jl. Letda Tantular No. 1, Denpasar', phone: '(0361) 221960', is_active: 1, created_at: '12/05/2023' },
+  { id: 6, alias: 'UID Sulselrabar', name: 'PT PLN (Persero) Unit Induk Distribusi Sulsel, Sultra & Sulbar', address: 'Jl. Letjen Hertasning, Makassar', phone: '(0411) 444488', is_active: 1, created_at: '25/05/2023' },
+  { id: 7, alias: 'UID Sumut', name: 'PT PLN (Persero) Unit Induk Distribusi Sumatera Utara', address: 'Jl. K.L. Yos Sudarso No. 284, Medan', phone: '(061) 6615155', is_active: 1, created_at: '01/06/2023' },
+  { id: 8, alias: 'UID Sumbar', name: 'PT PLN (Persero) Unit Induk Distribusi Sumatera Barat', address: 'Jl. Wahidin Sudirohusodo No. 140, Padang', phone: '(0751) 33446', is_active: 1, created_at: '15/06/2023' },
+  { id: 9, alias: 'UID S2JB', name: 'PT PLN (Persero) Unit Induk Distribusi Sumsel, Jambi & Bengkulu', address: 'Jl. Kapten A. Rivai No. 37, Palembang', phone: '(0711) 358355', is_active: 1, created_at: '20/07/2023' },
+  { id: 10, alias: 'UID Kaltimra', name: 'PT PLN (Persero) Unit Induk Distribusi Kaltim & Kaltara', address: 'Jl. MT. Haryono No. 384, Balikpapan', phone: '(0542) 871871', is_active: 1, created_at: '05/08/2023' },
+  { id: 11, alias: 'UID Kalselteng', name: 'PT PLN (Persero) Unit Induk Distribusi Kalsel & Kalteng', address: 'Jl. Panglima Batur Barat No. 1, Banjarbaru', phone: '(0511) 4772520', is_active: 1, created_at: '18/08/2023' },
+  { id: 12, alias: 'UID Kalbar', name: 'PT PLN (Persero) Unit Induk Distribusi Kalimantan Barat', address: 'Jl. Adisucipto Km. 7.3, Pontianak', phone: '(0561) 734000', is_active: 1, created_at: '01/09/2023' },
+  { id: 13, alias: 'UIW Papua', name: 'PT PLN (Persero) Unit Induk Wilayah Papua & Papua Barat', address: 'Jl. Jend. Ahmad Yani No. 18, Jayapura', phone: '(0967) 533616', is_active: 1, created_at: '12/09/2023' },
+  { id: 14, alias: 'UID Banten', name: 'PT PLN (Persero) Unit Induk Distribusi Banten', address: 'Jl. Jend. Sudirman No. 1, Tangerang', phone: '(021) 5522000', is_active: 1, created_at: '25/09/2023' },
+  { id: 15, alias: 'UID Lampung', name: 'PT PLN (Persero) Unit Induk Distribusi Lampung', address: 'Jl. Z.A. Pagar Alam No. 5, Bandar Lampung', phone: '(0721) 702222', is_active: 1, created_at: '10/10/2023' },
+  { id: 16, alias: 'UID Riau', name: 'PT PLN (Persero) Unit Induk Distribusi Riau & Kepri', address: 'Jl. Musyawarah No. 1, Pekanbaru', phone: '(0761) 571177', is_active: 1, created_at: '15/10/2023' },
+  { id: 17, alias: 'UID Aceh', name: 'PT PLN (Persero) Unit Induk Distribusi Aceh', address: 'Jl. Tgk. H. Mohd Daud Beureueh No. 172, Banda Aceh', phone: '(0651) 22155', is_active: 1, created_at: '01/11/2023' },
+  { id: 18, alias: 'UIW NTB', name: 'PT PLN (Persero) Unit Induk Wilayah Nusa Tenggara Barat', address: 'Jl. Langko No. 25-27, Mataram', phone: '(0370) 633555', is_active: 1, created_at: '10/11/2023' },
+  { id: 19, alias: 'UIW NTT', name: 'PT PLN (Persero) Unit Induk Wilayah Nusa Tenggara Timur', address: 'Jl. Palapa No. 19, Kupang', phone: '(0380) 821821', is_active: 1, created_at: '20/11/2023' },
+  { id: 20, alias: 'UID Suluttenggo', name: 'PT PLN (Persero) Unit Induk Distribusi Suluttenggo', address: 'Jl. Bethesda No. 32, Manado', phone: '(0431) 862222', is_active: 1, created_at: '01/12/2023' },
 ]);
 
 // --- SEARCH & PAGINATION LOGIC (NEW) ---
@@ -292,10 +317,11 @@ const filteredUnits = computed(() => {
       const search = searchQuery.value.toLowerCase();
       return (
         unit.name.toLowerCase().includes(search) ||
-        unit.location.toLowerCase().includes(search)
+        unit.alias.toLowerCase().includes(search) ||
+        unit.address.toLowerCase().includes(search)
       );
     })
-    .sort((a, b) => a.name.localeCompare(b.name)); // <-- SORT ASCENDING (A-Z)
+    .sort((a, b) => a.alias.localeCompare(b.alias)); // <-- SORT ASCENDING BY ALIAS
 });
 
 // Potong untuk Pagination
@@ -328,23 +354,26 @@ const closeModal = () => {
 // HANDLE SAVE (CREATE & UPDATE)
 const handleSave = (unit) => {
   try {
-    // Validasi Duplikat: Cek apakah Nama & Lokasi sudah ada (case-insensitive)
+    // Validasi Duplikat: Cek apakah Alias & Nama sudah ada
     const isDuplicate = units.value.some(u => 
-      u.name.trim().toLowerCase() === unit.name.trim().toLowerCase() &&
-      u.location.trim().toLowerCase() === unit.location.trim().toLowerCase() &&
+      (u.alias.trim().toLowerCase() === unit.alias.trim().toLowerCase() ||
+       u.name.trim().toLowerCase() === unit.name.trim().toLowerCase()) &&
       u.id !== unit.id // Abaikan diri sendiri jika sedang edit
     );
 
     if (isDuplicate) {
-      triggerToast('Gagal: Unit dengan nama dan lokasi ini sudah ada!', 'error');
+      triggerToast('Gagal: Unit dengan Alias atau Nama ini sudah ada!', 'error');
       return; // Stop eksekusi, modal jangan ditutup
     }
+
+    const today = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
     if (unit.id) {
       // UPDATE LOGIC
       const index = units.value.findIndex(u => u.id === unit.id);
       if (index !== -1) {
-        units.value[index] = unit;
+        // Pertahankan created_at yang lama
+        units.value[index] = { ...units.value[index], ...unit };
         triggerToast('Data unit berhasil diperbarui.', 'success'); // Hijau
       } else {
         throw new Error('Unit not found');
@@ -352,7 +381,7 @@ const handleSave = (unit) => {
     } else {
       // CREATE LOGIC
       const newId = units.value.length > 0 ? Math.max(...units.value.map(u => u.id)) + 1 : 1;
-      units.value.push({ ...unit, id: newId });
+      units.value.push({ ...unit, id: newId, created_at: today });
       triggerToast('Unit baru berhasil ditambahkan.', 'success'); // Hijau
     }
     
