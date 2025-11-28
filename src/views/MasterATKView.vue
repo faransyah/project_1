@@ -52,7 +52,7 @@
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">Master Data ATK</h1>
         <p class="mt-2 text-base text-slate-500">
-          Kelola katalog barang ATK (Alat Tulis Kantor) yang tersedia di sistem.
+          Katalog Barang & Spesifikasi (Referensi tabel: <code>eatk_item</code>).
         </p>
       </div>
       <div class="hidden sm:flex flex-col items-end justify-center">
@@ -73,16 +73,16 @@
     <!-- CARD CONTAINER -->
     <div class="rounded-2xl bg-white p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] border border-slate-100">
       
-      <!-- TOOLBAR: TITLE, SEARCH, ADD BUTTON -->
+      <!-- TOOLBAR -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
           <ClipboardDocumentListIcon class="h-5 w-5 text-slate-400" />
-          Daftar ATK
+          Daftar Barang
         </h2>
 
         <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <!-- SEARCH INPUT -->
-          <div class="relative w-full sm:w-64">
+          <!-- SEARCH -->
+          <div class="relative w-full sm:w-72">
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <MagnifyingGlassIcon class="h-4 w-4 text-slate-400" />
             </div>
@@ -91,75 +91,123 @@
               @input="handleSearch"
               type="text" 
               class="block w-full rounded-lg border-0 py-2 pl-10 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 transition-shadow" 
-              placeholder="Cari nama barang..."
+              placeholder="Cari nama, kode, atau kategori..."
             >
           </div>
 
           <!-- ADD BUTTON -->
           <button 
             @click="openModal(null)"
-            class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95 whitespace-nowrap"
+            class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 active:scale-95 whitespace-nowrap"
           >
             <PlusIcon class="mr-1.5 h-4 w-4" />
-            Tambah ATK
+            Tambah Barang
           </button>
         </div>
       </div>
 
       <!-- TABLE -->
       <div class="overflow-hidden rounded-xl border border-slate-200">
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
-            <tr>
-              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500 sm:pl-6">Nama Barang</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Kategori</th>
-              <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6"><span class="sr-only">Aksi</span></th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200 bg-white">
-            
-            <!-- EMPTY STATE -->
-            <tr v-if="filteredItems.length === 0">
-              <td colspan="3" class="py-12 text-center text-sm text-slate-500">
-                <div class="flex flex-col items-center justify-center">
-                  <div class="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
-                    <ClipboardDocumentListIcon class="h-6 w-6 text-slate-300" />
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500 sm:pl-6">Info Barang</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Kategori & UOM</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Ketentuan Stok</th>
+                <th scope="col" class="px-3 py-3.5 text-right text-xs font-bold uppercase tracking-wide text-slate-500">Harga Acuan</th>
+                <th scope="col" class="px-3 py-3.5 text-center text-xs font-bold uppercase tracking-wide text-slate-500">Status</th>
+                <th scope="col" class="py-3.5 pl-3 pr-4 text-center text-xs font-bold uppercase tracking-wide text-slate-500 sm:pr-6">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 bg-white">
+              
+              <tr v-if="filteredItems.length === 0">
+                <td colspan="6" class="py-12 text-center text-sm text-slate-500">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
+                      <ClipboardDocumentListIcon class="h-6 w-6 text-slate-300" />
+                    </div>
+                    <p v-if="searchQuery">Tidak ada barang yang cocok dengan "<strong>{{ searchQuery }}</strong>"</p>
+                    <p v-else>Belum ada data Master ATK.</p>
                   </div>
-                  <p v-if="searchQuery">Tidak ada ATK yang cocok dengan "<strong>{{ searchQuery }}</strong>"</p>
-                  <p v-else>Belum ada data ATK.</p>
-                </div>
-              </td>
-            </tr>
+                </td>
+              </tr>
 
-            <!-- DATA ROWS -->
-            <tr v-for="item in paginatedItems" :key="item.id" class="group hover:bg-slate-50/80 transition-colors">
-              <td class="py-4 pl-4 pr-3 text-sm font-semibold text-slate-800 sm:pl-6">
-                {{ item.name }}
-              </td>
-              <td class="px-3 py-4 text-sm text-slate-500">
-                <span class="inline-flex items-center gap-1.5 rounded-md bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-500/10">
-                  {{ item.category }}
-                </span>
-              </td>
-              <td class="py-4 pl-3 pr-4 text-right text-xs font-medium sm:pr-6">
-                <div class="flex items-center justify-end gap-2">
-                  <button 
-                    @click="openModal(item)" 
-                    class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-all font-semibold shadow-sm"
+              <tr v-for="item in paginatedItems" :key="item.id" class="group hover:bg-slate-50/80 transition-colors">
+                <!-- KOLOM 1: INFO BARANG (Ada Foto) -->
+                <td class="py-4 pl-4 pr-3 sm:pl-6 min-w-[250px]">
+                  <div class="flex items-start gap-3">
+                    <!-- Thumbnail Foto -->
+                    <div class="h-10 w-10 rounded-lg bg-slate-100 border border-slate-200 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                       <img v-if="item.url_photo" :src="item.url_photo" alt="" class="h-full w-full object-cover" />
+                       <PhotoIcon v-else class="h-5 w-5 text-slate-400" />
+                    </div>
+                    <div class="flex flex-col">
+                      <div class="text-sm font-bold text-slate-800">{{ item.name }}</div>
+                      <div class="flex items-center gap-2 mt-1">
+                         <span class="bg-slate-100 text-slate-500 text-[10px] font-mono px-1.5 py-0.5 rounded border border-slate-200 tracking-wide">
+                           {{ item.code }}
+                         </span>
+                         <span class="text-xs text-slate-400 truncate max-w-[180px]" :title="item.description">{{ item.description }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- KOLOM 2: KATEGORI & UOM -->
+                <td class="px-3 py-4">
+                   <div class="flex flex-col gap-1">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100 w-fit">
+                        <TagIcon class="h-3 w-3 mr-1" />
+                        {{ getCategoryName(item.category_id) }}
+                      </span>
+                      <span class="text-xs text-slate-500 font-medium pl-0.5">Satuan: <span class="text-slate-700">{{ item.uom }}</span></span>
+                   </div>
+                </td>
+
+                <!-- KOLOM 3: MIN/MAX STOCK -->
+                <td class="px-3 py-4">
+                   <div class="flex flex-col gap-1 text-xs">
+                      <div class="flex items-center gap-2">
+                         <span class="text-slate-400 w-6">Min</span>
+                         <span class="font-mono font-bold text-slate-700 bg-slate-100 px-1.5 rounded">{{ item.min_stock }}</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                         <span class="text-slate-400 w-6">Max</span>
+                         <span class="font-mono font-bold text-slate-700 bg-slate-100 px-1.5 rounded">{{ item.max_stock }}</span>
+                      </div>
+                   </div>
+                </td>
+
+                <!-- KOLOM 4: HARGA -->
+                <td class="px-3 py-4 text-right text-sm font-medium text-slate-700 tabular-nums">
+                   Rp {{ (item.price || 0).toLocaleString('id-ID') }}
+                </td>
+
+                <!-- KOLOM 5: STATUS -->
+                <td class="px-3 py-4 text-center">
+                   <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset"
+                    :class="item.status === 'Active' 
+                      ? 'bg-green-50 text-green-700 ring-green-600/20' 
+                      : 'bg-slate-100 text-slate-500 ring-slate-500/20'"
                   >
-                    Edit
-                  </button>
-                  <button 
-                    @click="handleDelete(item.id)" 
-                    class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition-all font-semibold shadow-sm"
-                  >
-                    Hapus
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                    <span class="h-1.5 w-1.5 rounded-full mr-1.5" :class="item.status === 'Active' ? 'bg-green-600' : 'bg-slate-400'"></span>
+                    {{ item.status === 'Active' ? 'Aktif' : 'Non-Aktif' }}
+                  </span>
+                </td>
+
+                <!-- KOLOM 6: AKSI -->
+                <td class="py-4 pl-3 pr-4 text-center text-xs font-medium sm:pr-6">
+                  <div class="flex items-center justify-center gap-2">
+                    <button @click="openModal(item)" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-md transition-all font-semibold shadow-sm">Edit</button>
+                    <button @click="handleDelete(item.id)" class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition-all font-semibold shadow-sm">Hapus</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <!-- PAGINATION FOOTER -->
         <div v-if="filteredItems.length > 0" class="flex items-center justify-between border-t border-slate-200 bg-slate-50/50 px-4 py-3 sm:px-6">
@@ -195,9 +243,11 @@
     </div>
   </div>
 
+  <!-- ATK FORM MODAL -->
   <ATKFormModal
     :show="showModal"
     :item-to-edit="selectedItem"
+    :category-options="categories"
     @close="closeModal"
     @save="handleSave"
   />
@@ -208,8 +258,9 @@ import { ref, computed, onMounted, onUnmounted, shallowRef } from 'vue';
 import { 
   PlusIcon, CalendarDaysIcon, ClipboardDocumentListIcon, 
   CheckCircleIcon, XCircleIcon, XMarkIcon, NoSymbolIcon, 
-  MagnifyingGlassIcon, ChevronLeftIcon, ChevronRightIcon 
+  MagnifyingGlassIcon, ChevronLeftIcon, ChevronRightIcon, TagIcon, PhotoIcon 
 } from '@heroicons/vue/24/outline';
+
 import ATKFormModal from '../components/ATKFormModal.vue';
 
 // --- TOAST LOGIC ---
@@ -239,38 +290,37 @@ const updateTime = () => {
 onMounted(() => { updateTime(); timeInterval = setInterval(updateTime, 1000); });
 onUnmounted(() => { if (timeInterval) clearInterval(timeInterval); });
 
-// --- DATABASE SIMULASI (30 DATA) ---
+// --- DATA MASTER KATEGORI ---
+const categories = ref([
+  { id: 1, name: 'Alat Tulis' },
+  { id: 2, name: 'Kertas & Dokumen' },
+  { id: 3, name: 'Tinta & Toner' },
+  { id: 4, name: 'Perlengkapan' },
+  { id: 5, name: 'Lain-lain' },
+]);
+
+const getCategoryName = (id) => {
+  const cat = categories.value.find(c => c.id === id);
+  return cat ? cat.name : 'Unknown';
+};
+
+// --- DATABASE SIMULASI (LENGKAP eatk_item) ---
 const items = ref([
-  { id: 1, name: 'Pensil 2B Faber-Castell', category: 'Alat Tulis' },
-  { id: 2, name: 'Kertas A4 Sinar Dunia 80gr', category: 'Kertas & Dokumen' },
-  { id: 3, name: 'Tinta Printer Epson 003 Black', category: 'Tinta & Toner' },
-  { id: 4, name: 'Pulpen Standard AE7 Hitam', category: 'Alat Tulis' },
-  { id: 5, name: 'Spidol Snowman Boardmarker Black', category: 'Alat Tulis' },
-  { id: 6, name: 'Map Plastik Folio Bening', category: 'Kertas & Dokumen' },
-  { id: 7, name: 'Stopmap Kertas Warna Biru', category: 'Kertas & Dokumen' },
-  { id: 8, name: 'Stiker Label A4 103', category: 'Kertas & Dokumen' },
-  { id: 9, name: 'Toner HP 12A LaserJet', category: 'Tinta & Toner' },
-  { id: 10, name: 'Lakban Bening 2 Inch', category: 'Perlengkapan' },
-  { id: 11, name: 'Buku Tulis Sinar Dunia 38 Lembar', category: 'Alat Tulis' },
-  { id: 12, name: 'Penghapus Karet Staedtler', category: 'Alat Tulis' },
-  { id: 13, name: 'Penggaris Besi 30cm', category: 'Alat Tulis' },
-  { id: 14, name: 'Gunting Besar Joyko', category: 'Perlengkapan' },
-  { id: 15, name: 'Cutter Kenko Besar', category: 'Perlengkapan' },
-  { id: 16, name: 'Isi Staples No. 10', category: 'Perlengkapan' },
-  { id: 17, name: 'Stapler HD-10 Max', category: 'Perlengkapan' },
-  { id: 18, name: 'Klip Kertas Trigonal No. 3', category: 'Perlengkapan' },
-  { id: 19, name: 'Binder Clip 260 (51mm)', category: 'Perlengkapan' },
-  { id: 20, name: 'Post-it Notes 3x3 Kuning', category: 'Kertas & Dokumen' },
-  { id: 21, name: 'Amplop Coklat Tali Folio', category: 'Kertas & Dokumen' },
-  { id: 22, name: 'Amplop Putih Panjang (90)', category: 'Kertas & Dokumen' },
-  { id: 23, name: 'Lem Stick Glukol', category: 'Perlengkapan' },
-  { id: 24, name: 'Double Tape 1 Inch', category: 'Perlengkapan' },
-  { id: 25, name: 'Tinta Printer Epson 003 Cyan', category: 'Tinta & Toner' },
-  { id: 26, name: 'Tinta Printer Epson 003 Magenta', category: 'Tinta & Toner' },
-  { id: 27, name: 'Tinta Printer Epson 003 Yellow', category: 'Tinta & Toner' },
-  { id: 28, name: 'Spidol Permanent Hitam', category: 'Alat Tulis' },
-  { id: 29, name: 'Box File Bindex', category: 'Kertas & Dokumen' },
-  { id: 30, name: 'Ordner Bantex Biru', category: 'Kertas & Dokumen' },
+  { id: 1, code: 'ATK-001', name: 'Pensil 2B Faber-Castell', category_id: 1, description: 'Pensil ujian standar komputer', min_stock: 10, max_stock: 100, price: 3500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '01/01/2023', url_photo: '' },
+  { id: 2, code: 'ATK-002', name: 'Kertas A4 Sinar Dunia 80gr', category_id: 2, description: 'Kertas HVS putih ukuran A4', min_stock: 20, max_stock: 200, price: 45000, uom: 'Rim', status: 'Active', created_by: 'System', created_at: '01/01/2023', url_photo: '' },
+  { id: 3, code: 'ATK-003', name: 'Tinta Printer Epson 003 Black', category_id: 3, description: 'Tinta botol original Epson L3110', min_stock: 5, max_stock: 50, price: 85000, uom: 'Botol', status: 'Active', created_by: 'System', created_at: '02/01/2023', url_photo: '' },
+  { id: 4, code: 'ATK-004', name: 'Pulpen Standard AE7 Hitam', category_id: 1, description: 'Pulpen bola mata 0.5mm', min_stock: 50, max_stock: 500, price: 2500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '02/01/2023', url_photo: '' },
+  { id: 5, code: 'ATK-005', name: 'Spidol Snowman Boardmarker Black', category_id: 1, description: 'Spidol papan tulis hitam', min_stock: 20, max_stock: 200, price: 8500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '03/01/2023', url_photo: '' },
+  { id: 6, code: 'ATK-006', name: 'Map Plastik Folio Bening', category_id: 2, description: 'Map L transparan', min_stock: 50, max_stock: 300, price: 2500, uom: 'Pcs', status: 'Active', created_by: 'Admin', created_at: '05/01/2023', url_photo: '' },
+  { id: 7, code: 'ATK-007', name: 'Stopmap Kertas Warna Biru', category_id: 2, description: 'Stopmap bahan kertas buffalo', min_stock: 50, max_stock: 500, price: 1500, uom: 'Pcs', status: 'Active', created_by: 'Admin', created_at: '05/01/2023', url_photo: '' },
+  { id: 8, code: 'ATK-008', name: 'Stiker Label A4 103', category_id: 2, description: 'Label nama undangan no 103', min_stock: 10, max_stock: 50, price: 7000, uom: 'Pack', status: 'Active', created_by: 'Admin', created_at: '06/01/2023', url_photo: '' },
+  { id: 9, code: 'ATK-009', name: 'Toner HP 12A LaserJet', category_id: 3, description: 'Cartridge toner original HP', min_stock: 2, max_stock: 20, price: 850000, uom: 'Unit', status: 'Active', created_by: 'Admin', created_at: '10/01/2023', url_photo: '' },
+  { id: 10, code: 'ATK-010', name: 'Lakban Bening 2 Inch', category_id: 4, description: 'Lakban bening daimaru', min_stock: 10, max_stock: 100, price: 12000, uom: 'Roll', status: 'Active', created_by: 'Admin', created_at: '10/01/2023', url_photo: '' },
+  { id: 11, code: 'ATK-011', name: 'Buku Tulis Sinar Dunia 38', category_id: 1, description: 'Buku tulis sekolah isi 38 lembar', min_stock: 20, max_stock: 200, price: 3500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '12/01/2023', url_photo: '' },
+  { id: 12, code: 'ATK-012', name: 'Penghapus Karet Staedtler', category_id: 1, description: 'Penghapus pensil hitam kecil', min_stock: 20, max_stock: 100, price: 3000, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '12/01/2023', url_photo: '' },
+  { id: 13, code: 'ATK-013', name: 'Penggaris Besi 30cm', category_id: 1, description: 'Penggaris stainless steel', min_stock: 10, max_stock: 50, price: 7500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '15/01/2023', url_photo: '' },
+  { id: 14, code: 'ATK-014', name: 'Gunting Besar Joyko', category_id: 4, description: 'Gunting kertas ukuran besar', min_stock: 5, max_stock: 30, price: 15000, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '15/01/2023', url_photo: '' },
+  { id: 15, code: 'ATK-015', name: 'Cutter Kenko Besar', category_id: 4, description: 'Cutter L-500', min_stock: 10, max_stock: 50, price: 18000, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '18/01/2023', url_photo: '' },
 ]);
 
 // --- SEARCH & PAGINATION LOGIC ---
@@ -278,14 +328,18 @@ const searchQuery = ref('');
 const currentPage = ref(1);
 const itemsPerPage = 10;
 
-// Filter Search & SORT ASCENDING (A-Z)
 const filteredItems = computed(() => {
   return items.value
-    .filter(item => 
-      item.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-    .sort((a, b) => a.name.localeCompare(b.name)); // <-- PENGURUTAN A-Z DITAMBAHKAN
+    .filter(item => {
+      const search = searchQuery.value.toLowerCase();
+      const catName = getCategoryName(item.category_id).toLowerCase();
+      return (
+        item.name.toLowerCase().includes(search) ||
+        item.code.toLowerCase().includes(search) ||
+        catName.includes(search)
+      );
+    })
+    .sort((a, b) => a.name.localeCompare(b.name)); 
 });
 
 const paginatedItems = computed(() => {
@@ -312,31 +366,44 @@ const closeModal = () => {
   selectedItem.value = null;
 };
 
-// HANDLE SAVE (CREATE & UPDATE)
 const handleSave = (item) => {
   try {
+    const today = new Date().toLocaleDateString('en-GB'); 
+
     if (item.id) {
       // UPDATE
       const index = items.value.findIndex(i => i.id === item.id);
       if (index !== -1) {
-        items.value[index] = item;
-        triggerToast('Data ATK berhasil diperbarui.', 'success'); // IJO
+        const updatedItem = {
+           ...items.value[index],
+           ...item,
+           updated_by: 'Admin',
+           updated_at: today
+        };
+        items.value[index] = updatedItem;
+        triggerToast('Data ATK berhasil diperbarui.', 'success');
       } else {
         throw new Error('Item not found');
       }
     } else {
       // CREATE
       const newId = items.value.length > 0 ? Math.max(...items.value.map(i => i.id)) + 1 : 1;
-      items.value.push({ ...item, id: newId });
-      triggerToast('ATK baru berhasil ditambahkan.', 'success'); // IJO
+      const newItem = { 
+        ...item, 
+        id: newId, 
+        created_by: 'Admin', 
+        created_at: today,
+        status: 'Active' 
+      };
+      items.value.push(newItem);
+      triggerToast('ATK baru berhasil ditambahkan.', 'success');
     }
     closeModal();
   } catch (error) {
-    triggerToast('Gagal menyimpan data ATK.', 'error'); // MERAH
+    triggerToast('Gagal menyimpan data ATK.', 'error');
   }
 };
 
-// HANDLE DELETE
 const handleDelete = (itemId) => {
   openConfirmModal({
     title: 'Hapus ATK',
@@ -348,18 +415,14 @@ const handleDelete = (itemId) => {
     iconColor: 'text-red-600',
     onConfirm: () => {
       try {
-        // 1. Eksekusi Hapus
         items.value = items.value.filter(i => i.id !== itemId);
         
-        // 2. Cek Pagination
         if (paginatedItems.value.length === 0 && currentPage.value > 1) {
           currentPage.value--;
         }
 
-        // 3. SUKSES -> IJO
         triggerToast('ATK berhasil dihapus.', 'success');
       } catch (error) {
-        // 4. GAGAL -> MERAH
         triggerToast('Gagal menghapus ATK.', 'error');
       }
     }
