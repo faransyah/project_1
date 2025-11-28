@@ -1,208 +1,145 @@
 <template>
-  <!-- Overlay -->
-  <div v-if="show" @click="onClose" class="fixed inset-0 z-40 bg-gray-900 bg-opacity-75 transition-opacity"></div>
+  <Transition name="modal-fade">
+    <div v-if="show" class="fixed inset-0 z-[70]" role="dialog" aria-modal="true">
+      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="$emit('close')"></div>
 
-  <!-- Modal Panel -->
-  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div class="relative w-full max-w-lg rounded-2xl bg-white shadow-lg ring-1 ring-gray-900/5" @click.stop>
-      
-      <form @submit.prevent="onSave">
-        <!-- Header Modal dengan Ikon -->
-        <div class="flex items-start border-b border-gray-200 p-6">
-          <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 sm:h-10 sm:w-10">
-            <ArchiveBoxIcon class="h-6 w-6 text-blue-700" />
-          </div>
-          <div class="ml-4 text-left">
-            <h3 class="text-lg font-semibold leading-6 text-gray-900" id="modal-title">
-              {{ isEditing ? 'Edit Entri Stok' : 'Tambah Entri Stok' }}
-            </h3>
-            <p class="mt-1 text-sm text-gray-500">
-              {{ isEditing ? 'Sesuaikan harga atau jumlah stok untuk item ini.' : 'Buat entri baru untuk item di unit tertentu.' }}
-            </p>
-          </div>
-          <button @click="onClose" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-            <XMarkIcon class="h-6 w-6" />
-          </button>
-        </div>
-
-        <!-- Body Form -->
-        <div class="p-6 space-y-4">
+      <div class="flex min-h-full items-center justify-center p-4">
+        <div class="relative w-full max-w-lg transform rounded-2xl bg-white p-6 text-left shadow-xl transition-all">
           
-          <!-- Baris 1: Barang ATK -->
-          <div>
-            <label for="atk" class="block text-sm font-medium leading-6 text-gray-900">Barang ATK</label>
-            <div class="relative mt-2">
-              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <ClipboardDocumentListIcon class="h-5 w-5 text-gray-400" />
-              </div>
-              <select 
-                v-model="localEntry.atkId"
-                id="atk" 
-                required
-                class="block w-full rounded-md border-0 py-2.5 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
-              >
-                <option disabled value="">Pilih barang</option>
+          <div class="flex justify-between items-center mb-5">
+            <h3 class="text-lg font-bold leading-6 text-slate-900">
+              {{ stockToEdit ? 'Restock / Edit Barang' : 'Tambah Item Baru' }}
+            </h3>
+            <button @click="$emit('close')" class="text-slate-400 hover:text-slate-600">
+              <span class="text-2xl">&times;</span>
+            </button>
+          </div>
+
+          <form @submit.prevent="submitForm" class="space-y-4">
+            
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Nama Barang</label>
+              <select v-model="form.atkId" required :disabled="!!stockToEdit"
+                class="block w-full rounded-lg border-slate-300 bg-slate-50 border shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 disabled:opacity-60 disabled:cursor-not-allowed">
+                <option value="" disabled>-- Pilih Barang --</option>
                 <option v-for="atk in atkOptions" :key="atk.id" :value="atk.id">
-                  {{ atk.name }}
+                  {{ atk.sku }} - {{ atk.name }}
                 </option>
               </select>
             </div>
-          </div>
 
-          <!-- Baris 2: Unit -->
-          <div>
-            <label for="unit" class="block text-sm font-medium leading-6 text-gray-900">Unit</label>
-            <div class="relative mt-2">
-              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <BuildingOfficeIcon class="h-5 w-5 text-gray-400" />
-              </div>
-              <select 
-                v-model="localEntry.unitId"
-                id="unit" 
-                required
-                class="block w-full rounded-md border-0 py-2.5 pl-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
-              >
-                <option disabled value="">Pilih unit</option>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Unit / Lokasi</label>
+              <select v-model="form.unitId" required :disabled="!!stockToEdit"
+                class="block w-full rounded-lg border-slate-300 bg-slate-50 border shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 disabled:opacity-60 disabled:cursor-not-allowed">
+                <option value="" disabled>-- Pilih Unit --</option>
                 <option v-for="unit in unitOptions" :key="unit.id" :value="unit.id">
                   {{ unit.name }}
                 </option>
               </select>
             </div>
-          </div>
-          
-          <!-- Baris 3: Harga & Stok (Side-by-side) -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label for="price" class="block text-sm font-medium leading-6 text-gray-900">Harga</label>
-              <div class="relative mt-2">
-                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <span class="text-gray-500 sm:text-sm">Rp</span>
-                </div>
-                <input 
-                  v-model.number="localEntry.price"
-                  type="number" 
-                  name="price"
-                  id="price" 
-                  required
-                  class="block w-full rounded-md border-0 py-2.5 pl-9 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
-                  placeholder="0"
-                  min="0"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label for="stock" class="block text-sm font-medium leading-6 text-gray-900">Stok</label>
-              <div class="relative mt-2">
-                <input 
-                  v-model.number="localEntry.stock"
-                  type="number" 
-                  name="stock"
-                  id="stock" 
-                  required
-                  class="block w-full rounded-md border-0 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm"
-                  placeholder="0"
-                  min="0"
-                />
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                  <span class="text-gray-500 sm:text-sm">Pcs</span>
-                </div>
-              </div>
-            </div>
-          </div>
 
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">
+                  {{ stockToEdit ? 'Tambah Stok (Qty Masuk)' : 'Stok Awal' }}
+                </label>
+                <div class="relative">
+                  <input type="number" v-model="form.stock" required min="0"
+                    class="block w-full rounded-lg border-slate-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+                   <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <span class="text-slate-400 text-xs font-bold">Pcs</span>
+                   </div>
+                </div>
+                <p v-if="stockToEdit" class="text-[10px] text-blue-600 mt-1">*Isi 0 jika hanya ingin update batas minim.</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Batas Minim (Alert)</label>
+                <input type="number" v-model="form.threshold" required min="1"
+                  class="block w-full rounded-lg border-slate-300 border shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Harga Beli Satuan (Rp)</label>
+              <div class="relative rounded-md shadow-sm">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <span class="text-slate-500 sm:text-sm">Rp</span>
+                </div>
+                <input type="number" v-model="form.price" required min="0"
+                  class="block w-full rounded-lg border-slate-300 border pl-10 py-2 focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+              </div>
+              <p class="text-[10px] text-slate-500 mt-1" v-if="stockToEdit">
+                *Harga baru ini akan dirata-rata dengan stok lama (Batch System).
+              </p>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
+              <button type="button" @click="$emit('close')" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-colors">
+                Batal
+              </button>
+              <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                Simpan
+              </button>
+            </div>
+
+          </form>
         </div>
-        
-        <!-- Footer Modal -->
-        <div class="flex justify-end space-x-3 border-t border-gray-200 bg-gray-50 p-6 rounded-b-2xl">
-          <button type="button" @click="onClose" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors">
-            Batal
-          </button>
-          
-          <!-- TOMBOL SIMPAN (VALIDASI) -->
-          <button 
-            type="submit" 
-            :disabled="!isModified"
-            class="rounded-md px-3 py-2 text-sm font-semibold shadow-sm transition-all"
-            :class="!isModified 
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-              : 'bg-blue-700 text-white hover:bg-blue-800'"
-          >
-            Simpan
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
-// Impor ikon untuk form
-import { 
-  ArchiveBoxIcon, 
-  XMarkIcon, 
-  ClipboardDocumentListIcon, 
-  BuildingOfficeIcon 
-} from '@heroicons/vue/24/outline';
+import { ref, watch, onUnmounted } from 'vue'; // 1. Import digabung jadi satu baris
 
 const props = defineProps({
   show: Boolean,
-  stockToEdit: Object,
-  atkOptions: Array, // Menerima list ATK
-  unitOptions: Array, // Menerima list Unit
+  stockToEdit: Object, 
+  atkOptions: Array,   
+  unitOptions: Array   
 });
 
 const emit = defineEmits(['close', 'save']);
 
-// State lokal untuk form
-const localEntry = ref({});
-// Simpan data asli untuk validasi edit
-const originalEntry = ref({});
-
-const isEditing = computed(() => !!localEntry.value.id);
-
-// Computed Property: Cek apakah form valid dan berubah
-const isModified = computed(() => {
-  // 1. Validasi Wajib: ATK dan Unit harus dipilih, Harga & Stok tidak boleh minus
-  if (!localEntry.value.atkId || !localEntry.value.unitId) return false;
-  if (localEntry.value.price < 0 || localEntry.value.stock < 0) return false;
-
-  // 2. Jika Mode TAMBAH: Tombol nyala asal validasi di atas lolos
-  if (!isEditing.value) return true;
-
-  // 3. Jika Mode EDIT: Cek apakah ada perubahan field dari data asli
-  return localEntry.value.atkId !== originalEntry.value.atkId ||
-         localEntry.value.unitId !== originalEntry.value.unitId ||
-         localEntry.value.price !== originalEntry.value.price ||
-         localEntry.value.stock !== originalEntry.value.stock;
+const form = ref({
+  id: null, atkId: '', unitId: '', stock: 0, threshold: 10, price: 0
 });
 
-watch(() => props.show, (newVal) => {
-  if (newVal) {
+// 2. Watcher digabung (Logic Reset Form + Logic Kunci Scroll)
+watch(() => props.show, (isOpen) => {
+  if (isOpen) {
+    // A. Kunci Scroll Body
+    document.body.style.overflow = 'hidden'; 
+    
+    // B. Logic Reset Form
     if (props.stockToEdit) {
-      // Mode Edit: Clone data ke local dan original
-      // Pastikan field yang mungkin kosong diberikan nilai default agar form tidak null
-      const data = { 
-        ...props.stockToEdit,
-        price: props.stockToEdit.price ?? 0, // Default 0 jika undefined
-        stock: props.stockToEdit.stock ?? 0  // Default 0 jika undefined
-      };
-      localEntry.value = { ...data };
-      originalEntry.value = { ...data };
+      // MODE EDIT/RESTOCK: Isi form, tapi stock 0
+      form.value = { 
+        ...props.stockToEdit, 
+        stock: 0 
+      }; 
     } else {
-      // Mode Tambah: Reset form
-      localEntry.value = { atkId: '', unitId: '', price: 0, stock: 0 };
-      originalEntry.value = {};
+      // MODE BARU: Reset kosong
+      form.value = { id: null, atkId: '', unitId: '', stock: 0, threshold: 10, price: 0 };
     }
+  } else {
+    // C. Lepas Kunci Scroll saat modal tutup
+    document.body.style.overflow = ''; 
   }
 });
 
-const onClose = () => {
-  emit('close');
+const submitForm = () => {
+  emit('save', form.value);
 };
 
-const onSave = () => {
-  emit('save', localEntry.value);
-};
+// 3. Lifecycle Hook (Jaga-jaga)
+onUnmounted(() => {
+  document.body.style.overflow = '';
+});
 </script>
+
+<style scoped>
+.modal-fade-enter-active, .modal-fade-leave-active { transition: opacity 0.3s ease; }
+.modal-fade-enter-from, .modal-fade-leave-to { opacity: 0; }
+</style>
