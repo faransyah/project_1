@@ -238,8 +238,8 @@
                           <span v-else-if="item.stock <= item.stock_min" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-orange-100 text-[9px] font-bold text-orange-700 border border-orange-100 uppercase tracking-wide">
                              <ExclamationTriangleIcon class="h-3 w-3" /> Menipis
                           </span>
-                          <span v-else class="text-[10px] text-emerald-600 bg-emerald-100 font-medium inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border border-emerald-100 uppercase tracking-wide">
-                             <CheckCircleIcon class="h-3 w-3" /> Aman
+                          <span v-else class="text-[9px] text-emerald-600 bg-emerald-100 font-medium inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border border-emerald-100 uppercase tracking-wide">
+                             <CheckCircleIcon class="h-3 w-3" /> Tersedia
                           </span>
                        </div>
                        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
