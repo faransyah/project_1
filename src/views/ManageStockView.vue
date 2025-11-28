@@ -232,10 +232,13 @@
                     <div class="flex flex-col gap-1.5">
                        <div class="flex justify-between items-end">
                           <span class="text-sm font-bold text-slate-800">{{ item.stock }} <span class="text-[10px] font-normal text-slate-400">{{ getATK(item.item_id)?.uom }}</span></span>
-                          <span v-if="item.stock <= item.stock_min" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-red-50 text-[9px] font-bold text-red-600 border border-red-100 uppercase tracking-wide">
-                             <ExclamationTriangleIcon class="h-3 w-3" /> Low
+                          <span v-if="item.stock <= 0" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-red-50 text-[9px] font-bold text-red-600 border border-red-100 uppercase tracking-wide">
+                             <XCircleIcon class="h-3 w-3" /> Habis
                           </span>
-                          <span v-else class="text-[10px] text-emerald-600 font-medium flex items-center gap-0.5">
+                          <span v-else-if="item.stock <= item.stock_min" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-orange-100 text-[9px] font-bold text-orange-700 border border-orange-100 uppercase tracking-wide">
+                             <ExclamationTriangleIcon class="h-3 w-3" /> Menipis
+                          </span>
+                          <span v-else class="text-[10px] text-emerald-600 bg-emerald-100 font-medium inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border border-emerald-100 uppercase tracking-wide">
                              <CheckCircleIcon class="h-3 w-3" /> Aman
                           </span>
                        </div>
