@@ -1,15 +1,11 @@
 <template>
   <Teleport to="body">
-    <!-- Overlay Gelap & Blur -->
     <div v-if="show" @click="onClose" class="fixed inset-0 z-[999] bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300"></div>
 
-    <!-- Modal Panel Container -->
     <div v-if="show" class="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
       
-      <!-- Modal Frame (Layout Split) -->
       <div class="relative w-full max-w-6xl h-[85vh] transform overflow-hidden rounded-2xl bg-slate-50 text-left shadow-2xl transition-all ring-1 ring-slate-900/5 flex flex-col" @click.stop>
         
-        <!-- Header (Fixed Full Width) -->
         <div class="flex items-center justify-between border-b border-slate-200 px-8 py-5 bg-white z-20 flex-shrink-0 shadow-sm relative overflow-hidden">
           <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
           <div class="flex items-center gap-5 relative">
@@ -25,66 +21,43 @@
               </p>
             </div>
           </div>
-          <button 
-            @click="onClose" 
-            class="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
-            title="Tutup Modal"
-          >
+          <button @click="onClose" class="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none">
             <XMarkIcon class="h-7 w-7" />
           </button>
         </div>
 
-        <!-- CONTENT BODY (Split View) -->
         <div class="flex flex-1 overflow-hidden">
           
-          <!-- KIRI: FOTO PROFIL (FIXED / STATIC) -->
-          <div class="w-1/3 h-full bg-white border-r border-slate-200 p-8 flex flex-col items-center shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10">
+          <div class="w-1/3 h-full bg-white border-r border-slate-200 p-8 flex flex-col items-center shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10 hidden md:flex">
              <div class="w-full max-w-xs flex flex-col h-full">
                 <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center shrink-0">Foto Profil</label>
                 
-                <!-- Container Foto -->
-                <div 
-                  class="relative w-48 h-48 mx-auto rounded-full bg-slate-50 border-4 border-white shadow-xl ring-1 ring-slate-200 flex items-center justify-center overflow-hidden group cursor-pointer transition-all hover:ring-4 hover:ring-blue-200 shrink-0"
-                  @click="triggerFileInput"
-                >
+                <div class="relative w-48 h-48 mx-auto rounded-full bg-slate-50 border-4 border-white shadow-xl ring-1 ring-slate-200 flex items-center justify-center overflow-hidden group cursor-pointer transition-all hover:ring-4 hover:ring-blue-200 shrink-0" @click="triggerFileInput">
                   <img v-if="localUser.url_photo" :src="localUser.url_photo" alt="Profile" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                  <div v-else class="flex flex-col items-center justify-center text-slate-300">
-                      <UserIcon class="h-20 w-20 mb-1" />
+                  <div v-else class="flex flex-col items-center justify-center text-slate-300 group-hover:text-blue-400 transition-colors">
+                      <UserIcon class="h-24 w-24 mb-1" />
+                      <span class="text-[10px] font-bold uppercase tracking-wide opacity-50">Upload</span>
                   </div>
-                  
-                  <!-- Overlay Hover -->
                   <div class="absolute inset-0 bg-slate-900/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-[1px]">
                     <CameraIcon class="h-8 w-8 text-white mb-1 drop-shadow-md" />
                     <span class="text-[10px] font-bold text-white uppercase tracking-wider drop-shadow-md">Ubah Foto</span>
                   </div>
                 </div>
                 
-                <!-- Tombol & Keterangan -->
                 <div class="mt-8 flex flex-col items-center w-full">
                   <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileUpload" />
-                  
-                  <button 
-                    type="button" 
-                    @click="triggerFileInput" 
-                    class="w-full px-5 py-3 rounded-xl bg-white border border-slate-300 text-slate-600 text-xs font-bold hover:border-blue-500 hover:text-blue-600 hover:shadow-sm transition-all mb-3"
-                  >
-                    Upload Foto
+                  <button type="button" @click="triggerFileInput" class="w-full px-5 py-3 rounded-xl bg-white border border-slate-300 text-slate-600 text-xs font-bold hover:border-blue-500 hover:text-blue-600 hover:shadow-sm transition-all mb-3">
+                    Pilih File Foto
                   </button>
-                  
-                  <p class="text-[11px] text-center text-slate-400 leading-relaxed px-4">
-                    Format: JPG, PNG.<br>
-                    Maksimal ukuran file 2MB.
-                  </p>
+                  <p class="text-[11px] text-center text-slate-400 leading-relaxed px-4">Format: JPG, PNG. Max 2MB.</p>
                 </div>
              </div>
           </div>
 
-          <!-- KANAN: FORM INPUT (SCROLLABLE) -->
           <div class="flex-1 h-full overflow-y-auto custom-scrollbar bg-slate-50/50">
             <div class="p-8 max-w-3xl mx-auto pb-24">
               <form @submit.prevent="onSave" class="space-y-8">
                 
-                <!-- SECTION 1: IDENTITAS & AKUN -->
                 <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
                    <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
@@ -93,77 +66,87 @@
                    
                    <div class="space-y-6">
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Nama Lengkap -->
                         <div class="space-y-2">
                           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Nama Lengkap <span class="text-red-500">*</span></label>
                           <input v-model="localUser.full_name" type="text" required class="form-input-bold px-4" placeholder="Nama sesuai KTP" />
                         </div>
                         
-                        <!-- Username -->
                         <div class="space-y-2">
                           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Username <span class="text-red-500">*</span></label>
                           <div class="relative group">
                              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                 <span class="text-slate-400 font-bold text-sm transition-colors group-focus-within:text-blue-600">@</span>
                              </div>
-                             <input v-model="localUser.username" type="text" required class="form-input-bold pl-9" placeholder="username.pln" />
+                             <input 
+                                v-model="localUser.username" 
+                                @input="applyFilter($event, 'username', 'username')"
+                                type="text" required class="form-input-bold pl-9 lowercase" placeholder="username.pln" 
+                             />
                           </div>
                         </div>
                       </div>
 
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Email -->
                         <div class="space-y-2">
                           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Email <span class="text-red-500">*</span></label>
                           <div class="relative group">
                              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-600">
                                 <EnvelopeIcon class="h-5 w-5 text-slate-400" />
                              </div>
-                             <input v-model="localUser.email" type="email" required class="form-input-bold pl-12" placeholder="contoh@pln.co.id" />
+                             <input 
+                                v-model="localUser.email" 
+                                type="email" 
+                                required 
+                                class="form-input-bold pl-12" 
+                                :class="{'border-red-300 focus:border-red-500 text-red-600': localUser.email && !isValidEmail(localUser.email)}"
+                                placeholder="contoh@pln.co.id" 
+                             />
                           </div>
+                          <p v-if="localUser.email && !isValidEmail(localUser.email)" class="text-[10px] text-red-500 mt-1 ml-1">Format email harus mengandung @ dan domain yang valid (misalnya .com)</p>
                         </div>
 
-                        <!-- Telepon -->
                         <div class="space-y-2">
                           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">No. Telepon</label>
                           <div class="relative group">
                              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-600">
                                 <PhoneIcon class="h-5 w-5 text-slate-400" />
                              </div>
-                             <input v-model="localUser.phone" @input="filterPhone" type="text" maxlength="15" class="form-input-bold pl-12" placeholder="0812..." />
+                             <input 
+                                v-model="localUser.phone" 
+                                @input="applyFilter($event, 'phone', 'phone')"
+                                type="text" maxlength="15" class="form-input-bold pl-12" placeholder="0812..." 
+                             />
                           </div>
                         </div>
                       </div>
 
-                      <!-- Password -->
                       <div class="space-y-2">
-                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Password</label>
-                         <div class="relative group">
-                           <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-600">
-                              <LockClosedIcon class="h-5 w-5 text-slate-400" />
-                           </div>
-                           <input 
-                             v-model="localUser.password"
-                             :type="showPassword ? 'text' : 'password'"
-                             class="form-input-bold pl-12 pr-12"
-                             :class="{'text-slate-400 bg-slate-50 border-slate-200 cursor-default hover:border-slate-200 focus:ring-0': !isEditing && localUser.password === DUMMY_PASSWORD}"
-                             :placeholder="isEditing ? 'Klik untuk ubah password' : 'Password default: 123'"
-                             :readonly="!isEditing"
-                             @focus="handlePassFocus"
-                             @blur="handlePassBlur"
-                           />
-                           <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer focus:outline-none rounded-lg m-1 hover:bg-slate-100 p-1">
-                             <component :is="showPassword ? EyeSlashIcon : EyeIcon" class="h-5 w-5" />
-                           </button>
-                         </div>
-                         <p v-if="isEditing && localUser.password === DUMMY_PASSWORD" class="mt-2 text-[11px] text-emerald-600 font-medium flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100 w-fit">
-                           <CheckBadgeIcon class="h-3.5 w-3.5" /> Password aman. Klik kolom jika ingin mereset.
-                         </p>
+                          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Password</label>
+                          <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-600">
+                               <LockClosedIcon class="h-5 w-5 text-slate-400" />
+                            </div>
+                            <input 
+                              v-model="localUser.password"
+                              :type="showPassword ? 'text' : 'password'"
+                              class="form-input-bold pl-12 pr-12"
+                              :class="{'text-slate-400 bg-slate-50 border-slate-200 cursor-default hover:border-slate-200 focus:ring-0': !isEditing && localUser.password === DUMMY_PASSWORD}"
+                              :placeholder="isEditing ? 'Klik untuk ubah password' : 'Password default: 123'"
+                              :readonly="!isEditing"
+                              @focus="handlePassFocus"
+                              @blur="handlePassBlur"
+                            />
+                            <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer focus:outline-none rounded-lg m-1 hover:bg-slate-100 p-1">
+                              <component :is="showPassword ? EyeSlashIcon : EyeIcon" class="h-5 w-5" />
+                            </button>
+                          </div>
+                          <p v-if="isEditing && localUser.password === DUMMY_PASSWORD" class="mt-2 text-[11px] text-emerald-600 font-medium flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100 w-fit">
+                            <CheckBadgeIcon class="h-3.5 w-3.5" /> Password aman. Klik kolom jika ingin mereset.
+                          </p>
                       </div>
                    </div>
                 </div>
 
-                <!-- SECTION 2: DATA KEPEGAWAIAN -->
                 <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500"></div>
                    <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
@@ -171,7 +154,6 @@
                    </h4>
 
                    <div class="space-y-6">
-                      <!-- NIP & PERNR -->
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">NIP <span class="text-red-500">*</span></label>
@@ -179,16 +161,23 @@
                              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-purple-600">
                                 <IdentificationIcon class="h-5 w-5 text-slate-400" />
                              </div>
-                             <input v-model="localUser.nip" @input="filterNumeric($event, 'nip')" maxlength="20" type="text" required class="form-input-bold pl-12 font-mono tracking-wide" placeholder="XXXXXXXX" />
+                             <input 
+                                v-model="localUser.nip" 
+                                @input="applyFilter($event, 'nip', 'numeric')" 
+                                maxlength="20" type="text" required class="form-input-bold pl-12 font-mono tracking-wide" placeholder="XXXXXXXX" 
+                             />
                            </div>
                         </div>
                         <div class="space-y-2">
                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">PERNR (SAP)</label>
-                           <input v-model="localUser.pernr" @input="filterNumeric($event, 'pernr')" maxlength="20" type="text" class="form-input-bold font-mono tracking-wide px-4" placeholder="Nomor Personel" />
+                           <input 
+                                v-model="localUser.pernr" 
+                                @input="applyFilter($event, 'pernr', 'numeric')" 
+                                maxlength="20" type="text" class="form-input-bold font-mono tracking-wide px-4" placeholder="Nomor Personel" 
+                           />
                         </div>
                       </div>
 
-                      <!-- Area Personalia -->
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                         <div class="space-y-2">
                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Personnel Area</label>
@@ -196,16 +185,23 @@
                              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-purple-600">
                                 <MapPinIcon class="h-5 w-5 text-slate-400" />
                              </div>
-                             <input v-model="localUser.personnel_area" type="text" class="form-input-bold pl-12" placeholder="Kode Area" />
+                             <input 
+                                v-model="localUser.personnel_area" 
+                                @input="applyFilter($event, 'personnel_area', 'alphanum')"
+                                type="text" maxlength="10" class="form-input-bold pl-12 uppercase font-mono" placeholder="KODE" 
+                             />
                            </div>
                         </div>
                         <div class="space-y-2">
                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Personnel Sub Area</label>
-                           <input v-model="localUser.personnel_sub_area" type="text" class="form-input-bold px-4" placeholder="Kode Sub Area" />
+                           <input 
+                                v-model="localUser.personnel_sub_area" 
+                                @input="applyFilter($event, 'personnel_sub_area', 'alphanum')"
+                                type="text" maxlength="10" class="form-input-bold px-4 uppercase font-mono" placeholder="KODE" 
+                           />
                         </div>
                       </div>
 
-                      <!-- Pribadi & Tanggal -->
                       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
                         <div class="space-y-2">
                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Jenis Kelamin</label>
@@ -235,7 +231,6 @@
                    </div>
                 </div>
 
-                <!-- SECTION 3: ORGANISASI & JABATAN -->
                 <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-500"></div>
                    <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
@@ -243,7 +238,6 @@
                    </h4>
                    
                    <div class="space-y-6">
-                      <!-- Unit Kerja -->
                       <div class="space-y-2">
                          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Unit Kerja Utama <span class="text-red-500">*</span></label>
                          <div class="relative group">
@@ -262,11 +256,19 @@
                       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <div class="space-y-2">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Company Code</label>
-                            <input v-model="localUser.company_code" type="text" class="form-input-bold px-4" placeholder="4000" />
+                            <input 
+                                v-model="localUser.company_code" 
+                                @input="applyFilter($event, 'company_code', 'numeric')"
+                                type="text" maxlength="6" class="form-input-bold px-4 font-mono" placeholder="4000" 
+                            />
                          </div>
                          <div class="space-y-2">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Organization Code</label>
-                            <input v-model="localUser.organization_code" type="text" class="form-input-bold px-4" placeholder="50012345" />
+                            <input 
+                                v-model="localUser.organization_code" 
+                                @input="applyFilter($event, 'organization_code', 'numeric')"
+                                type="text" maxlength="12" class="form-input-bold px-4 font-mono" placeholder="50012345" 
+                            />
                          </div>
                       </div>
 
@@ -277,16 +279,18 @@
                          </div>
                          <div class="space-y-2">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Kode Jabatan</label>
-                            <input v-model="localUser.position_code" type="text" class="form-input-bold px-4" placeholder="cth: 50012345" />
+                            <input 
+                                v-model="localUser.position_code" 
+                                @input="applyFilter($event, 'position_code', 'numeric')"
+                                type="text" maxlength="12" class="form-input-bold px-4 font-mono" placeholder="cth: 50012345" 
+                            />
                          </div>
                       </div>
                    </div>
                 </div>
 
-                <!-- SECTION 4: SUPERIOR & SYSTEM -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                    
-                   <!-- Atasan Langsung -->
                    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
                       <div class="absolute left-0 top-0 bottom-0 w-1 bg-slate-400"></div>
                       <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
@@ -299,14 +303,16 @@
                          </div>
                          <div class="space-y-2">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">NIP Atasan</label>
-                            <input v-model="localUser.superior_nip" type="text" class="form-input-bold px-4" placeholder="NIP Atasan" />
+                            <input 
+                                v-model="localUser.superior_nip" 
+                                @input="applyFilter($event, 'superior_nip', 'numeric')"
+                                type="text" class="form-input-bold px-4" placeholder="NIP Atasan" 
+                            />
                          </div>
                       </div>
                    </div>
 
-                   <!-- Konfigurasi Sistem -->
                    <div class="flex flex-col gap-6">
-                      <!-- Role -->
                       <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
                          <div class="space-y-2">
@@ -323,13 +329,8 @@
                          </div>
                       </div>
 
-                      <!-- Switches -->
                       <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
-                          <!-- Status Switch -->
-                          <div 
-                            class="flex items-center justify-between cursor-pointer group" 
-                            @click="localUser.is_active = localUser.is_active ? 0 : 1"
-                          >
+                          <div class="flex items-center justify-between cursor-pointer group" @click="localUser.is_active = localUser.is_active ? 0 : 1">
                             <div>
                               <span class="block text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">Status Akun Aktif</span>
                               <span class="text-[11px] text-slate-500">Akses login sistem.</span>
@@ -341,11 +342,7 @@
 
                           <div class="border-t border-slate-100"></div>
 
-                          <!-- SSO Switch -->
-                          <div 
-                            class="flex items-center justify-between cursor-pointer group" 
-                            @click="localUser.is_sso = localUser.is_sso ? 0 : 1"
-                          >
+                          <div class="flex items-center justify-between cursor-pointer group" @click="localUser.is_sso = localUser.is_sso ? 0 : 1">
                             <div>
                               <span class="block text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">Single Sign On</span>
                               <span class="text-[11px] text-slate-500">Login via akun korporat.</span>
@@ -358,28 +355,27 @@
                    </div>
                 </div>
 
-                <!-- Audit Log (Hanya Edit) -->
                 <div v-if="isEditing" class="bg-slate-50 rounded-2xl p-5 border border-slate-200">
                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 flex items-center gap-2">
                      <ClockIcon class="h-4 w-4" /> Jejak Audit
                    </h4>
                    <div class="grid grid-cols-2 gap-4 text-[10px] text-slate-500">
-                      <div>
-                        <span class="block font-bold text-slate-700 mb-0.5">Created</span>
-                        <div class="flex items-center gap-2">
-                          <div class="h-5 w-5 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-400">SY</div>
-                          <span>{{ localUser.created_by || 'System' }}</span>
-                        </div>
-                        <span class="font-mono ml-7 mt-0.5 block">{{ localUser.created_at || '-' }}</span>
-                      </div>
-                      <div>
-                        <span class="block font-bold text-slate-700 mb-0.5">Updated</span>
-                        <div class="flex items-center gap-2">
-                          <div class="h-5 w-5 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-400">AD</div>
-                          <span>{{ localUser.updated_by || 'Admin' }}</span>
-                        </div>
-                        <span class="font-mono ml-7 mt-0.5 block">{{ localUser.updated_at || '-' }}</span>
-                      </div>
+                     <div>
+                       <span class="block font-bold text-slate-700 mb-0.5">Created</span>
+                       <div class="flex items-center gap-2">
+                         <div class="h-5 w-5 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-400">SY</div>
+                         <span>{{ localUser.created_by || 'System' }}</span>
+                       </div>
+                       <span class="font-mono ml-7 mt-0.5 block">{{ localUser.created_at || '-' }}</span>
+                     </div>
+                     <div>
+                       <span class="block font-bold text-slate-700 mb-0.5">Updated</span>
+                       <div class="flex items-center gap-2">
+                         <div class="h-5 w-5 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-400">AD</div>
+                         <span>{{ localUser.updated_by || 'Admin' }}</span>
+                       </div>
+                       <span class="font-mono ml-7 mt-0.5 block">{{ localUser.updated_at || '-' }}</span>
+                     </div>
                    </div>
                 </div>
 
@@ -389,7 +385,6 @@
 
         </div>
 
-        <!-- Footer (Fixed Bottom Right) -->
         <div class="flex items-center justify-between px-8 py-5 bg-white border-t border-slate-200 shrink-0 rounded-b-2xl z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
           <div class="text-xs font-bold" :class="isValid ? 'text-emerald-600' : 'text-slate-400'">
              <span v-if="isValid" class="flex items-center gap-1.5"><CheckBadgeIcon class="h-5 w-5" /> DATA LENGKAP</span>
@@ -422,7 +417,7 @@ import {
   BuildingOfficeIcon, Cog6ToothIcon, CameraIcon, EyeIcon, EyeSlashIcon,
   UserGroupIcon, LockClosedIcon, CheckBadgeIcon, CalendarDaysIcon,
   ShieldCheckIcon, FingerPrintIcon, InformationCircleIcon, ClockIcon,
-  MapPinIcon, EnvelopeIcon, PhoneIcon
+  MapPinIcon, EnvelopeIcon, PhoneIcon, UserIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -446,21 +441,41 @@ const handleFileUpload = (event) => {
   if (file) localUser.value.url_photo = URL.createObjectURL(file);
 };
 
-const filterNumeric = (event, field) => {
-  const val = event.target.value.replace(/[^0-9]/g, '');
+// ==========================================
+// --- VALIDASI & CONSTRAINT INPUT (CORE) ---
+// ==========================================
+const applyFilter = (event, field, type) => {
+  let val = event.target.value;
+  
+  if (type === 'numeric') {
+    // Hanya angka 0-9 (NIP, PERNR, Kode)
+    val = val.replace(/[^0-9]/g, '');
+  } else if (type === 'phone') {
+    // Angka, +, -, spasi, kurung (No HP)
+    val = val.replace(/[^0-9+\-\(\)\s]/g, '');
+  } else if (type === 'username') {
+    // Huruf, angka, titik, underscore (Username)
+    val = val.replace(/[^a-zA-Z0-9._]/g, '');
+  } else if (type === 'alphanum') {
+    // Huruf dan angka saja, auto Uppercase (Kode Area)
+    val = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  }
+
+  // Paksa update model dan tampilan
   localUser.value[field] = val;
   if (event.target.value !== val) event.target.value = val;
 };
-const filterPhone = (event) => {
-  const val = event.target.value.replace(/[^0-9+\-\(\)\s]/g, '');
-  localUser.value.phone = val;
-  if (event.target.value !== val) event.target.value = val;
+
+// Regex Validasi Email Standard
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
 const isValid = computed(() => {
   return localUser.value.full_name?.trim() &&
          localUser.value.username?.trim() &&
          localUser.value.email?.trim() &&
+         isValidEmail(localUser.value.email) && // Cek format email di tombol save
          localUser.value.nip?.trim() &&
          localUser.value.unit_id &&
          localUser.value.role; 
@@ -530,4 +545,4 @@ const onSave = () => {
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-</style>
+</style>  
