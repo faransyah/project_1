@@ -12,9 +12,9 @@
         <!-- Header (Fixed) -->
         <div class="flex items-center justify-between border-b border-slate-200 px-8 py-5 bg-white z-20 flex-shrink-0 shadow-sm relative overflow-hidden">
           <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
-          <div class="flex items-center gap-5 relative">
-            <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 ring-1 ring-white">
-              <BuildingOfficeIcon class="h-8 w-8" />
+          <div class="flex items-center gap-5">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 ring-1 ring-white">
+              <BuildingOfficeIcon class="h-7 w-7" />
             </div>
             <div>
               <h3 class="text-xl font-extrabold leading-6 text-slate-800 tracking-tight">
@@ -27,7 +27,7 @@
           </div>
           <button 
             @click="onClose" 
-            class="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
+            class="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-red-500 transition-all"
             title="Tutup Modal"
           >
             <XMarkIcon class="h-7 w-7" />
@@ -47,57 +47,95 @@
               </h4>
               
               <div class="space-y-6">
-                  <!-- Row 1 -->
+                  <!-- Row 1: Ref ID & Parent ID -->
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <!-- Ref ID dengan Constraint Prefix & Angka -->
                       <div class="space-y-2">
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Ref ID <span class="text-red-500">*</span></label>
-                        <div class="relative group">
-                          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-600">
-                              <IdentificationIcon class="h-5 w-5 text-slate-400" />
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Ref ID (Kode) <span class="text-red-500">*</span></label>
+                        <div class="flex rounded-xl shadow-sm">
+                          <!-- Dropdown Prefix -->
+                          <div class="relative">
+                            <select 
+                              v-model="refPrefix" 
+                              class="h-full rounded-l-xl border-y border-l border-r-0 border-slate-300 bg-slate-50 text-slate-600 font-bold text-sm pl-3 pr-7 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 cursor-pointer hover:bg-slate-100 transition-colors appearance-none"
+                              @change="handlePrefixChange"
+                            >
+                              <option value="UID">UID</option>
+                              <option value="UIW">UIW</option>
+                              <option value="UP3">UP3</option>
+                              <option value="ULP">ULP</option>
+                              <option value="PUSAT">PUSAT</option>
+                            </select>
+                            <ChevronDownIcon class="h-3 w-3 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
                           </div>
-                          <input 
-                            v-model="localUnit.ref_id" 
-                            type="text" 
-                            maxlength="10" 
-                            required 
-                            class="form-input-bold pl-11 font-mono tracking-wide" 
-                            placeholder="cth: 1001" 
-                          />
+                          <!-- Input Angka (Constraint: Hanya Angka) -->
+                          <div class="relative flex-1">
+                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-slate-400 font-bold text-sm">-</span>
+                             </div>
+                             <input 
+                               v-model="refNumber" 
+                               @input="handleRefNumberInput"
+                               type="text" 
+                               maxlength="5" 
+                               required 
+                               class="block w-full rounded-r-xl border border-slate-300 bg-white text-slate-800 font-semibold tracking-wide focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 pl-6 py-2.5 transition-all shadow-sm hover:border-emerald-300 sm:text-sm" 
+                               placeholder="1001" 
+                             />
+                          </div>
                         </div>
-                        <p class="text-[10px] text-slate-400 pt-1 ml-1">Kode referensi unik (SAP/Legacy).</p>
+                        <p class="text-[10px] text-emerald-600 pt-1 ml-1 font-medium">
+                           Preview Kode: <strong>{{ localUnit.ref_id || '-' }}</strong>
+                        </p>
                       </div>
 
+                      <!-- Parent ID (Constraint: Hanya Angka) -->
                       <div class="space-y-2">
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Parent ID</label>
-                        <input 
-                          v-model.number="localUnit.parent_id" 
-                          type="number" 
-                          min="0" 
-                          class="form-input-bold px-4" 
-                          placeholder="0 (Jika Unit Induk)" 
-                        />
-                        <p class="text-[10px] text-slate-400 pt-1 ml-1">Isi 0 jika ini adalah Unit Induk.</p>
+                        <div class="relative group">
+                           <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                              <QueueListIcon class="h-5 w-5 text-slate-400" />
+                           </div>
+                           <input 
+                            v-model.number="localUnit.parent_id" 
+                            @input="filterParentId"
+                            type="text" 
+                            class="form-input-bold pl-11" 
+                            placeholder="0" 
+                          />
+                        </div>
+                        <p class="text-[10px] text-slate-400 pt-1 ml-1">Isi 0 jika ini adalah Unit Induk / Wilayah.</p>
                       </div>
                   </div>
 
-                  <!-- Row 2 -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <!-- Row 2: Alias & Nama -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                      <!-- Alias (Constraint: Huruf untuk Wilayah) -->
                       <div class="space-y-2">
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Alias Unit <span class="text-red-500">*</span></label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Alias Unit (Wilayah) <span class="text-red-500">*</span></label>
                         <div class="relative group">
                           <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-600">
-                              <TagIcon class="h-5 w-5 text-slate-400" />
+                              <!-- Tampilkan Prefix Statis di dalam input -->
+                              <span class="text-sm font-bold text-slate-500">{{ refPrefix }}</span>
                           </div>
                           <input 
-                            v-model="localUnit.alias" 
+                            v-model="unitRegion" 
+                            @input="handleRegionInput"
                             type="text" 
-                            maxlength="20" 
+                            maxlength="30" 
                             required 
-                            class="form-input-bold pl-11" 
-                            placeholder="cth: UID Jatim" 
+                            class="form-input-bold capitalize"
+                            :class="refPrefix.length > 3 ? 'pl-[4.5rem]' : 'pl-14'"
+                            placeholder="Jatim / Surabaya" 
                           />
                         </div>
+                        <p class="text-[10px] text-emerald-600 pt-1 ml-1 font-medium flex items-center gap-1">
+                           <TagIcon class="h-3 w-3" />
+                           Preview Alias: <strong>{{ localUnit.alias || '-' }}</strong>
+                        </p>
                       </div>
+                      
+                      <!-- Nama Lengkap (Kombinasi Bebas) -->
                       <div class="space-y-2">
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Nama Lengkap <span class="text-red-500">*</span></label>
                         <input 
@@ -122,6 +160,7 @@
               </h4>
 
               <div class="space-y-6">
+                <!-- Telepon (Constraint: Angka & Simbol Telp) -->
                 <div class="space-y-2">
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Nomor Telepon <span class="text-red-500">*</span></label>
                     <div class="relative group w-full md:w-1/2">
@@ -129,7 +168,7 @@
                         <PhoneIcon class="h-5 w-5 text-slate-400" />
                       </div>
                       <input 
-                        :value="localUnit.phone" 
+                        v-model="localUnit.phone" 
                         @input="filterPhoneInput" 
                         type="text" 
                         maxlength="20" 
@@ -143,7 +182,7 @@
                 <div class="space-y-2">
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Alamat Lengkap <span class="text-red-500">*</span></label>
                     <div class="relative group">
-                      <div class="absolute top-3.5 left-4 pointer-events-none transition-colors group-focus-within:text-cyan-600">
+                      <div class="absolute top-3.5 left-3.5 pointer-events-none transition-colors group-focus-within:text-cyan-600">
                         <MapPinIcon class="h-5 w-5 text-slate-400" />
                       </div>
                       <textarea 
@@ -151,7 +190,7 @@
                         rows="3" 
                         required 
                         maxlength="255"
-                        class="form-input-bold pl-12 py-3 resize-none leading-relaxed" 
+                        class="form-input-bold pl-11 py-3 resize-none leading-relaxed" 
                         placeholder="Masukkan alamat lengkap kantor unit..."
                       ></textarea>
                     </div>
@@ -172,16 +211,16 @@
                       <ShieldCheckIcon class="h-6 w-6" />
                     </div>
                     <div>
-                      <span class="block text-base font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">Status Operasional</span>
-                      <span class="text-xs text-slate-500 font-medium">Non-aktifkan jika unit tutup.</span>
+                      <span class="block text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">Status Operasional</span>
+                      <span class="text-[11px] text-slate-500 font-medium">Non-aktifkan jika unit tutup.</span>
                     </div>
                 </div>
                 <button 
                   type="button" 
-                  class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none" 
+                  class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none" 
                   :class="localUnit.is_active ? 'bg-green-500' : 'bg-slate-300'"
                 >
-                  <span aria-hidden="true" class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" :class="localUnit.is_active ? 'translate-x-5' : 'translate-x-0'"></span>
+                  <span aria-hidden="true" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" :class="localUnit.is_active ? 'translate-x-5' : 'translate-x-0'"></span>
                 </button>
               </div>
 
@@ -192,7 +231,7 @@
                 </h4>
                 <div class="grid grid-cols-2 gap-4 text-[10px] text-slate-500">
                   <div>
-                    <span class="block font-bold text-slate-700 mb-0.5">Created</span>
+                    <span class="block font-bold text-slate-700 mb-0.5">Dibuat Oleh</span>
                     <div class="flex items-center gap-2">
                       <div class="h-5 w-5 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-400">SY</div>
                       <span>{{ localUnit.created_by || 'System' }}</span>
@@ -200,7 +239,7 @@
                     <span class="font-mono ml-7 mt-0.5 block">{{ localUnit.created_at || '-' }}</span>
                   </div>
                   <div>
-                    <span class="block font-bold text-slate-700 mb-0.5">Updated</span>
+                    <span class="block font-bold text-slate-700 mb-0.5">Update Terakhir</span>
                     <div class="flex items-center gap-2">
                       <div class="h-5 w-5 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-400">AD</div>
                       <span>{{ localUnit.updated_by || 'Admin' }}</span>
@@ -214,7 +253,7 @@
           </form>
         </div>
 
-        <!-- Footer (Fixed Bottom Right) -->
+        <!-- Footer -->
         <div class="flex items-center justify-between px-8 py-5 bg-white border-t border-slate-200 shrink-0 rounded-b-2xl z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
           <div class="text-xs font-bold" :class="isValid ? 'text-emerald-600' : 'text-slate-400'">
              <span v-if="isValid" class="flex items-center gap-1.5"><CheckBadgeIcon class="h-5 w-5" /> DATA LENGKAP</span>
@@ -226,9 +265,9 @@
             </button>
             <button 
               @click="onSave" 
-              :disabled="!isModified || !isValid"
+              :disabled="!isValid"
               class="px-8 py-2.5 text-sm font-bold text-white rounded-xl shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none min-w-[120px]"
-              :class="(!isModified || !isValid) ? 'bg-slate-300 text-slate-500' : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 hover:-translate-y-0.5 hover:shadow-emerald-500/30'"
+              :class="isValid ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 hover:-translate-y-0.5 hover:shadow-emerald-500/30' : 'bg-slate-300 text-slate-500'"
             >
               {{ isEditing ? 'Simpan Perubahan' : 'Tambah Unit' }}
             </button>
@@ -244,7 +283,8 @@
 import { ref, watch, computed, onUnmounted } from 'vue';
 import { 
   BuildingOfficeIcon, MapPinIcon, XMarkIcon, TagIcon, PhoneIcon,
-  ShieldCheckIcon, ClockIcon, InformationCircleIcon, CheckBadgeIcon, IdentificationIcon
+  ShieldCheckIcon, ClockIcon, InformationCircleIcon, CheckBadgeIcon, 
+  IdentificationIcon, ChevronDownIcon, QueueListIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -258,14 +298,64 @@ const localUnit = ref({});
 const originalUnit = ref({});
 const isEditing = computed(() => !!localUnit.value.id);
 
+// --- LOGIKA ALIAS & REF ID ---
+const refPrefix = ref('UID'); // Default
+const refNumber = ref('');    // Input Angka (1001)
+const unitRegion = ref('');   // Input Wilayah (Jatim)
+
+const updateRefId = () => {
+  localUnit.value.ref_id = `${refPrefix.value}-${refNumber.value}`;
+};
+
+const updateAlias = () => {
+  if (unitRegion.value) {
+    localUnit.value.alias = `${refPrefix.value} ${unitRegion.value}`;
+  } else {
+    localUnit.value.alias = '';
+  }
+};
+
+// Jika Prefix diganti, update kedua-duanya
+const handlePrefixChange = () => {
+  updateRefId();
+  updateAlias();
+};
+
+// FILTER INPUT
+const handleRefNumberInput = (event) => {
+  // Constraint: HANYA ANGKA
+  const val = event.target.value.replace(/[^0-9]/g, '');
+  refNumber.value = val;
+  event.target.value = val;
+  updateRefId();
+};
+
+const handleRegionInput = (event) => {
+  // Constraint: HANYA HURUF DAN SPASI (Tanpa Angka/Simbol)
+  const val = event.target.value.replace(/[^a-zA-Z\s]/g, ''); 
+  unitRegion.value = val;
+  event.target.value = val;
+  updateAlias();
+};
+
+const filterParentId = (event) => {
+  // Constraint: HANYA ANGKA
+  const val = event.target.value.replace(/[^0-9]/g, '');
+  localUnit.value.parent_id = val === '' ? 0 : parseInt(val);
+  if (event.target.value !== val.toString() && val !== '') event.target.value = val;
+};
+
 const filterPhoneInput = (event) => {
+  // Constraint: Angka, +, -, (, ), spasi
   const val = event.target.value.replace(/[^0-9+\-\(\)\s]/g, '');
   localUnit.value.phone = val;
   if (event.target.value !== val) event.target.value = val;
 };
 
 const isValid = computed(() => {
-  return localUnit.value.ref_id?.trim() &&
+  return refNumber.value && 
+         unitRegion.value &&
+         localUnit.value.ref_id?.trim() &&
          localUnit.value.alias?.trim() &&
          localUnit.value.name?.trim() &&
          localUnit.value.phone?.trim() &&
@@ -283,10 +373,37 @@ watch(() => props.show, (newVal) => {
     if (props.unitToEdit) {
       localUnit.value = JSON.parse(JSON.stringify(props.unitToEdit));
       originalUnit.value = JSON.parse(JSON.stringify(props.unitToEdit));
+      
+      // Parsing Ref ID untuk mengisi prefix dan number
+      if (localUnit.value.ref_id) {
+        const parts = localUnit.value.ref_id.split('-');
+        if (parts.length >= 2) {
+          refPrefix.value = parts[0];
+          refNumber.value = parts[1];
+        } else {
+          refPrefix.value = 'UID';
+          refNumber.value = localUnit.value.ref_id; // Fallback
+        }
+      }
+
+      // Parsing Alias untuk mengisi region (misal: "UID Jatim" -> "Jatim")
+      if (localUnit.value.alias) {
+        const parts = localUnit.value.alias.split(' ');
+        if (parts.length >= 2 && parts[0] === refPrefix.value) {
+          unitRegion.value = parts.slice(1).join(' ');
+        } else {
+          unitRegion.value = ''; // Fallback jika format beda
+        }
+      }
+
     } else {
+      // Mode Tambah
       localUnit.value = {
         ref_id: '', parent_id: 0, alias: '', name: '', address: '', phone: '', is_active: 1
       };
+      refPrefix.value = 'UID';
+      refNumber.value = '';
+      unitRegion.value = '';
       originalUnit.value = {};
     }
   } else {
@@ -297,6 +414,9 @@ watch(() => props.show, (newVal) => {
 onUnmounted(() => document.body.style.overflow = '');
 const onClose = () => emit('close');
 const onSave = () => {
+  // Final update ref_id & alias sebelum simpan
+  updateRefId();
+  updateAlias();
   if (isValid.value) emit('save', localUnit.value);
 };
 </script>
@@ -306,7 +426,7 @@ const onSave = () => {
 .form-input-bold {
   @apply block w-full rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold tracking-wide
   focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:bg-white
-  placeholder:text-slate-300 placeholder:font-normal transition-all duration-200 sm:text-sm py-2 shadow-sm hover:border-emerald-300;
+  placeholder:text-slate-300 placeholder:font-normal transition-all duration-200 sm:text-sm py-2.5 shadow-sm hover:border-emerald-300;
 }
 
 .custom-scrollbar::-webkit-scrollbar { width: 5px; }

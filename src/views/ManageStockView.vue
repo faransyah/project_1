@@ -1,5 +1,5 @@
 <template>
-
+  <!-- TOAST NOTIFICATION -->
   <Transition name="toast-slide-top">
     <div v-if="toast.show" class="fixed top-20 left-1/2 z-[100] w-full max-w-sm -translate-x-1/2 transform px-4">
       <div class="flex items-center overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-xl ring-1 transition-all"
@@ -18,33 +18,40 @@
     </div>
   </Transition>
 
-  <div v-if="confirmModal.show" class="relative z-[60]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" @click="closeConfirmModal"></div>
+  <!-- CONFIRM DELETE MODAL -->
+  <div v-if="showDeleteModal" class="relative z-[1100]" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity" @click="closeDeleteModal"></div>
     <div class="fixed inset-0 z-10 overflow-y-auto">
       <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
         <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg ring-1 ring-slate-900/5">
           <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
             <div class="sm:flex sm:items-start">
-              <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 transition-colors" :class="confirmModal.iconBg">
-                <component :is="confirmModal.icon" class="h-6 w-6" :class="confirmModal.iconColor" />
+              <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10 bg-red-100 text-red-600">
+                <NoSymbolIcon class="h-6 w-6" />
               </div>
               <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                <h3 class="text-lg font-bold leading-6 text-slate-900" id="modal-title">{{ confirmModal.title }}</h3>
-                <div class="mt-2"><p class="text-sm text-slate-500 leading-relaxed">{{ confirmModal.message }}</p></div>
+                <h3 class="text-lg font-bold leading-6 text-slate-900" id="modal-title">Hapus Data Stok</h3>
+                <div class="mt-2">
+                  <p class="text-sm text-slate-500 leading-relaxed">
+                    Yakin hapus stok <strong>{{ itemToDelete?.displayName }}</strong>? Data yang dihapus akan tercatat di riwayat.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
           <div class="bg-slate-50/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3">
-            <button type="button" @click="onConfirm" class="inline-flex w-full justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:scale-[1.02] active:scale-95 sm:w-auto" :class="confirmModal.buttonClass">{{ confirmModal.buttonText }}</button>
-            <button type="button" @click="closeConfirmModal" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 transition-all sm:mt-0 sm:w-auto">Batal</button>
+            <button type="button" @click="confirmDeleteAction" class="inline-flex w-full justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto">Hapus</button>
+            <button type="button" @click="closeDeleteModal" class="mt-3 inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 sm:mt-0 sm:w-auto">Batal</button>
           </div>
         </div>
       </div>
     </div>
   </div>
-   
+  
+  <!-- MAIN CONTENT -->
   <div class="space-y-8">
     
+    <!-- HEADER -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-6">
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">Manage Stock</h1>
@@ -67,8 +74,10 @@
       </div>
     </div>
 
+    <!-- CARD CONTAINER -->
     <div class="rounded-2xl bg-white p-6 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] border border-slate-100">
       
+      <!-- TABS NAVIGATION -->
       <div class="mb-8 border-b border-slate-200">
         <nav class="-mb-px flex space-x-8" aria-label="Tabs">
           <button 
@@ -94,15 +103,19 @@
         </nav>
       </div>
 
+      <!-- KONTEN TAB 1: STOK FISIK -->
       <div v-if="activeTab === 'stock'">
+        <!-- TOOLBAR -->
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
           <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
             <ArchiveBoxIcon class="h-5 w-5 text-slate-400" />
             Daftar Stok Unit
           </h2>
 
+          <!-- Toolbar Items -->
           <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto items-center">
             
+            <!-- SEARCH -->
             <div class="relative w-full sm:w-48">
               <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                 <MagnifyingGlassIcon class="h-4 w-4 text-slate-400" />
@@ -112,10 +125,11 @@
                 @input="handleFilterChange"
                 type="text" 
                 class="block w-full rounded-lg border-0 h-10 py-1.5 pl-10 ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 transition-shadow" 
-                placeholder="Cari barang..."
+                placeholder="Cari barang / SKU..."
               >
             </div>
 
+            <!-- FILTER UNIT -->
             <div class="relative w-full sm:w-48">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <MapPinIcon class="h-4 w-4 text-slate-400" />
@@ -126,10 +140,11 @@
                 class="block w-full rounded-lg border-0 h-10 py-1.5 pl-9 pr-8 text-slate-900 ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 cursor-pointer"
               >
                 <option value="Semua Unit">Semua Unit</option>
-                <option v-for="unit in allUnits" :key="unit.id" :value="unit.id">{{ unit.alias }}</option>
+                <option v-for="unit in uniqueUnits" :key="unit.id" :value="unit.id">{{ unit.alias }}</option>
               </select>
             </div>
 
+            <!-- FILTER KATEGORI -->
             <div class="relative w-full sm:w-48">
                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <TagIcon class="h-4 w-4 text-slate-400" />
@@ -140,10 +155,11 @@
                 class="block w-full rounded-lg border-0 h-10 py-1.5 pl-9 pr-8 text-slate-900 ring-1 ring-inset ring-slate-200 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 cursor-pointer"
               >
                 <option value="Semua Kategori">Semua Kategori</option>
-                <option v-for="cat in uniqueCategories" :key="cat">{{ cat }}</option>
+                <option v-for="cat in uniqueCategories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
               </select>
             </div>
 
+            <!-- BUTTON ADD -->
             <button 
               @click="openStockModal(null)"
               class="inline-flex items-center justify-center rounded-lg bg-blue-600 h-10 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 active:scale-95 whitespace-nowrap w-full sm:w-auto"
@@ -154,21 +170,23 @@
           </div>
         </div>
 
+        <!-- TABLE STOK -->
         <div class="overflow-hidden rounded-xl border border-slate-200">
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
               <thead class="bg-slate-50">
                 <tr>
-                  <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500 sm:pl-6">Barang (Master Item)</th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Unit Kerja</th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Kondisi Stok</th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Harga</th>
-                  <th scope="col" class="px-3 py-3.5 text-center text-xs font-bold uppercase tracking-wide text-slate-500">Status</th>
-                  <th scope="col" class="relative py-3.5 pl-3 pr-4 text-center text-xs font-bold uppercase tracking-wide text-slate-500 sm:pr-6">Aksi</th>
+                  <th scope="col" class="w-[30%] py-3.5 pl-4 pr-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500 sm:pl-6">Barang (Master Item)</th>
+                  <th scope="col" class="w-[20%] px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Unit & Kategori</th>
+                  <th scope="col" class="w-[15%] px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Kondisi Stok</th>
+                  <th scope="col" class="w-[15%] px-3 py-3.5 text-left text-xs font-bold uppercase tracking-wide text-slate-500">Harga</th>
+                  <th scope="col" class="w-[10%] px-3 py-3.5 text-center text-xs font-bold uppercase tracking-wide text-slate-500">Status</th>
+                  <th scope="col" class="w-[10%] relative py-3.5 pl-3 pr-4 text-center text-xs font-bold uppercase tracking-wide text-slate-500 sm:pr-6">Aksi</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-200 bg-white">
                 
+                <!-- Empty State -->
                 <tr v-if="filteredStock.length === 0">
                   <td colspan="7" class="py-12 text-center text-sm text-slate-500">
                     <div class="flex flex-col items-center justify-center">
@@ -182,8 +200,10 @@
 
                 <tr v-for="item in paginatedStock" :key="item.id" class="group hover:bg-slate-50/80 transition-colors">
                   
-                  <td class="py-4 pl-4 pr-3 sm:pl-6 min-w-[280px]">
+                  <!-- KOLOM 1: MASTER ITEM & FOTO -->
+                  <td class="py-4 pl-4 pr-3 sm:pl-6">
                     <div class="flex items-center gap-4">
+                       <!-- BUTTON FOTO -->
                        <div 
                           class="h-12 w-12 rounded-lg bg-white border border-slate-200 flex-shrink-0 overflow-hidden flex items-center justify-center shadow-sm group-hover:border-blue-300 transition-all duration-200 cursor-pointer"
                           @click="openDetailModal(item)"
@@ -193,7 +213,8 @@
                          <ArchiveBoxIcon v-else class="h-6 w-6 text-slate-300" />
                       </div>
                       
-                      <div>
+                      <!-- BUTTON NAMA -->
+                      <div class="min-w-0">
                         <button 
                            @click="openDetailModal(item)"
                            class="text-left font-bold text-slate-800 text-sm hover:text-blue-600 hover:underline transition-all line-clamp-1 focus:outline-none"
@@ -213,38 +234,43 @@
                     </div>
                   </td>
 
+                  <!-- KOLOM 2: UNIT & KATEGORI -->
                   <td class="px-3 py-4 text-sm text-slate-500">
                     <div class="flex flex-col gap-1.5">
                        <div class="flex items-center gap-1.5">
                           <MapPinIcon class="h-3.5 w-3.5 text-slate-400" />
-                          <span class="text-sm font-semibold text-slate-700">{{ getUnitAlias(item.unit_id) }}</span>
+                          <span class="text-sm font-semibold text-slate-700 truncate max-w-[180px]" :title="getUnitAlias(item.unit_id)">{{ getUnitAlias(item.unit_id) }}</span>
                        </div>
                        <div class="flex items-center gap-1.5 ml-0.5">
                           <TagIcon class="h-3 w-3 text-slate-400" />
                           <span class="text-xs text-slate-500 bg-slate-50 px-1.5 rounded border border-slate-100">
-                             {{ getATK(item.item_id)?.category }}
+                             {{ getCategoryName(getATK(item.item_id)?.category_id) }}
                           </span>
                        </div>
                     </div>
                   </td>
                   
-                  <td class="px-3 py-4 min-w-[160px]">
+                  <!-- KOLOM 3: STOK VISUAL -->
+                  <td class="px-3 py-4">
                     <div class="flex flex-col gap-1.5">
                        <div class="flex justify-between items-end">
                           <span class="text-sm font-bold text-slate-800">{{ item.stock }} <span class="text-[10px] font-normal text-slate-400">{{ getATK(item.item_id)?.uom }}</span></span>
+                          
+                          <!-- LOGIKA STATUS STOK -->
                           <span v-if="item.stock <= 0" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-red-50 text-[9px] font-bold text-red-600 border border-red-100 uppercase tracking-wide">
                              <XCircleIcon class="h-3 w-3" /> Habis
                           </span>
-                          <span v-else-if="item.stock <= item.stock_min" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-orange-100 text-[9px] font-bold text-orange-700 border border-orange-100 uppercase tracking-wide">
+                          <span v-else-if="item.stock <= item.stock_min" class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-orange-50 text-[9px] font-bold text-orange-700 border border-orange-100 uppercase tracking-wide">
                              <ExclamationTriangleIcon class="h-3 w-3" /> Menipis
                           </span>
-                          <span v-else class="text-[9px] text-emerald-600 bg-emerald-100 font-medium inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border border-emerald-100 uppercase tracking-wide">
+                          <span v-else class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-50 text-[9px] font-bold text-emerald-700 border border-emerald-100 uppercase tracking-wide">
                              <CheckCircleIcon class="h-3 w-3" /> Tersedia
                           </span>
                        </div>
+                       <!-- Progress Bar Visual -->
                        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div class="h-full rounded-full transition-all duration-500 relative" 
-                               :class="item.stock <= item.stock_min ? 'bg-red-500' : 'bg-emerald-500'"
+                               :class="item.stock <= 0 ? 'bg-red-600' : (item.stock <= item.stock_min ? 'bg-orange-500' : 'bg-emerald-500')"
                                :style="{ width: Math.min((item.stock / (item.stock_min * 3)) * 100, 100) + '%' }">
                           </div>
                        </div>
@@ -252,12 +278,14 @@
                     </div>
                   </td>
 
+                  <!-- KOLOM 4: HARGA -->
                   <td class="px-3 py-4 text-sm font-medium text-slate-700 tabular-nums">
                     Rp {{ (item.price || 0).toLocaleString('id-ID') }}
                   </td>
 
+                  <!-- KOLOM 5: STATUS -->
                   <td class="px-3 py-4 text-center">
-                      <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset"
+                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset"
                       :class="item.status === 'Active' 
                         ? 'bg-green-50 text-green-700 ring-green-600/20' 
                         : 'bg-slate-100 text-slate-500 ring-slate-500/20'"
@@ -268,6 +296,7 @@
                     <div class="text-[10px] text-slate-400 mt-1 font-mono">{{ item.updated_at || item.created_at }}</div>
                   </td>
 
+                  <!-- KOLOM 6: AKSI -->
                   <td class="py-4 pl-3 pr-4 text-center text-xs font-medium sm:pr-6">
                     <div class="flex items-center justify-center gap-2">
                       <button 
@@ -289,6 +318,7 @@
             </table>
           </div>
 
+          <!-- PAGINATION FOOTER -->
           <div v-if="filteredStock.length > 0" class="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-4 py-3 sm:px-6">
             <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
               <div>
@@ -298,7 +328,7 @@
               </div>
               <div>
                 <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                  <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-white focus:z-20 focus:outline-offset-0 disabled:opacity-50">
+                  <button @click="currentPage > 1 ? currentPage-- : null" :disabled="currentPage === 1" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 disabled:opacity-50">
                     <span class="sr-only">Previous</span>
                     <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
                   </button>
@@ -316,7 +346,9 @@
         </div>
       </div>
       
+      <!-- KONTEN TAB 2: RIWAYAT MUTASI -->
       <div v-if="activeTab === 'history'">
+         <!-- Toolbar History -->
          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
               <ClockIcon class="h-5 w-5 text-slate-400" />
@@ -339,6 +371,7 @@
            </div>
          </div>
 
+         <!-- Table History -->
          <div class="overflow-hidden rounded-xl border border-slate-200">
             <div class="overflow-x-auto">
                <table class="min-w-full divide-y divide-slate-200">
@@ -382,6 +415,8 @@
     </div>
   </div>
 
+  <!-- COMPONENTS -->
+  <!-- Gunakan komponen StockFormModal & StockDetailModal yang sudah dibuat -->
   <StockFormModal
     :show="isModalOpen"
     :stock-to-edit="selectedItem"
@@ -390,7 +425,7 @@
     @close="closeModal"
     @save="handleStockSave"
   />
-   
+  
   <StockDetailModal
     :show="isDetailModalOpen"
     :item="detailItem"
@@ -404,288 +439,331 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { 
   MagnifyingGlassIcon, PlusIcon, ArchiveBoxIcon, XMarkIcon, CalendarDaysIcon, 
   CheckCircleIcon, XCircleIcon, NoSymbolIcon, MapPinIcon, ChevronLeftIcon, ChevronRightIcon,
-  ClockIcon, TagIcon, ExclamationTriangleIcon, ArrowUpTrayIcon, ArrowDownIcon
+  ClockIcon, TagIcon, ExclamationTriangleIcon, ArrowUpTrayIcon, WrenchScrewdriverIcon, TrashIcon,
+  ArrowDownIcon
 } from '@heroicons/vue/24/outline';
 
-// Import Komponen (Sesuaikan path jika perlu)
+import { useInventoryStore } from '../stores/inventoryStore';
 import StockFormModal from '../components/StockFormModal.vue';
 import StockDetailModal from '../components/StockDetailModal.vue';
 
-// --- 1. CONFIG & STATE ---
+const store = useInventoryStore();
+
+// ==========================================
+// 1. STATE MODAL (YANG SEBELUMNYA HILANG)
+// ==========================================
+const isModalOpen = ref(false);        // Kontrol modal Form (Tambah/Edit)
+const selectedItem = ref(null);        // Data item yang sedang diedit
+const isDetailModalOpen = ref(false);  // Kontrol modal Detail
+const detailItem = ref(null);          // Data untuk modal Detail
+
+// ==========================================
+// 2. TOAST NOTIFICATION
+// ==========================================
 const toast = ref({ show: false, message: '', type: 'success' });
 let toastTimeout = null;
 
 const triggerToast = (message, type = 'success') => {
   if (toastTimeout) clearTimeout(toastTimeout); 
-  toast.value.message = message; toast.value.type = type; toast.value.show = true;
+  toast.value.message = message; 
+  toast.value.type = type; 
+  toast.value.show = true;
   toastTimeout = setTimeout(() => { toast.value.show = false; }, 3000);
 };
 
-// State Confirm Modal
-const confirmModal = ref({ show: false, message: '', onConfirm: () => {} });
+// ==========================================
+// 3. DELETE LOGIC
+// ==========================================
+const showDeleteModal = ref(false);
+const itemToDelete = ref(null);
 
-// FUNGSI PENTING: Jembatan untuk tombol "Ya, Hapus"
-const onConfirm = () => {
-    if (confirmModal.value.onConfirm) {
-        confirmModal.value.onConfirm(); // Jalankan logika hapus yang disimpan
+const handleDelete = (item) => {
+  itemToDelete.value = item;
+  showDeleteModal.value = true;
+};
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false;
+  itemToDelete.value = null;
+};
+
+const confirmDeleteAction = () => {
+  if (itemToDelete.value) {
+    try {
+        const item = itemToDelete.value;
+        const atk = getATK(item.item_id);
+        const deletedName = atk ? atk.name : 'Unknown';
+        const deletedStock = item.stock;
+        
+        // Hapus dari Store
+        store.deleteStock(item.id);
+
+        // Reset Pagination jika halaman kosong
+        if (paginatedStock.value.length === 0 && currentPage.value > 1) {
+          currentPage.value--;
+        }
+
+        // Catat Log Penghapusan
+        if (deletedStock > 0) {
+           const now = new Date().toLocaleString('id-ID');
+           store.addHistory({
+             id: Date.now(),
+             type: 'OUT',
+             date: now,
+             itemName: deletedName,
+             qty: deletedStock,
+             actor: 'Admin',
+             note: 'Penghapusan Data Stok (Write-off)'
+           });
+        }
+
+        triggerToast('Data berhasil dihapus.', 'success');
+    } catch (error) {
+        console.error("Error deleting stock:", error);
+        triggerToast('Gagal menghapus data.', 'error');
     }
-    closeConfirmModal();
+    closeDeleteModal();
+  }
 };
 
-const closeConfirmModal = () => { confirmModal.value.show = false; };
-const openConfirmModal = (opts) => {
-    confirmModal.value = { ...opts, show: true };
-};
+watch(() => showDeleteModal.value, (val) => {
+    if (val) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+});
 
+// ==========================================
+// 4. TIME & HEADER LOGIC
+// ==========================================
 const currentTime = ref('');
-const activeTab = ref('stock');
-const searchQuery = ref('');
-const currentPage = ref(1);
-const itemsPerPage = 10;
+let timeInterval = null;
 
-// Filter State
-const selectedUnit = ref('Semua Unit');
-const selectedCategory = ref('Semua Kategori');
-
-// History State
-const historySearchQuery = ref('');
-const currentHistoryPage = ref(1);
-
-const isModalOpen = ref(false);
-const selectedItem = ref(null);
-const isDetailModalOpen = ref(false);
-const detailItem = ref(null);
-
-// Timer Jam
 const updateTime = () => {
   const now = new Date();
   currentTime.value = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' }).replace(/\./g, ':');
 };
-onMounted(() => { updateTime(); timeInterval = setInterval(updateTime, 1000); });
-let timeInterval = null;
-onUnmounted(() => { if (timeInterval) clearInterval(timeInterval); });
 
-// --- 2. DATA MASTER ---
-const allUnits = ref([
-  { id: 1, alias: 'UID Jatim', name: 'UID Jawa Timur' },
-  { id: 2, alias: 'UID Jabar', name: 'UID Jawa Barat' },
-  { id: 3, alias: 'UID Jaya', name: 'UID Jakarta Raya' },
-  { id: 5, alias: 'UID Bali', name: 'UID Bali' },
-  { id: 7, alias: 'UID Sumut', name: 'UID Sumatera Utara' },
-  { id: 13, alias: 'UIW Papua', name: 'UIW Papua' },
-  { id: 8, alias: 'UID Sumbar', name: 'UID Sumatera Barat' },
-  { id: 10, alias: 'UID Kaltim', name: 'UID Kalimantan Timur' },
-  { id: 6, alias: 'UID Sulsel', name: 'UID Sulawesi Selatan' },
-]);
+onMounted(() => { 
+    updateTime(); 
+    timeInterval = setInterval(updateTime, 1000); 
+});
 
-const allATKMaster = ref([
-  { id: 1, name: 'Kertas A4 Sinar Dunia 70gr', code: 'ATK-KRT-001', category: 'Kertas', uom: 'Rim', url_photo: '' },
-  { id: 2, name: 'Pulpen Standard AE7 Hitam', code: 'ATK-ALT-002', category: 'Alat Tulis', uom: 'Pcs', url_photo: '' },
-  { id: 3, name: 'Tinta Epson 003 Black', code: 'ATK-TNT-003', category: 'Tinta', uom: 'Botol', url_photo: '' },
-  { id: 4, name: 'Baterai ABC AA', code: 'ATK-ELK-001', category: 'Elektronik', uom: 'Pack', url_photo: '' },
-  { id: 5, name: 'Ordner Bindex 717 Folio', code: 'ATK-ODR-005', category: 'Penyimpanan', uom: 'Pcs', url_photo: '' },
-  { id: 6, name: 'Stapler Max HD-10', code: 'ATK-ALT-006', category: 'Alat Tulis', uom: 'Pcs', url_photo: '' },
-  { id: 7, name: 'Isi Staples Max No.10', code: 'ATK-ALT-007', category: 'Alat Tulis', uom: 'Box', url_photo: '' },
-  { id: 8, name: 'Map Snelhecter Plastik', code: 'ATK-DOC-008', category: 'Kertas', uom: 'Lusin', url_photo: '' },
-  { id: 9, name: 'Spidol Permanent Snowman', code: 'ATK-ALT-009', category: 'Alat Tulis', uom: 'Pcs', url_photo: '' },
-  { id: 10, name: 'Kalkulator Casio', code: 'ATK-ELK-010', category: 'Elektronik', uom: 'Pcs', url_photo: '' },
-]);
+onUnmounted(() => { 
+    if (timeInterval) clearInterval(timeInterval); 
+});
 
-const categories = ref([ 'Alat Tulis', 'Kertas', 'Tinta', 'Elektronik', 'Penyimpanan' ]);
+// ==========================================
+// 5. DATA MASTER & HELPERS
+// ==========================================
+const allUnits = computed(() => store.units || []);
+const allATKMaster = computed(() => store.atks || []);
+const allStockItems = computed(() => store.stocks || []);
+const stockHistory = computed(() => store.history || []);
+const categories = computed(() => store.categories || []);
 
-// Helpers
-const getATK = (itemId) => allATKMaster.value.find(a => a.id === itemId) || { name: 'Unknown', code: '???', category: 'Umum' };
-const getUnitAlias = (unitId) => allUnits.value.find(u => u.id === unitId)?.alias || 'Unknown';
-const getCategoryName = (id) => 'Kategori'; // Placeholder jika kategori bukan ID
+const getATK = (itemId) => {
+   const item = allATKMaster.value?.find(a => a.id === itemId);
+   return item || { name: 'Unknown', code: '???', url_photo: '' };
+};
 
-// --- 3. DATA & LOGIC STOK ---
-const allStockItems = ref([
-  { id: 101, item_id: 1, unit_id: 1, stock: 150, stock_min: 20, price: 45000, status: 'Active', created_at: '01/01/2023', updated_at: '10/12/2023', batches: [{ id:1, date:'2023-11-01', price:45000, stock:150 }] },
-  { id: 102, item_id: 2, unit_id: 1, stock: 500, stock_min: 50, price: 2500, status: 'Active', created_at: '01/01/2023', batches: [{ id:2, date:'2023-10-05', price:2500, stock:500 }] },
-  { id: 103, item_id: 3, unit_id: 2, stock: 3, stock_min: 5, price: 85000, status: 'Active', created_at: '01/01/2023', batches: [{ id:3, date:'2023-09-15', price:85000, stock:3 }] },
-  { id: 104, item_id: 4, unit_id: 3, stock: 0, stock_min: 10, price: 12000, status: 'Active', created_at: '05/01/2023', batches: [] },
-  { id: 105, item_id: 5, unit_id: 1, stock: 50, stock_min: 10, price: 28000, status: 'Active', created_at: '06/01/2023', batches: [{ id:4, date:'2023-11-22', price:28000, stock:50 }] },
-  { id: 106, item_id: 1, unit_id: 4, stock: 80, stock_min: 20, price: 46000, status: 'Active', created_at: '10/01/2023', batches: [{ id:5, date:'2023-11-10', price:46000, stock:80 }] },
-  { id: 107, item_id: 2, unit_id: 5, stock: 200, stock_min: 30, price: 2700, status: 'Active', created_at: '12/01/2023', batches: [{ id:6, date:'2023-11-01', price:2700, stock:200 }] },
-  { id: 108, item_id: 3, unit_id: 7, stock: 15, stock_min: 5, price: 90000, status: 'Active', created_at: '15/01/2023', batches: [{ id:7, date:'2023-10-20', price:90000, stock:15 }] },
-  { id: 109, item_id: 4, unit_id: 6, stock: 5, stock_min: 10, price: 16000, status: 'Active', created_at: '18/01/2023', batches: [{ id:8, date:'2023-11-05', price:16000, stock:5 }] },
-  { id: 110, item_id: 5, unit_id: 8, stock: 100, stock_min: 20, price: 29500, status: 'Active', created_at: '20/01/2023', batches: [{ id:9, date:'2023-11-25', price:29500, stock:100 }] },
-  { id: 111, item_id: 6, unit_id: 1, stock: 40, stock_min: 10, price: 15000, status: 'Active', created_at: '22/01/2023', batches: [{ id:10, date:'2023-02-01', price:15000, stock:40 }] },
-  { id: 112, item_id: 7, unit_id: 3, stock: 200, stock_min: 50, price: 2000, status: 'Active', created_at: '25/01/2023', batches: [{ id:11, date:'2023-02-05', price:2000, stock:200 }] },
-  { id: 113, item_id: 8, unit_id: 2, stock: 25, stock_min: 5, price: 35000, status: 'Active', created_at: '28/01/2023', batches: [{ id:12, date:'2023-02-10', price:35000, stock:25 }] },
-  { id: 114, item_id: 9, unit_id: 1, stock: 300, stock_min: 50, price: 7500, status: 'Active', created_at: '30/01/2023', batches: [{ id:13, date:'2023-02-15', price:7500, stock:300 }] },
-  { id: 115, item_id: 10, unit_id: 13, stock: 10, stock_min: 5, price: 125000, status: 'Active', created_at: '01/02/2023', batches: [{ id:14, date:'2023-02-20', price:125000, stock:10 }] },
-]);
+const getUnitAlias = (unitId) => {
+   const unit = allUnits.value?.find(u => u.id === unitId);
+   return unit?.alias || 'Unknown';
+};
 
-const stockHistory = ref([
-  { id: 1, type: 'IN', date: '2023-11-20 09:00', itemName: 'Kertas A4 Sinar Dunia 70gr', qty: 50, actor: 'Admin', note: 'Restock Batch #2' },
-]);
+const getCategoryName = (catId) => {
+   const cat = categories.value?.find(c => c.id === catId);
+   return cat?.name || '-';
+};
 
-// COMPUTED: UNTUK MENGAMBIL DATA UNIK
-const uniqueUnits = computed(() => allUnits.value); 
-const uniqueCategories = computed(() => categories.value);
+// ==========================================
+// 6. FILTER & PAGINATION
+// ==========================================
+const searchQuery = ref('');
+const currentPage = ref(1);
+const itemsPerPage = 10;
+const selectedUnit = ref('Semua Unit');
+const selectedCategory = ref('Semua Kategori');
+const activeTab = ref('stock');
 
-// --- 4. LOGIKA FILTER UTAMA (DIPERBAIKI) ---
+// History Filter
+const historySearchQuery = ref('');
+const currentHistoryPage = ref(1);
+
+// Unique Lists untuk Dropdown Filter
+const uniqueUnits = computed(() => {
+  const usedUnitIds = [...new Set(allStockItems.value.map(item => item.unit_id))];
+  return usedUnitIds.map(id => allUnits.value.find(u => u.id === id)).filter(Boolean).sort((a, b) => a.alias.localeCompare(b.alias));
+});
+
+const uniqueCategories = computed(() => {
+  const usedCatIds = new Set();
+  allStockItems.value.forEach(stock => {
+    const atk = getATK(stock.item_id);
+    if(atk && atk.category_id) usedCatIds.add(atk.category_id);
+  });
+  return [...usedCatIds].map(id => categories.value.find(c => c.id === id)).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name));
+});
+
+// Filter Logic Stock
 const filteredStock = computed(() => {
   return allStockItems.value.filter(stock => {
     const item = getATK(stock.item_id);
-    
-    // 1. Logic Search (Nama atau Kode)
     const search = searchQuery.value.toLowerCase();
-    const matchSearch = item.name.toLowerCase().includes(search) || 
-                        item.code.toLowerCase().includes(search);
     
-    // 2. Logic Filter Unit
-    // Perhatikan: stock.unit_id adalah Number. selectedUnit bisa String "Semua Unit" atau Number ID.
+    const itemName = item.name || '';
+    const itemCode = item.code || '';
+    const matchSearch = itemName.toLowerCase().includes(search) || itemCode.toLowerCase().includes(search);
     const matchUnit = selectedUnit.value === 'Semua Unit' || stock.unit_id === selectedUnit.value;
-    
-    // 3. Logic Filter Kategori
-    const matchCat = selectedCategory.value === 'Semua Kategori' || item.category === selectedCategory.value;
+    const itemCatName = getCategoryName(item.category_id);
+    const matchCat = selectedCategory.value === 'Semua Kategori' || itemCatName === selectedCategory.value;
     
     return matchSearch && matchUnit && matchCat;
-  }).sort((a, b) => getATK(a.item_id).name.localeCompare(getATK(b.item_id).name));
+  }).sort((a, b) => {
+    const nameA = getATK(a.item_id).name || '';
+    const nameB = getATK(b.item_id).name || '';
+    return nameA.localeCompare(nameB);
+  });
 });
 
 const paginatedStock = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return filteredStock.value.slice(start, end);
+  return filteredStock.value.slice(start, start + itemsPerPage);
 });
 
 const totalPages = computed(() => Math.ceil(filteredStock.value.length / itemsPerPage));
 
-// --- 5. LOGIKA FILTER HISTORY (DIPERBAIKI) ---
+// Filter Logic History
 const filteredHistory = computed(() => {
-  if (!historySearchQuery.value) return stockHistory.value;
-  
-  const query = historySearchQuery.value.toLowerCase();
   return stockHistory.value.filter(log => 
-     log.itemName.toLowerCase().includes(query) ||
-     log.actor.toLowerCase().includes(query) ||
-     log.note.toLowerCase().includes(query) ||
-     (log.type === 'IN' ? 'masuk' : 'keluar').includes(query)
+      (log.itemName && log.itemName.toLowerCase().includes(historySearchQuery.value.toLowerCase())) ||
+      (log.actor && log.actor.toLowerCase().includes(historySearchQuery.value.toLowerCase())) ||
+      (log.note && log.note.toLowerCase().includes(historySearchQuery.value.toLowerCase()))
   );
 });
 
-const paginatedHistory = computed(() => filteredHistory.value);
+const paginatedHistory = computed(() => {
+  const start = (currentHistoryPage.value - 1) * itemsPerPage;
+  return filteredHistory.value.slice(start, start + itemsPerPage);
+});
 
-// Reset halaman saat filter berubah
+const totalHistoryPages = computed(() => Math.ceil(filteredHistory.value.length / itemsPerPage));
+
+// Reset pagination saat filter berubah
 const handleFilterChange = () => { currentPage.value = 1; };
 const handleHistoryFilterChange = () => { currentHistoryPage.value = 1; };
 
-// --- 6. ACTIONS ---
+// ==========================================
+// 7. MODAL ACTIONS (FUNGSIONALITAS TOMBOL)
+// ==========================================
 
-// Modal & CRUD
+// Buka Modal Form (Tambah/Edit)
 const openStockModal = (stock) => {
-  selectedItem.value = stock ? { ...stock } : null;
+  selectedItem.value = stock ? JSON.parse(JSON.stringify(stock)) : null;
   isModalOpen.value = true;
 };
 
+// Tutup Modal Form
 const closeModal = () => { 
-  isModalOpen.value = false; 
-  selectedItem.value = null; 
+    isModalOpen.value = false; 
+    selectedItem.value = null; 
 };
 
-const openDetailModal = (stock) => {
-  const atk = getATK(stock.item_id);
+// Buka Modal Detail
+const openDetailModal = (item) => { 
+  const atk = getATK(item.item_id);
   detailItem.value = { 
-    ...stock, 
-    name: atk.name, sku: atk.code, uom: atk.uom, 
-    unit: getUnitAlias(stock.unit_id),
-    url_photo: atk.url_photo, category: atk.category
+    ...item, 
+    name: atk.name, 
+    sku: atk.code, 
+    uom: atk.uom, 
+    unit: getUnitAlias(item.unit_id),
+    url_photo: atk.url_photo,
+    category: getCategoryName(atk.category_id)
   }; 
   isDetailModalOpen.value = true; 
 };
 
-const closeDetailModal = () => {
-  isDetailModalOpen.value = false;
-  detailItem.value = null;
+// Tutup Modal Detail
+const closeDetailModal = () => { 
+    isDetailModalOpen.value = false; 
+    detailItem.value = null; 
 };
 
+// Tombol Edit di dalam Modal Detail
 const handleDetailEdit = () => {
    const itemToEdit = allStockItems.value.find(i => i.id === detailItem.value.id);
    closeDetailModal();
    openStockModal(itemToEdit);
 };
 
+// ==========================================
+// 8. SAVE & TRANSACTION LOGIC
+// ==========================================
 const handleStockSave = (formData) => {
-  const today = new Date().toLocaleDateString('en-GB');
-  
-  // LOGIC EDIT / TRANSAKSI
+  const today = new Date().toLocaleDateString('en-GB'); 
+  const now = new Date().toLocaleString('id-ID');
+
   if (formData.id) {
-    const index = allStockItems.value.findIndex(s => s.id === formData.id);
-    if (index !== -1) {
-      if (formData.txType && formData.txQty > 0) { // Transaksi Masuk/Keluar
-         const qty = parseInt(formData.txQty);
-         const atkName = getATK(allStockItems.value[index].item_id).name;
-         
-         if (formData.txType === 'in') {
-            allStockItems.value[index].stock += qty;
-            stockHistory.value.unshift({ id: Date.now(), type: 'IN', date: new Date().toLocaleString('id-ID'), itemName: atkName, qty: qty, actor: 'Admin', note: formData.txNote || 'Restock Manual' });
-            triggerToast(`Berhasil restock +${qty}`, 'success');
-         } else {
-            if (allStockItems.value[index].stock >= qty) {
-              allStockItems.value[index].stock -= qty;
-              stockHistory.value.unshift({ id: Date.now(), type: 'OUT', date: new Date().toLocaleString('id-ID'), itemName: atkName, qty: qty, actor: 'Admin', note: formData.txNote || 'Koreksi Stok' });
-              triggerToast(`Berhasil koreksi -${qty}`, 'success');
-            } else {
-              triggerToast('Stok tidak mencukupi!', 'error');
-              return;
-            }
-         }
-      } else { // Edit Data Biasa
-         allStockItems.value[index] = { ...allStockItems.value[index], ...formData, updated_at: today };
-         triggerToast('Data stok diperbarui', 'success');
+    // --- MODE EDIT / TRANSAKSI ---
+    const originalItem = allStockItems.value.find(s => s.id === formData.id);
+    
+    if (originalItem) {
+      if (formData.txType && formData.txQty > 0) {
+        // Logika Transaksi Masuk/Keluar
+        const qty = parseInt(formData.txQty);
+        let newStockVal = originalItem.stock;
+
+        if (formData.txType === 'in') {
+           newStockVal += qty;
+           store.addHistory({
+             id: Date.now(), type: 'IN', date: now, itemName: getATK(originalItem.item_id).name, qty: qty, actor: 'Admin', note: formData.txNote || 'Restock Manual'
+           });
+           triggerToast(`Berhasil restock +${qty}`, 'success');
+        } else {
+           if (newStockVal >= qty) {
+             newStockVal -= qty;
+             store.addHistory({
+               id: Date.now(), type: 'OUT', date: now, itemName: getATK(originalItem.item_id).name, qty: qty, actor: 'Admin', note: formData.txNote || 'Koreksi Stok'
+             });
+             triggerToast(`Berhasil koreksi -${qty}`, 'success');
+           } else {
+             triggerToast('Stok tidak mencukupi!', 'error');
+             return; // Batalkan save jika stok kurang
+           }
+        }
+        store.updateStock({ ...originalItem, stock: newStockVal, updated_at: today });
+      } else {
+        // Logika Update Info Biasa (Harga, Min Stock, Status)
+        store.updateStock({ ...originalItem, ...formData, updated_at: today });
+        triggerToast('Data stok diperbarui', 'success');
       }
     }
-  } 
-  // LOGIC CREATE BARU
-  else {
-    const newId = Date.now();
-    allStockItems.value.push({ 
-      ...formData, id: newId, status: 'Active', created_at: today, created_by: 'Admin',
-    });
-    stockHistory.value.unshift({ 
-      id: Date.now(), type: 'IN', date: new Date().toLocaleString('id-ID'), 
-      itemName: getATK(formData.item_id).name, qty: formData.stock, actor: 'Admin', note: 'Stok Awal' 
+  } else {
+    // --- MODE TAMBAH BARU (CREATE) ---
+    const duplicate = allStockItems.value.find(s => s.item_id === formData.item_id && s.unit_id === formData.unit_id);
+    if (duplicate) {
+      triggerToast('Stok barang ini sudah ada di unit tersebut!', 'error');
+      return;
+    }
+
+    const newStock = {
+      id: Date.now(),
+      ...formData,
+      status: 'Active',
+      created_at: today,
+      created_by: 'Admin',
+      batches: [{ id: Date.now(), date: new Date().toISOString().slice(0,10), price: formData.price, stock: formData.stock }]
+    };
+    
+    store.addStock(newStock);
+    store.addHistory({ 
+        id: Date.now()+1, type: 'IN', date: now, itemName: getATK(formData.item_id).name, qty: formData.stock, actor: 'Admin', note: 'Stok Awal' 
     });
     triggerToast('Stok baru ditambahkan', 'success');
   }
+  
   closeModal();
 };
-
-const handleDelete = (itemToDelete) => {
-  openConfirmModal({
-    title: 'Hapus Data Stok',
-    message: `Yakin hapus stok "${getATK(itemToDelete.item_id).name}" di ${getUnitAlias(itemToDelete.unit_id)}?`,
-    buttonText: 'Hapus',
-    buttonClass: 'bg-red-600 hover:bg-red-700',
-    icon: NoSymbolIcon,
-    iconBg: 'bg-red-100',
-    iconColor: 'text-red-600',
-    
-    // Callback ini akan dijalankan saat tombol "Ya, Hapus" diklik via onConfirm()
-    onConfirm: () => {
-        try {
-          allStockItems.value = allStockItems.value.filter(s => s.id !== itemToDelete.id);
-          
-          // Catat Log Penghapusan
-          stockHistory.value.unshift({
-              id: Date.now(), type: 'OUT', date: new Date().toLocaleString('id-ID'),
-              itemName: getATK(itemToDelete.item_id).name, qty: itemToDelete.stock,
-              actor: 'Admin', note: 'Penghapusan Data Stok'
-          });
-
-          if (paginatedStock.value.length === 0 && currentPage.value > 1) currentPage.value--;
-          triggerToast('Data berhasil dihapus', 'success');
-        } catch (error) {
-          triggerToast('Gagal menghapus data.', 'error');
-        }
-    }
-  });
-};
-
-watch(() => confirmModal.value.show, (val) => document.body.style.overflow = val ? 'hidden' : '');
 </script>
 
 <style scoped>

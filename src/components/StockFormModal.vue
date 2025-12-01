@@ -1,14 +1,11 @@
 <template>
   <Teleport to="body">
-    <!-- Overlay -->
     <div v-if="show" @click="onClose" class="fixed inset-0 z-[999] bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300"></div>
 
-    <!-- Modal Panel -->
     <div v-if="show" class="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
       
-      <div class="relative w-full max-w-4xl h-[85vh] transform overflow-hidden rounded-2xl bg-slate-50 text-left shadow-2xl transition-all ring-1 ring-slate-900/5 flex flex-col" @click.stop>
+      <div class="relative w-full max-w-6xl h-[85vh] transform overflow-hidden rounded-2xl bg-slate-50 text-left shadow-2xl transition-all ring-1 ring-slate-900/5 flex flex-col" @click.stop>
         
-        <!-- Header -->
         <div class="flex items-center justify-between border-b border-slate-200 px-8 py-5 bg-white z-20 flex-shrink-0 shadow-sm relative overflow-hidden">
           <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
           <div class="flex items-center gap-5">
@@ -20,7 +17,7 @@
                 {{ isEditing ? 'Kelola Stok Barang' : 'Tambah Stok Baru' }}
               </h3>
               <p class="text-sm text-slate-500 mt-0.5 font-medium">
-                {{ isEditing ? 'Catat transaksi atau update data stok.' : 'Registrasi barang baru ke unit kerja.' }}
+                {{ isEditing ? 'Catat transaksi masuk/keluar atau update data.' : 'Registrasi stok barang baru ke unit kerja.' }}
               </p>
             </div>
           </div>
@@ -29,133 +26,205 @@
           </button>
         </div>
 
-        <!-- Body Form -->
-        <div class="p-8 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/80">
-          <form @submit.prevent="onSave" class="space-y-6 max-w-3xl mx-auto pb-10">
-            
-            <!-- Info Barang (Read-only saat Edit) -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-               <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-4 border-b border-slate-100 pb-2">Informasi Barang & Lokasi</h4>
-               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label class="label-modern">Barang ATK</label>
-                    <select v-model="localStock.item_id" required class="form-select-bold w-full" :disabled="isEditing" :class="{'bg-slate-100 cursor-not-allowed': isEditing}">
-                       <option disabled value="">-- Pilih Barang --</option>
-                       <option v-for="atk in atkOptions" :key="atk.id" :value="atk.id">{{ atk.code }} - {{ atk.name }}</option>
-                    </select>
+        <div class="flex flex-1 overflow-hidden">
+          
+          <div class="w-1/3 h-full bg-white border-r border-slate-200 p-8 flex flex-col items-center shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10 hidden md:flex">
+             <div class="w-full max-w-xs flex flex-col h-full">
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center shrink-0">Preview Barang</label>
+                
+                <div class="relative w-full aspect-square rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden mb-6 p-4 shadow-inner group">
+                  <img v-if="selectedATKPhoto" :src="selectedATKPhoto" alt="Preview Produk" class="w-full h-full object-contain transition-all duration-500 group-hover:scale-110" />
+                  <div v-else class="flex flex-col items-center text-slate-300">
+                      <PhotoIcon class="h-16 w-16 mb-3" />
+                      <span class="text-xs font-medium text-slate-400">Pilih Barang ATK</span>
                   </div>
-                  <div>
-                    <label class="label-modern">Unit Kerja</label>
-                    <select v-model="localStock.unit_id" required class="form-select-bold w-full" :disabled="isEditing" :class="{'bg-slate-100 cursor-not-allowed': isEditing}">
-                       <option disabled value="">-- Pilih Unit --</option>
-                       <option v-for="unit in unitOptions" :key="unit.id" :value="unit.id">{{ unit.alias }}</option>
-                    </select>
-                  </div>
-               </div>
-            </div>
-
-            <!-- Form Transaksi (Khusus Edit) -->
-            <div v-if="isEditing" class="bg-blue-50 p-6 rounded-2xl border border-blue-100 shadow-inner">
-               <h4 class="text-sm font-bold text-blue-800 uppercase tracking-wide mb-4 flex items-center gap-2">
-                 <ClipboardDocumentListIcon class="h-5 w-5" /> Transaksi Stok
-               </h4>
-               
-               <!-- Tabs Transaksi -->
-               <div class="flex space-x-4 mb-6">
-                  <button type="button" @click="transactionType = 'in'" class="flex-1 py-3 rounded-xl border-2 text-sm font-bold transition-all flex items-center justify-center gap-2" :class="transactionType === 'in' ? 'border-green-500 bg-green-50 text-green-700 shadow-sm' : 'border-slate-200 bg-white text-slate-500 hover:border-green-200'">
-                     <ArrowUpIcon class="h-5 w-5" /> Tambah Stok (Masuk)
-                  </button>
-                  <button type="button" @click="transactionType = 'out'" class="flex-1 py-3 rounded-xl border-2 text-sm font-bold transition-all flex items-center justify-center gap-2" :class="transactionType === 'out' ? 'border-orange-500 bg-orange-50 text-orange-700 shadow-sm' : 'border-slate-200 bg-white text-slate-500 hover:border-orange-200'">
-                     <ArrowDownIcon class="h-5 w-5" /> Koreksi / Keluar
-                  </button>
-               </div>
-
-               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label class="label-modern">{{ transactionType === 'in' ? 'Jumlah Masuk' : 'Jumlah Keluar' }}</label>
-                    <input v-model.number="transactionQty" type="number" min="0" class="form-input-bold text-lg" placeholder="0" />
-                    <p class="text-xs text-slate-500 mt-1 ml-1">Stok saat ini: <strong>{{ localStock.stock }}</strong></p>
-                  </div>
-                  <div>
-                    <label class="label-modern">Keterangan</label>
-                    <input v-model="transactionNote" type="text" class="form-input-bold" :placeholder="transactionType === 'in' ? 'Cth: Pembelian baru' : 'Cth: Rusak / Opname'" />
-                  </div>
-               </div>
-            </div>
-
-            <!-- Form Stok Awal (Khusus Create) -->
-            <div v-else class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-               <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-4">Stok Awal</h4>
-               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label class="label-modern">Jumlah Stok</label>
-                    <input v-model.number="localStock.stock" type="number" min="0" class="form-input-bold px-4" />
-                  </div>
-                  <div>
-                    <label class="label-modern">Stok Minimum (Alert)</label>
-                    <input v-model.number="localStock.stock_min" type="number" min="0" class="form-input-bold px-4" />
-                  </div>
-               </div>
-            </div>
-            
-            <!-- Harga & Status (Selalu ada) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                  <label class="label-modern">Harga Satuan (Rp)</label>
-                  <div class="relative w-full">
-                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                      <span class="text-slate-500 font-bold text-sm">Rp</span>
-                    </div>
-                    
-                    <input 
-                      v-model.number="localStock.price" 
-                      type="number" 
-                      min="0" 
-                      class="form-input-bold !pl-12" 
-                      placeholder="0" 
-                    />
-                  </div>
-                  <p class="text-[10px] text-slate-400 mt-1 ml-1">Harga pembelian per unit.</p>
                 </div>
-               
-               <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between group cursor-pointer hover:border-blue-300 transition-all" @click="toggleStatus">
-                  <div>
-                    <label class="label-modern mb-0 cursor-pointer">Status Aktif</label>
-                    <p class="text-xs text-slate-400">Barang dapat ditransaksikan</p>
-                  </div>
-                  <button 
-                    type="button" 
-                    class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none" 
-                    :class="localStock.status === 'Active' ? 'bg-green-500' : 'bg-slate-300'"
-                  >
-                    <span aria-hidden="true" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" :class="localStock.status === 'Active' ? 'translate-x-5' : 'translate-x-0'"></span>
-                  </button>
-               </div>
-            </div>
 
-          </form>
+                <div v-if="selectedATK" class="w-full space-y-4">
+                   <div class="text-center">
+                      <h4 class="text-sm font-bold text-slate-800 line-clamp-2 leading-snug">{{ selectedATK.name }}</h4>
+                      <p class="text-xs text-slate-500 font-mono mt-1 bg-slate-100 px-2 py-0.5 rounded inline-block border border-slate-200">{{ selectedATK.code }}</p>
+                   </div>
+                   <div class="grid grid-cols-2 gap-3">
+                      <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+                         <p class="text-[10px] font-bold text-slate-400 uppercase">Kategori</p>
+                         <p class="text-xs font-bold text-blue-600 mt-0.5 truncate">{{ getCategoryName(selectedATK.category_id) }}</p>
+                      </div>
+                      <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+                         <p class="text-[10px] font-bold text-slate-400 uppercase">Satuan</p>
+                         <p class="text-xs font-bold text-slate-700 mt-0.5">{{ selectedATK.uom }}</p>
+                      </div>
+                   </div>
+                </div>
+                <p v-else class="text-center text-xs text-slate-400 italic mt-4 px-4">
+                   Silakan pilih "Barang ATK" di formulir sebelah kanan untuk melihat detailnya.
+                </p>
+             </div>
+          </div>
+
+          <div class="flex-1 h-full overflow-y-auto custom-scrollbar bg-slate-50/50">
+            <div class="p-8 max-w-3xl mx-auto pb-24">
+              <form @submit.prevent="onSave" class="space-y-8">
+                
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+                   <div class="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
+                   <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
+                      <LinkIcon class="h-5 w-5 text-blue-500" /> Relasi Data
+                   </h4>
+                   
+                   <div class="space-y-6">
+                      <div class="space-y-2">
+                        <label class="label-modern">Barang ATK <span class="text-red-500">*</span></label>
+                        <div class="relative group">
+                           <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                              <ClipboardDocumentListIcon class="h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                           </div>
+                           <select 
+                              v-model="localStock.item_id" 
+                              required 
+                              class="form-select-bold !pl-11 w-full"
+                              :disabled="isEditing" 
+                              :class="{'bg-slate-100 cursor-not-allowed text-slate-500': isEditing}"
+                           >
+                             <option value="" disabled>-- Pilih Barang --</option>
+                             <option v-for="atk in atkOptions" :key="atk.id" :value="atk.id">
+                               {{ atk.code }} - {{ atk.name }}
+                             </option>
+                           </select>
+                        </div>
+                      </div>
+
+                      <div class="space-y-2">
+                        <label class="label-modern">Unit Kerja <span class="text-red-500">*</span></label>
+                        <div class="relative group">
+                           <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                              <BuildingOfficeIcon class="h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                           </div>
+                           <select 
+                              v-model="localStock.unit_id" 
+                              required 
+                              class="form-select-bold !Gpl-11 w-full"
+                              :disabled="isEditing"
+                              :class="{'bg-slate-100 cursor-not-allowed text-slate-500': isEditing}"
+                           >
+                             <option value="" disabled>-- Pilih Unit --</option>
+                             <option v-for="unit in unitOptions" :key="unit.id" :value="unit.id">
+                               {{ unit.alias }} - {{ unit.name }}
+                             </option>
+                           </select>
+                        </div>
+                      </div>
+                   </div>
+                </div>
+
+                <div v-if="isEditing" class="bg-blue-50 p-8 rounded-2xl border border-blue-100 shadow-inner relative overflow-hidden">
+                   <div class="absolute left-0 top-0 bottom-0 w-1 bg-blue-600"></div>
+                   <h4 class="text-sm font-bold text-blue-800 uppercase tracking-wide mb-6 flex items-center gap-2">
+                     <ArrowsRightLeftIcon class="h-5 w-5" /> Transaksi Stok
+                   </h4>
+                   
+                   <div class="flex space-x-4 mb-6">
+                      <button type="button" @click="transactionType = 'in'" class="flex-1 py-3 rounded-xl border-2 text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm" :class="transactionType === 'in' ? 'border-green-500 bg-green-50 text-green-700 ring-1 ring-green-200' : 'border-slate-200 bg-white text-slate-500 hover:border-green-200 hover:text-green-600'">
+                         <ArrowUpTrayIcon class="h-5 w-5" /> Masuk / Tambah
+                      </button>
+                      <button type="button" @click="transactionType = 'out'" class="flex-1 py-3 rounded-xl border-2 text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm" :class="transactionType === 'out' ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-200' : 'border-slate-200 bg-white text-slate-500 hover:border-orange-200 hover:text-orange-600'">
+                         <ArrowDownIcon class="h-5 w-5" /> Keluar / Koreksi
+                      </button>
+                   </div>
+
+                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div class="space-y-2">
+                        <label class="label-modern text-blue-900">{{ transactionType === 'in' ? 'Jumlah Masuk' : 'Jumlah Keluar' }}</label>
+                        <input v-model.number="transactionQty" type="number" min="0" class="form-input-bold text-lg border-blue-200 focus:border-blue-500" placeholder="0" />
+                        <div class="flex items-center gap-1 mt-1.5 text-xs text-blue-700">
+                           <ArchiveBoxIcon class="h-3.5 w-3.5" />
+                           <span>Sisa Stok: <strong>{{ localStock.stock }}</strong></span>
+                        </div>
+                      </div>
+                      <div class="space-y-2">
+                        <label class="label-modern text-blue-900">Keterangan</label>
+                        <input v-model="transactionNote" type="text" class="form-input-bold border-blue-200 focus:border-blue-500" :placeholder="transactionType === 'in' ? 'Cth: Pembelian baru' : 'Cth: Rusak / Opname'" />
+                      </div>
+                   </div>
+                </div>
+
+                <div v-else class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+                   <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"></div>
+                   <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
+                      <ArchiveBoxIcon class="h-5 w-5 text-emerald-600" /> Stok Awal
+                   </h4>
+                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div class="space-y-2">
+                        <label class="label-modern">Jumlah Stok</label>
+                        <input v-model.number="localStock.stock" type="number" min="0" class="form-input-bold px-4" placeholder="0" />
+                      </div>
+                      <div class="space-y-2">
+                        <label class="label-modern">Stok Minimum (Alert)</label>
+                        <input v-model.number="localStock.stock_min" type="number" min="0" class="form-input-bold px-4" placeholder="5" />
+                        <p class="text-[10px] text-slate-400 mt-1">Notifikasi jika stok dibawah angka ini.</p>
+                      </div>
+                   </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                   
+                   <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-center h-full">
+                      <div class="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500"></div>
+                      <label class="label-modern mb-2">Harga Satuan</label>
+                      <div class="relative group w-full">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                          <span class="text-slate-400 font-bold text-sm group-focus-within:text-cyan-600 transition-colors duration-200">Rp</span>
+                        </div>
+                        <input 
+                          v-model.number="localStock.price" 
+                          type="number" 
+                          min="0" 
+                          class="form-input-bold w-full !pl-12 focus:border-cyan-500 focus:ring-cyan-100 placeholder:text-slate-300" 
+                          placeholder="0" 
+                        />
+                      </div>
+                      <p class="text-[10px] text-slate-400 mt-2 ml-1 font-medium">Harga pembelian per unit barang.</p>
+                   </div>
+                   
+                   <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-full relative overflow-hidden group cursor-pointer hover:border-emerald-300 transition-all" @click="toggleStatus">
+                      <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"></div>
+                      <div class="flex items-center justify-between h-full">
+                         <div class="flex gap-4 items-center">
+                            <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600">
+                               <ShieldCheckIcon class="h-6 w-6" />
+                            </div>
+                            <div>
+                               <span class="block text-base font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">Status Stok</span>
+                               <span class="text-xs text-slate-500 font-medium">{{ localStock.status === 'Active' ? 'Barang Aktif' : 'Barang Non-Aktif' }}</span>
+                            </div>
+                         </div>
+                         <button type="button" class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none" :class="localStock.status === 'Active' ? 'bg-emerald-500' : 'bg-slate-300'">
+                           <span aria-hidden="true" class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" :class="localStock.status === 'Active' ? 'translate-x-5' : 'translate-x-0'"></span>
+                         </button>
+                      </div>
+                   </div>
+                </div>
+
+              </form>
+            </div>
+          </div>
         </div>
 
-        <!-- Footer -->
-        <div class="flex items-center justify-end gap-4 px-8 py-5 bg-white border-t border-slate-200 shrink-0 rounded-b-2xl">
-          <button @click="onClose" class="px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors border border-slate-300">Batal</button>
+        <div class="flex items-center justify-end gap-4 px-8 py-5 bg-white border-t border-slate-200 shrink-0 rounded-b-2xl z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+          <button @click="onClose" class="px-6 py-2.5 text-sm font-bold bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 rounded-xl transition-colors border border-transparent">
+             Batal
+          </button>
           
-          <!-- LOGIKA DISABLED DIPERBARUI:
-               Hanya disable jika:
-               1. Form tidak valid (!isValid)
-               2. ATAU Jika mode Edit:
-                  - Tidak ada transaksi (transactionQty <= 0)
-                  - DAN Tidak ada perubahan data (isModified == false)
-          -->
           <button 
             @click="onSave" 
             :disabled="!isValid || (isEditing && transactionQty <= 0 && !isModified)"
-            class="px-8 py-2.5 text-sm font-bold text-white rounded-xl shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+            class="px-8 py-2.5 text-sm font-bold text-white rounded-xl shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none min-w-[140px]"
             :class="isEditing 
-              ? (transactionQty > 0 ? (transactionType === 'in' ? 'bg-green-600 hover:bg-green-700' : 'bg-orange-600 hover:bg-orange-700') : 'bg-blue-600 hover:bg-blue-700')
+              ? (transactionQty > 0 
+                  ? (transactionType === 'in' ? 'bg-green-600 hover:bg-green-700' : 'bg-orange-600 hover:bg-orange-700') 
+                  : 'bg-blue-600 hover:bg-blue-700')
               : 'bg-blue-600 hover:bg-blue-700'"
           >
-            <!-- Teks Tombol Dinamis -->
             <span v-if="!isEditing">Simpan Data Baru</span>
             <span v-else-if="transactionQty > 0">{{ transactionType === 'in' ? 'Simpan Pemasukan' : 'Simpan Pengeluaran' }}</span>
             <span v-else>Simpan Perubahan</span>
@@ -169,31 +238,51 @@
 
 <script setup>
 import { ref, watch, computed, onUnmounted } from 'vue';
-import { ArchiveBoxIcon, XMarkIcon, ClipboardDocumentListIcon, BuildingOfficeIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/vue/24/outline';
+import { 
+  ArchiveBoxIcon, XMarkIcon, ClipboardDocumentListIcon, BuildingOfficeIcon, 
+  ArrowsRightLeftIcon, ArrowUpTrayIcon, ArrowDownIcon, PhotoIcon, LinkIcon, 
+  ShieldCheckIcon, CurrencyDollarIcon
+} from '@heroicons/vue/24/outline';
 
-const props = defineProps({ show: Boolean, stockToEdit: Object, atkOptions: Array, unitOptions: Array });
+const props = defineProps({
+  show: Boolean,
+  stockToEdit: Object,
+  atkOptions: Array,  
+  unitOptions: Array  
+});
+
 const emit = defineEmits(['close', 'save']);
 
 const localStock = ref({});
-const originalStock = ref({}); // Untuk melacak perubahan
+const originalStock = ref({});
 const isEditing = computed(() => !!localStock.value.id);
 const transactionType = ref('in');
 const transactionQty = ref(0);
 const transactionNote = ref('');
 
+// --- Helper Kategori ---
+const getCategoryName = (id) => {
+  const cats = { 1: 'Alat Tulis', 2: 'Kertas & Dokumen', 3: 'Tinta & Toner', 4: 'Perlengkapan', 5: 'Lain-lain' };
+  return cats[id] || '-';
+};
+
+// --- Computed ---
+const selectedATK = computed(() => {
+  if (!localStock.value.item_id) return null;
+  return props.atkOptions.find(a => a.id === localStock.value.item_id);
+});
+const selectedATKPhoto = computed(() => selectedATK.value?.url_photo || null);
+
 const toggleStatus = () => {
   localStock.value.status = localStock.value.status === 'Active' ? 'Inactive' : 'Active';
 };
 
-// Cek Validasi Dasar
 const isValid = computed(() => {
   return localStock.value.item_id && localStock.value.unit_id;
 });
 
-// Cek apakah ada perubahan data Master (selain transaksi)
 const isModified = computed(() => {
   if (!isEditing.value) return true;
-  // Bandingkan field penting
   return localStock.value.price !== originalStock.value.price ||
          localStock.value.stock_min !== originalStock.value.stock_min ||
          localStock.value.status !== originalStock.value.status;
@@ -207,7 +296,6 @@ watch(() => props.show, (newVal) => {
     transactionType.value = 'in';
     
     if (props.stockToEdit) {
-      // Clone data agar tidak reaktif langsung ke parent sebelum save
       localStock.value = JSON.parse(JSON.stringify(props.stockToEdit));
       originalStock.value = JSON.parse(JSON.stringify(props.stockToEdit));
     } else {
@@ -223,7 +311,6 @@ onUnmounted(() => document.body.style.overflow = '');
 const onClose = () => emit('close');
 
 const onSave = () => {
-  // Kirim data ke parent
   emit('save', { 
     ...localStock.value, 
     txType: transactionType.value, 
@@ -234,9 +321,10 @@ const onSave = () => {
 </script>
 
 <style scoped>
-.label-modern { @apply block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5; }
+.label-modern { @apply block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5; }
 .form-input-bold { @apply block w-full rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:ring-2 focus:ring-blue-100 focus:border-blue-500 py-2.5 px-4 transition-all shadow-sm hover:border-blue-300; }
 .form-select-bold { @apply block w-full rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:ring-2 focus:ring-blue-100 focus:border-blue-500 py-2.5 px-4 transition-all cursor-pointer shadow-sm hover:border-blue-300; }
+
 .custom-scrollbar::-webkit-scrollbar { width: 5px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
