@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 export const useInventoryStore = defineStore('inventory', () => {
   
-  // --- 1. DATA UNIT (15 Data) ---
+  // --- 1. DATA UNIT ---
   const defaultUnits = [
     { id: 1, alias: 'UID Jatim', name: 'PT PLN (Persero) Unit Induk Distribusi Jawa Timur', address: 'Jl. Embong Trengguli No. 19-21, Surabaya', phone: '(031) 5340651', ref_id: 'UID-001', parent_id: 0, is_active: 1, created_at: '15/01/2023' },
     { id: 2, alias: 'UID Jabar', name: 'PT PLN (Persero) Unit Induk Distribusi Jawa Barat', address: 'Jl. Asia Afrika No. 63, Bandung', phone: '(022) 4230747', ref_id: 'UID-002', parent_id: 0, is_active: 1, created_at: '20/02/2023' },
@@ -22,7 +22,7 @@ export const useInventoryStore = defineStore('inventory', () => {
     { id: 15, alias: 'UP3 Bandung', name: 'Unit Pelaksana Pelayanan Pelanggan Bandung', address: 'Jl. Soekarno Hatta No. 432, Bandung', phone: '(022) 5222043', ref_id: 'UP3-002', parent_id: 2, is_active: 1, created_at: '16/01/2023' },
   ];
 
-  // --- 2. DATA MASTER ATK (15 Data) ---
+  // --- 2. DATA MASTER ATK ---
   const defaultATKs = [
     { id: 1, code: 'ATK-001', name: 'Pensil 2B Faber-Castell', category_id: 1, description: 'Pensil ujian standar komputer', min_stock: 10, max_stock: 100, price: 3500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '01/01/2023', url_photo: 'contoh.jpeg' },
     { id: 2, code: 'ATK-002', name: 'Kertas A4 Sinar Dunia 80gr', category_id: 2, description: 'Kertas HVS putih ukuran A4', min_stock: 20, max_stock: 200, price: 45000, uom: 'Rim', status: 'Active', created_by: 'System', created_at: '01/01/2023', url_photo: 'contoh.jpeg' },
@@ -41,26 +41,12 @@ export const useInventoryStore = defineStore('inventory', () => {
     { id: 15, code: 'ATK-015', name: 'Cutter Kenko Besar', category_id: 4, description: 'Cutter L-500', min_stock: 10, max_stock: 50, price: 18000, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '18/01/2023', url_photo: 'contoh.jpeg' },
   ];
 
-  // --- 3. DATA USERS (15 Data Dummy) ---
+  // --- 3. DATA USERS ---
   const defaultUsers = [
     { id: 1, full_name: 'Budi Santoso', username: 'budi.santoso', email: 'budi.santoso@pln.co.id', phone: '081234567890', nip: '198501012010011001', unit_id: 1, position_name: 'Manager UP3', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 2, full_name: 'Siti Aminah', username: 'siti.aminah', email: 'siti.aminah@pln.co.id', phone: '081234567891', nip: '199002022015012002', unit_id: 1, position_name: 'Staff Gudang', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 3, full_name: 'Rudi Hartono', username: 'rudi.hartono', email: 'rudi.hartono@pln.co.id', phone: '081234567892', nip: '198803032012011003', unit_id: 2, position_name: 'Supervisor Logistik', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 4, full_name: 'Dewi Sartika', username: 'dewi.sartika', email: 'dewi.sartika@pln.co.id', phone: '081234567893', nip: '199204042016012004', unit_id: 2, position_name: 'Staff Admin', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 5, full_name: 'Agus Salim', username: 'agus.salim', email: 'agus.salim@pln.co.id', phone: '081234567894', nip: '198705052011011005', unit_id: 3, position_name: 'Manager Area', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 6, full_name: 'Rina Wati', username: 'rina.wati', email: 'rina.wati@pln.co.id', phone: '081234567895', nip: '199306062017012006', unit_id: 3, position_name: 'Staff Keuangan', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 7, full_name: 'Joko Widodo', username: 'joko.widodo', email: 'joko.widodo@pln.co.id', phone: '081234567896', nip: '198607072010011007', unit_id: 4, position_name: 'Kepala Gudang', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 8, full_name: 'Megawati', username: 'megawati', email: 'megawati@pln.co.id', phone: '081234567897', nip: '199108082015012008', unit_id: 4, position_name: 'Staff Gudang', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 9, full_name: 'Susilo Bambang', username: 'susilo.b', email: 'susilo.b@pln.co.id', phone: '081234567898', nip: '198909092013011009', unit_id: 5, position_name: 'Supervisor', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 10, full_name: 'Ani Yudhoyono', username: 'ani.y', email: 'ani.y@pln.co.id', phone: '081234567899', nip: '199410102018012010', unit_id: 5, position_name: 'Staff', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 11, full_name: 'B.J. Habibie', username: 'bj.habibie', email: 'bj.habibie@pln.co.id', phone: '081234567800', nip: '198411112009011011', unit_id: 6, position_name: 'Senior Manager', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 12, full_name: 'Ainun Habibie', username: 'ainun.h', email: 'ainun.h@pln.co.id', phone: '081234567801', nip: '199512122019012012', unit_id: 6, position_name: 'Sekretaris', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 13, full_name: 'Abdurrahman Wahid', username: 'gus.dur', email: 'gus.dur@pln.co.id', phone: '081234567802', nip: '198301132008011013', unit_id: 7, position_name: 'Manager', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 14, full_name: 'Sinta Nuriyah', username: 'sinta.n', email: 'sinta.n@pln.co.id', phone: '081234567803', nip: '199602142020012014', unit_id: 7, position_name: 'Staff', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
-    { id: 15, full_name: 'Soekarno', username: 'soekarno', email: 'soekarno@pln.co.id', phone: '081234567804', nip: '198203152007011015', unit_id: 11, position_name: 'General Manager', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
   ];
 
-  // --- 4. DATA STOK (15 Data Relasi) ---
+  // --- 4. DATA STOK ---
   const defaultStocks = [
     { id: 101, item_id: 1, unit_id: 1, stock: 150, stock_min: 20, price: 3500, status: 'Active', created_at: '01/01/2023', updated_at: '10/12/2023', batches: [{ id:1, date:'2023-01-01', price:3500, stock:150 }] },
     { id: 102, item_id: 2, unit_id: 1, stock: 500, stock_min: 50, price: 45000, status: 'Active', created_at: '01/01/2023', batches: [{ id:2, date:'2023-10-05', price:45000, stock:500 }] },
@@ -79,6 +65,24 @@ export const useInventoryStore = defineStore('inventory', () => {
     { id: 115, item_id: 2, unit_id: 11, stock: 10, stock_min: 5, price: 55000, status: 'Active', created_at: '01/02/2023', batches: [{ id:14, date:'2023-02-01', price:55000, stock:10 }] },
   ];
 
+  // --- 5. DATA PENDING APPROVALS ---
+  const defaultPendingApprovals = [
+    { id: 1, user: 'Andi (UID Jatim)', unit: 'UID Jatim', unit_id: 1, item_id: 2, itemName: 'Kertas A4 Sinar Dunia', itemCount: 50, value: 'Rp 2.250.000' },
+    { id: 2, user: 'Budi (UID Jabar)', unit: 'UID Jabar', unit_id: 2, item_id: 3, itemName: 'Tinta Epson 003', itemCount: 10, value: 'Rp 850.000' },
+    { id: 3, user: 'Citra (UID Pusat)', unit: 'UID Jaya', unit_id: 3, item_id: 5, itemName: 'Spidol Boardmarker', itemCount: 24, value: 'Rp 204.000' },
+    { id: 4, user: 'Dewi (UID Jateng)', unit: 'UID Jateng', unit_id: 4, item_id: 11, itemName: 'Buku Tulis', itemCount: 100, value: 'Rp 350.000' },
+    { id: 5, user: 'Eka (UID Bali)', unit: 'UID Bali', unit_id: 5, item_id: 1, itemName: 'Pensil 2B', itemCount: 20, value: 'Rp 70.000' },
+  ];
+
+  // --- 6. DEFAULT HISTORY (Agar tidak kosong) ---
+  const defaultHistory = [
+    { id: Date.now() - 3600000, type: 'IN', date: new Date(Date.now() - 3600000).toLocaleString('id-ID'), item_id: 2, itemName: 'Kertas A4 Sinar Dunia 80gr', qty: 200, actor: 'Admin Gudang', note: 'Restock Mingguan' },
+    { id: Date.now() - 7200000, type: 'OUT', date: new Date(Date.now() - 7200000).toLocaleString('id-ID'), item_id: 5, itemName: 'Spidol Snowman Boardmarker Black', qty: 50, actor: 'User Jatim', note: 'Permintaan Divisi' },
+    { id: Date.now() - 86400000, type: 'OUT', date: new Date(Date.now() - 86400000).toLocaleString('id-ID'), item_id: 3, itemName: 'Tinta Printer Epson 003 Black', qty: 10, actor: 'User Jabar', note: 'Habis Pakai' },
+    { id: Date.now() - 172800000, type: 'IN', date: new Date(Date.now() - 172800000).toLocaleString('id-ID'), item_id: 14, itemName: 'Gunting Besar Joyko', qty: 100, actor: 'Admin Gudang', note: 'Pengadaan Baru' },
+    { id: Date.now() - 259200000, type: 'OUT', date: new Date(Date.now() - 259200000).toLocaleString('id-ID'), item_id: 6, itemName: 'Map Plastik Folio Bening', qty: 30, actor: 'User Pusat', note: 'Rapat Koordinasi' },
+  ];
+
   const defaultCategories = [
     { id: 1, name: 'Alat Tulis' },
     { id: 2, name: 'Kertas & Dokumen' },
@@ -93,10 +97,31 @@ export const useInventoryStore = defineStore('inventory', () => {
   const stocks = ref(JSON.parse(localStorage.getItem('stocks')) || defaultStocks);
   const users = ref(JSON.parse(localStorage.getItem('users')) || defaultUsers);
   const categories = ref(JSON.parse(localStorage.getItem('categories')) || defaultCategories);
-  const history = ref(JSON.parse(localStorage.getItem('history')) || []);
+  const history = ref(JSON.parse(localStorage.getItem('history')) || defaultHistory);
+  const pendingApprovals = ref(JSON.parse(localStorage.getItem('pendingApprovals')) || defaultPendingApprovals);
+
+  // --- GETTERS ---
+  const lowStockItems = computed(() => {
+    return stocks.value
+      .filter(item => {
+        const isLow = item.stock <= item.stock_min;
+        const isAlreadyRequested = pendingApprovals.value.some(
+          req => req.item_id === item.item_id && req.unit_id === item.unit_id
+        );
+        return isLow && !isAlreadyRequested;
+      })
+      .map(item => {
+        const atk = atks.value.find(a => a.id === item.item_id) || {};
+        const unit = units.value.find(u => u.id === item.unit_id) || {};
+        return {
+          ...item,
+          name: atk.name || 'Unknown Item',
+          unit: unit.alias || 'Unknown Unit'
+        };
+      });
+  });
 
   // --- ACTIONS ---
-  // ... (Action Add/Update/Delete Unit & ATK & Stock sama seperti sebelumnya) ...
   const addUnit = (unit) => units.value.push(unit);
   const updateUnit = (unit) => { const idx = units.value.findIndex(u => u.id === unit.id); if (idx !== -1) units.value[idx] = unit; };
   const deleteUnit = (id) => units.value = units.value.filter(u => u.id !== id);
@@ -108,28 +133,90 @@ export const useInventoryStore = defineStore('inventory', () => {
   const addStock = (newStock) => stocks.value.push(newStock);
   const updateStock = (updatedStock) => { const index = stocks.value.findIndex(s => s.id === updatedStock.id); if (index !== -1) stocks.value[index] = updatedStock; };
   const deleteStock = (id) => stocks.value = stocks.value.filter(s => s.id !== id);
+  
   const addHistory = (log) => history.value.unshift(log);
 
-  // --- USER ACTIONS ---
   const addUser = (user) => users.value.push(user);
-  const updateUser = (user) => {
-    const idx = users.value.findIndex(u => u.id === user.id);
-    if (idx !== -1) users.value[idx] = user;
-  };
+  const updateUser = (user) => { const idx = users.value.findIndex(u => u.id === user.id); if (idx !== -1) users.value[idx] = user; };
   const deleteUser = (id) => users.value = users.value.filter(u => u.id !== id);
 
-  // --- PERSISTENCE ---
+  const addRestockRequest = (requestData) => {
+    pendingApprovals.value.unshift(requestData);
+  };
+
+  const rejectRestockRequest = (requestId) => {
+    pendingApprovals.value = pendingApprovals.value.filter(r => r.id !== requestId);
+  };
+
+  // --- BUSINESS LOGIC: APPROVAL SYSTEM ---
+  const approveRestockRequest = (requestData) => {
+    const existingIndex = stocks.value.findIndex(
+      s => s.item_id === requestData.item_id && s.unit_id === requestData.unit_id
+    );
+
+    const now = new Date().toLocaleString('id-ID');
+    const itemMaster = atks.value.find(a => a.id === requestData.item_id);
+    const itemName = itemMaster ? itemMaster.name : 'Unknown Item';
+
+    if (existingIndex !== -1) {
+      const currentStock = stocks.value[existingIndex];
+      const newQty = currentStock.stock + requestData.qty;
+      
+      stocks.value[existingIndex] = {
+        ...currentStock,
+        stock: newQty,
+        updated_at: new Date().toLocaleDateString('en-GB')
+      };
+    } else {
+      const newStock = {
+        id: Date.now(),
+        item_id: requestData.item_id,
+        unit_id: requestData.unit_id,
+        stock: requestData.qty,
+        stock_min: 10,
+        price: requestData.price_estimate || (itemMaster ? itemMaster.price : 0),
+        status: 'Active',
+        created_at: new Date().toLocaleDateString('en-GB'),
+        updated_at: new Date().toLocaleDateString('en-GB'),
+        batches: []
+      };
+      stocks.value.push(newStock);
+    }
+
+    if (requestData.request_id) {
+       pendingApprovals.value = pendingApprovals.value.filter(r => r.id !== requestData.request_id);
+    } else {
+       pendingApprovals.value = pendingApprovals.value.filter(r => !(r.item_id === requestData.item_id && r.unit_id === requestData.unit_id));
+    }
+
+    // 3. Catat Log Audit dengan item_id
+    const logEntry = {
+      id: Date.now(), // Use timestamp as ID
+      type: 'IN',
+      date: now,
+      item_id: requestData.item_id, // Penting untuk kategori
+      itemName: itemName,
+      qty: requestData.qty,
+      actor: 'Admin (Dashboard)',
+      note: `Approval Request: ${requestData.user}`
+    };
+    history.value.unshift(logEntry);
+  };
+
   watch(units, (val) => localStorage.setItem('units', JSON.stringify(val)), { deep: true });
   watch(atks, (val) => localStorage.setItem('atks', JSON.stringify(val)), { deep: true });
   watch(stocks, (val) => localStorage.setItem('stocks', JSON.stringify(val)), { deep: true });
   watch(users, (val) => localStorage.setItem('users', JSON.stringify(val)), { deep: true });
   watch(history, (val) => localStorage.setItem('history', JSON.stringify(val)), { deep: true });
+  watch(pendingApprovals, (val) => localStorage.setItem('pendingApprovals', JSON.stringify(val)), { deep: true });
 
   return { 
-    units, atks, stocks, users, history, categories,
+    units, atks, stocks, users, history, categories, pendingApprovals,
+    lowStockItems,
     addUnit, updateUnit, deleteUnit,
     addATK, updateATK, deleteATK,
     addStock, updateStock, deleteStock, addHistory,
-    addUser, updateUser, deleteUser
+    addUser, updateUser, deleteUser,
+    addRestockRequest, rejectRestockRequest, approveRestockRequest
   };
 });
