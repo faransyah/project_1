@@ -44,6 +44,20 @@ export const useInventoryStore = defineStore('inventory', () => {
   // --- 3. DATA USERS ---
   const defaultUsers = [
     { id: 1, full_name: 'Budi Santoso', username: 'budi.santoso', email: 'budi.santoso@pln.co.id', phone: '081234567890', nip: '198501012010011001', unit_id: 1, position_name: 'Manager UP3', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 2, full_name: 'Siti Aminah', username: 'siti.aminah', email: 'siti.aminah@pln.co.id', phone: '081234567891', nip: '199002022015012002', unit_id: 1, position_name: 'Staff Gudang', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 3, full_name: 'Rudi Hartono', username: 'rudi.hartono', email: 'rudi.hartono@pln.co.id', phone: '081234567892', nip: '198803032012011003', unit_id: 2, position_name: 'Supervisor Logistik', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 4, full_name: 'Dewi Sartika', username: 'dewi.sartika', email: 'dewi.sartika@pln.co.id', phone: '081234567893', nip: '199204042016012004', unit_id: 2, position_name: 'Staff Admin', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 5, full_name: 'Agus Salim', username: 'agus.salim', email: 'agus.salim@pln.co.id', phone: '081234567894', nip: '198705052011011005', unit_id: 3, position_name: 'Manager Area', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 6, full_name: 'Rina Wati', username: 'rina.wati', email: 'rina.wati@pln.co.id', phone: '081234567895', nip: '199306062017012006', unit_id: 3, position_name: 'Staff Keuangan', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 7, full_name: 'Joko Widodo', username: 'joko.widodo', email: 'joko.widodo@pln.co.id', phone: '081234567896', nip: '198607072010011007', unit_id: 4, position_name: 'Kepala Gudang', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 8, full_name: 'Megawati', username: 'megawati', email: 'megawati@pln.co.id', phone: '081234567897', nip: '199108082015012008', unit_id: 4, position_name: 'Staff Gudang', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 9, full_name: 'Susilo Bambang', username: 'susilo.b', email: 'susilo.b@pln.co.id', phone: '081234567898', nip: '198909092013011009', unit_id: 5, position_name: 'Supervisor', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 10, full_name: 'Ani Yudhoyono', username: 'ani.y', email: 'ani.y@pln.co.id', phone: '081234567899', nip: '199410102018012010', unit_id: 5, position_name: 'Staff', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 11, full_name: 'B.J. Habibie', username: 'bj.habibie', email: 'bj.habibie@pln.co.id', phone: '081234567800', nip: '198411112009011011', unit_id: 6, position_name: 'Senior Manager', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 12, full_name: 'Ainun Habibie', username: 'ainun.h', email: 'ainun.h@pln.co.id', phone: '081234567801', nip: '199512122019012012', unit_id: 6, position_name: 'Sekretaris', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 13, full_name: 'Abdurrahman Wahid', username: 'gus.dur', email: 'gus.dur@pln.co.id', phone: '081234567802', nip: '198301132008011013', unit_id: 7, position_name: 'Manager', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 14, full_name: 'Sinta Nuriyah', username: 'sinta.n', email: 'sinta.n@pln.co.id', phone: '081234567803', nip: '199602142020012014', unit_id: 7, position_name: 'Staff', role: 'User', is_active: 1, url_photo: 'contoh.jpeg' },
+    { id: 15, full_name: 'Soekarno', username: 'soekarno', email: 'soekarno@pln.co.id', phone: '081234567804', nip: '198203152007011015', unit_id: 11, position_name: 'General Manager', role: 'Admin', is_active: 1, url_photo: 'contoh.jpeg' },
   ];
 
   // --- 4. DATA STOK ---
