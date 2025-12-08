@@ -1,11 +1,14 @@
 <template>
   <Teleport to="body">
+    <!-- Overlay -->
     <div v-if="show" @click="onClose" class="fixed inset-0 z-[999] bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300"></div>
 
+    <!-- Modal Panel -->
     <div v-if="show" class="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
       
       <div class="relative w-full max-w-6xl h-[85vh] transform overflow-hidden rounded-2xl bg-slate-50 text-left shadow-2xl transition-all ring-1 ring-slate-900/5 flex flex-col" @click.stop>
         
+        <!-- Header -->
         <div class="flex items-center justify-between border-b border-slate-200 px-8 py-5 bg-white z-20 flex-shrink-0 shadow-sm relative overflow-hidden">
           <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
           <div class="flex items-center gap-5">
@@ -26,20 +29,24 @@
           </button>
         </div>
 
+        <!-- Content Body (Split View) -->
         <div class="flex flex-1 overflow-hidden">
           
+          <!-- KIRI: PREVIEW BARANG (FIXED) -->
           <div class="w-1/3 h-full bg-white border-r border-slate-200 p-8 flex flex-col items-center shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10 hidden md:flex">
              <div class="w-full max-w-xs flex flex-col h-full">
                 <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center shrink-0">Preview Barang</label>
                 
+                <!-- Container Foto -->
                 <div class="relative w-full aspect-square rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden mb-6 p-4 shadow-inner group">
-                  <img v-if="selectedATKPhoto" :src="selectedATKPhoto" alt="Preview Produk" class="w-full h-full object-contain transition-all duration-500 group-hover:scale-110" />
+                  <img v-if="selectedATKPhoto" :src="selectedATKPhoto" alt="Preview Produk" class="w-full h-full object-contain transition-all duration-500 group-hover:scale-105" />
                   <div v-else class="flex flex-col items-center text-slate-300">
                       <PhotoIcon class="h-16 w-16 mb-3" />
                       <span class="text-xs font-medium text-slate-400">Pilih Barang ATK</span>
                   </div>
                 </div>
 
+                <!-- Info Statis Barang yang Dipilih -->
                 <div v-if="selectedATK" class="w-full space-y-4">
                    <div class="text-center">
                       <h4 class="text-sm font-bold text-slate-800 line-clamp-2 leading-snug">{{ selectedATK.name }}</h4>
@@ -62,10 +69,12 @@
              </div>
           </div>
 
+          <!-- KANAN: FORM INPUT (SCROLLABLE) -->
           <div class="flex-1 h-full overflow-y-auto custom-scrollbar bg-slate-50/50">
             <div class="p-8 max-w-3xl mx-auto pb-24">
               <form @submit.prevent="onSave" class="space-y-8">
                 
+                <!-- SECTION 1: RELASI DATA -->
                 <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
                    <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
@@ -103,7 +112,7 @@
                            <select 
                               v-model="localStock.unit_id" 
                               required 
-                              class="form-select-bold !Gpl-11 w-full"
+                              class="form-select-bold !pl-11 w-full"
                               :disabled="isEditing"
                               :class="{'bg-slate-100 cursor-not-allowed text-slate-500': isEditing}"
                            >
@@ -117,6 +126,7 @@
                    </div>
                 </div>
 
+                <!-- SECTION 2: TRANSAKSI (KHUSUS EDIT) -->
                 <div v-if="isEditing" class="bg-blue-50 p-8 rounded-2xl border border-blue-100 shadow-inner relative overflow-hidden">
                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-blue-600"></div>
                    <h4 class="text-sm font-bold text-blue-800 uppercase tracking-wide mb-6 flex items-center gap-2">
@@ -135,12 +145,39 @@
                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div class="space-y-2">
                         <label class="label-modern text-blue-900">{{ transactionType === 'in' ? 'Jumlah Masuk' : 'Jumlah Keluar' }}</label>
-                        <input v-model.number="transactionQty" type="number" min="0" class="form-input-bold text-lg border-blue-200 focus:border-blue-500" placeholder="0" />
-                        <div class="flex items-center gap-1 mt-1.5 text-xs text-blue-700">
-                           <ArchiveBoxIcon class="h-3.5 w-3.5" />
-                           <span>Sisa Stok: <strong>{{ localStock.stock }}</strong></span>
+                        
+                        <!-- INPUT DENGAN VALIDASI VISUAL -->
+                        <div class="relative">
+                          <input 
+                              v-model.number="transactionQty" 
+                              type="number" 
+                              min="0" 
+                              class="form-input-bold text-lg transition-all pr-10 no-spinner" 
+                              :class="stockError ? 'border-red-500 text-red-600 bg-red-50 focus:border-red-600 focus:ring-red-200 placeholder:text-red-300' : 'border-blue-200 focus:border-blue-500'"
+                              placeholder="0" 
+                          />
+                          <!-- Ikon Peringatan di dalam Input -->
+                          <ExclamationCircleIcon v-if="stockError" class="absolute right-3 top-3.5 h-6 w-6 text-red-500 animate-pulse" />
+                        </div>
+                        
+                        <!-- CONTAINER INFO & ERROR -->
+                        <div class="flex flex-col gap-2 mt-2">
+                            <!-- 1. Info Stok Normal (Selalu Muncul) -->
+                            <div class="flex items-center gap-1.5 text-xs text-blue-700 bg-blue-100/50 p-2 rounded-lg border border-blue-100 w-fit transition-all duration-300" :class="{'opacity-60': stockError}">
+                              <ArchiveBoxIcon class="h-3.5 w-3.5" />
+                              <span>Sisa Stok Saat Ini: <strong class="font-mono text-sm">{{ localStock.stock }}</strong></span>
+                            </div>
+
+                            <!-- 2. Pesan Error (Muncul DI BAWAH info stok) -->
+                            <transition name="fade-slide">
+                                <div v-if="stockError" class="flex items-start gap-2 text-xs font-bold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-100 shadow-sm">
+                                  <ExclamationCircleIcon class="h-4 w-4 shrink-0 mt-0.5" />
+                                  <span>{{ stockError }}</span>
+                                </div>
+                            </transition>
                         </div>
                       </div>
+                      
                       <div class="space-y-2">
                         <label class="label-modern text-blue-900">Keterangan</label>
                         <input v-model="transactionNote" type="text" class="form-input-bold border-blue-200 focus:border-blue-500" :placeholder="transactionType === 'in' ? 'Cth: Pembelian baru' : 'Cth: Rusak / Opname'" />
@@ -148,6 +185,7 @@
                    </div>
                 </div>
 
+                <!-- SECTION 2B: STOK AWAL (KHUSUS CREATE) -->
                 <div v-else class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"></div>
                    <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
@@ -156,18 +194,19 @@
                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div class="space-y-2">
                         <label class="label-modern">Jumlah Stok</label>
-                        <input v-model.number="localStock.stock" type="number" min="0" class="form-input-bold px-4" placeholder="0" />
+                        <input v-model.number="localStock.stock" type="number" min="0" class="form-input-bold px-4 no-spinner" placeholder="0" />
                       </div>
                       <div class="space-y-2">
                         <label class="label-modern">Stok Minimum (Alert)</label>
-                        <input v-model.number="localStock.stock_min" type="number" min="0" class="form-input-bold px-4" placeholder="5" />
+                        <input v-model.number="localStock.stock_min" type="number" min="0" class="form-input-bold px-4 no-spinner" placeholder="5" />
                         <p class="text-[10px] text-slate-400 mt-1">Notifikasi jika stok dibawah angka ini.</p>
                       </div>
                    </div>
                 </div>
 
+                <!-- SECTION 3: HARGA & STATUS -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                   
+                   <!-- Harga -->
                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-center h-full">
                       <div class="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500"></div>
                       <label class="label-modern mb-2">Harga Satuan</label>
@@ -179,13 +218,14 @@
                           v-model.number="localStock.price" 
                           type="number" 
                           min="0" 
-                          class="form-input-bold w-full !pl-12 focus:border-cyan-500 focus:ring-cyan-100 placeholder:text-slate-300" 
+                          class="form-input-bold w-full !pl-12 focus:border-cyan-500 focus:ring-cyan-100 placeholder:text-slate-300 no-spinner" 
                           placeholder="0" 
                         />
                       </div>
                       <p class="text-[10px] text-slate-400 mt-2 ml-1 font-medium">Harga pembelian per unit barang.</p>
                    </div>
                    
+                   <!-- Status -->
                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between h-full relative overflow-hidden group cursor-pointer hover:border-emerald-300 transition-all" @click="toggleStatus">
                       <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"></div>
                       <div class="flex items-center justify-between h-full">
@@ -210,6 +250,7 @@
           </div>
         </div>
 
+        <!-- Footer (Fixed) -->
         <div class="flex items-center justify-end gap-4 px-8 py-5 bg-white border-t border-slate-200 shrink-0 rounded-b-2xl z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
           <button @click="onClose" class="px-6 py-2.5 text-sm font-bold bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 rounded-xl transition-colors border border-transparent">
              Batal
@@ -217,7 +258,7 @@
           
           <button 
             @click="onSave" 
-            :disabled="!isValid || (isEditing && transactionQty <= 0 && !isModified)"
+            :disabled="!isValid"
             class="px-8 py-2.5 text-sm font-bold text-white rounded-xl shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none min-w-[140px]"
             :class="isEditing 
               ? (transactionQty > 0 
@@ -241,7 +282,7 @@ import { ref, watch, computed, onUnmounted } from 'vue';
 import { 
   ArchiveBoxIcon, XMarkIcon, ClipboardDocumentListIcon, BuildingOfficeIcon, 
   ArrowsRightLeftIcon, ArrowUpTrayIcon, ArrowDownIcon, PhotoIcon, LinkIcon, 
-  ShieldCheckIcon, CurrencyDollarIcon
+  ShieldCheckIcon, CurrencyDollarIcon, ExclamationCircleIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -254,7 +295,7 @@ const props = defineProps({
 const emit = defineEmits(['close', 'save']);
 
 const localStock = ref({});
-const originalStock = ref({});
+const originalStock = ref({}); // Untuk melacak perubahan data master
 const isEditing = computed(() => !!localStock.value.id);
 const transactionType = ref('in');
 const transactionQty = ref(0);
@@ -273,12 +314,40 @@ const selectedATK = computed(() => {
 });
 const selectedATKPhoto = computed(() => selectedATK.value?.url_photo || null);
 
+// --- Validasi Error Stok ---
+const stockError = computed(() => {
+  // Hanya validasi jika sedang Edit, tipe Keluar, dan Qty melebihi stok
+  if (isEditing.value && transactionType.value === 'out' && transactionQty.value > localStock.value.stock) {
+    return 'Stok tidak mencukupi untuk dikeluarkan!';
+  }
+  return '';
+});
+
 const toggleStatus = () => {
   localStock.value.status = localStock.value.status === 'Active' ? 'Inactive' : 'Active';
 };
 
+// Validasi Tombol Simpan
 const isValid = computed(() => {
-  return localStock.value.item_id && localStock.value.unit_id;
+  // Cek dasar
+  const basicCheck = localStock.value.item_id && localStock.value.unit_id;
+  
+  if (isEditing.value) {
+     // Jika mode edit, cek error stok (harus kosong/false)
+     if (stockError.value) return false;
+     
+     // Cek apakah ada perubahan data master ATAU ada transaksi
+     const hasMasterChange = localStock.value.price !== originalStock.value.price ||
+                             localStock.value.stock_min !== originalStock.value.stock_min ||
+                             localStock.value.status !== originalStock.value.status;
+     
+     const hasTransaction = transactionQty.value > 0;
+     
+     // Valid jika ada perubahan di salah satu
+     return basicCheck && (hasMasterChange || hasTransaction);
+  }
+  
+  return basicCheck;
 });
 
 const isModified = computed(() => {
@@ -324,6 +393,16 @@ const onSave = () => {
 .label-modern { @apply block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5; }
 .form-input-bold { @apply block w-full rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:ring-2 focus:ring-blue-100 focus:border-blue-500 py-2.5 px-4 transition-all shadow-sm hover:border-blue-300; }
 .form-select-bold { @apply block w-full rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:ring-2 focus:ring-blue-100 focus:border-blue-500 py-2.5 px-4 transition-all cursor-pointer shadow-sm hover:border-blue-300; }
+
+/* HIDE SPINNERS for cleaner look */
+.no-spinner::-webkit-inner-spin-button, 
+.no-spinner::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+.no-spinner { 
+  -moz-appearance: textfield; 
+}
 
 .custom-scrollbar::-webkit-scrollbar { width: 5px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
