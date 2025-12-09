@@ -58,8 +58,8 @@
                          <p class="text-xs font-bold text-blue-600 mt-0.5 truncate">{{ getCategoryName(selectedATK.category_id) }}</p>
                       </div>
                       <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
-                         <p class="text-[10px] font-bold text-slate-400 uppercase">Satuan</p>
-                         <p class="text-xs font-bold text-slate-700 mt-0.5">{{ selectedATK.uom }}</p>
+                         <p class="text-[10px] font-bold text-slate-400 uppercase">Max Stok</p>
+                         <p class="text-xs font-bold text-slate-700 mt-0.5">{{ selectedATK.max_stock }} {{ selectedATK.uom }}</p>
                       </div>
                    </div>
                 </div>
@@ -135,10 +135,10 @@
                    
                    <div class="flex space-x-4 mb-6">
                       <button type="button" @click="transactionType = 'in'" class="flex-1 py-3 rounded-xl border-2 text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm" :class="transactionType === 'in' ? 'border-green-500 bg-green-50 text-green-700 ring-1 ring-green-200' : 'border-slate-200 bg-white text-slate-500 hover:border-green-200 hover:text-green-600'">
-                         <ArrowUpTrayIcon class="h-5 w-5" /> Masuk / Tambah
+                         <ArrowUpTrayIcon class="h-5 w-5" /> Tambah Stok (Masuk)
                       </button>
                       <button type="button" @click="transactionType = 'out'" class="flex-1 py-3 rounded-xl border-2 text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm" :class="transactionType === 'out' ? 'border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-200' : 'border-slate-200 bg-white text-slate-500 hover:border-orange-200 hover:text-orange-600'">
-                         <ArrowDownIcon class="h-5 w-5" /> Keluar / Koreksi
+                         <ArrowDownIcon class="h-5 w-5" /> Koreksi / Keluar
                       </button>
                    </div>
 
@@ -146,33 +146,33 @@
                       <div class="space-y-2">
                         <label class="label-modern text-blue-900">{{ transactionType === 'in' ? 'Jumlah Masuk' : 'Jumlah Keluar' }}</label>
                         
-                        <!-- INPUT DENGAN VALIDASI VISUAL -->
+                        <!-- VALIDASI VISUAL INPUT (ERROR STATE) -->
                         <div class="relative">
                           <input 
                               v-model.number="transactionQty" 
                               type="number" 
                               min="0" 
                               class="form-input-bold text-lg transition-all pr-10 no-spinner" 
-                              :class="stockError ? 'border-red-500 text-red-600 bg-red-50 focus:border-red-600 focus:ring-red-200 placeholder:text-red-300' : 'border-blue-200 focus:border-blue-500'"
+                              :class="(stockError || maxStockError) ? 'border-red-500 text-red-600 bg-red-50 focus:border-red-600 focus:ring-red-200 placeholder:text-red-300' : 'border-blue-200 focus:border-blue-500'"
                               placeholder="0" 
                           />
-                          <!-- Ikon Peringatan di dalam Input -->
-                          <ExclamationCircleIcon v-if="stockError" class="absolute right-3 top-3.5 h-6 w-6 text-red-500 animate-pulse" />
+                          <!-- Ikon Error -->
+                          <ExclamationCircleIcon v-if="stockError || maxStockError" class="absolute right-3 top-3.5 h-6 w-6 text-red-500 animate-pulse" />
                         </div>
                         
                         <!-- CONTAINER INFO & ERROR -->
                         <div class="flex flex-col gap-2 mt-2">
-                            <!-- 1. Info Stok Normal (Selalu Muncul) -->
-                            <div class="flex items-center gap-1.5 text-xs text-blue-700 bg-blue-100/50 p-2 rounded-lg border border-blue-100 w-fit transition-all duration-300" :class="{'opacity-60': stockError}">
-                              <ArchiveBoxIcon class="h-3.5 w-3.5" />
-                              <span>Sisa Stok Saat Ini: <strong class="font-mono text-sm">{{ localStock.stock }}</strong></span>
+                            <!-- Info Stok Normal -->
+                            <div class="flex items-center gap-1.5 text-xs text-blue-700 bg-blue-100/50 p-2 rounded-lg border border-blue-100 w-fit transition-all duration-300" :class="{'opacity-60': stockError || maxStockError}">
+                               <ArchiveBoxIcon class="h-3.5 w-3.5" />
+                               <span>Sisa Stok Saat Ini: <strong class="font-mono text-sm">{{ localStock.stock }}</strong></span>
                             </div>
 
-                            <!-- 2. Pesan Error (Muncul DI BAWAH info stok) -->
+                            <!-- Pesan Error (Muncul DI BAWAH info stok) -->
                             <transition name="fade-slide">
-                                <div v-if="stockError" class="flex items-start gap-2 text-xs font-bold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-100 shadow-sm">
-                                  <ExclamationCircleIcon class="h-4 w-4 shrink-0 mt-0.5" />
-                                  <span>{{ stockError }}</span>
+                                <div v-if="stockError || maxStockError" class="flex items-start gap-2 text-xs font-bold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-100 shadow-sm">
+                                   <ExclamationCircleIcon class="h-4 w-4 shrink-0 mt-0.5" />
+                                   <span>{{ stockError || maxStockError }}</span>
                                 </div>
                             </transition>
                         </div>
@@ -194,7 +194,23 @@
                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div class="space-y-2">
                         <label class="label-modern">Jumlah Stok</label>
-                        <input v-model.number="localStock.stock" type="number" min="0" class="form-input-bold px-4 no-spinner" placeholder="0" />
+                        <div class="relative">
+                           <input 
+                              v-model.number="localStock.stock" 
+                              type="number" 
+                              min="0" 
+                              class="form-input-bold px-4 no-spinner" 
+                              :class="{'border-red-500 text-red-600 bg-red-50 focus:border-red-600 focus:ring-red-200': maxStockError}"
+                              placeholder="0" 
+                           />
+                           <ExclamationCircleIcon v-if="maxStockError" class="absolute right-3 top-3.5 h-5 w-5 text-red-500" />
+                        </div>
+                         <!-- Error Max Stock di Create Mode -->
+                        <transition name="fade-slide">
+                            <div v-if="maxStockError" class="mt-2 text-xs font-bold text-red-600 bg-red-50 p-2 rounded-lg border border-red-100">
+                               {{ maxStockError }}
+                            </div>
+                        </transition>
                       </div>
                       <div class="space-y-2">
                         <label class="label-modern">Stok Minimum (Alert)</label>
@@ -295,28 +311,44 @@ const props = defineProps({
 const emit = defineEmits(['close', 'save']);
 
 const localStock = ref({});
-const originalStock = ref({}); // Untuk melacak perubahan data master
+const originalStock = ref({});
 const isEditing = computed(() => !!localStock.value.id);
 const transactionType = ref('in');
 const transactionQty = ref(0);
 const transactionNote = ref('');
 
-// --- Helper Kategori ---
 const getCategoryName = (id) => {
   const cats = { 1: 'Alat Tulis', 2: 'Kertas & Dokumen', 3: 'Tinta & Toner', 4: 'Perlengkapan', 5: 'Lain-lain' };
   return cats[id] || '-';
 };
 
-// --- Computed ---
 const selectedATK = computed(() => {
   if (!localStock.value.item_id) return null;
   return props.atkOptions.find(a => a.id === localStock.value.item_id);
 });
 const selectedATKPhoto = computed(() => selectedATK.value?.url_photo || null);
 
-// --- Validasi Error Stok ---
+// --- Validasi MAX STOCK & KETERSEDIAAN ---
+const maxStockError = computed(() => {
+  // Ambil Max Stock dari Master ATK
+  const max = selectedATK.value?.max_stock;
+  if (!max) return '';
+
+  if (!isEditing.value) {
+     // Mode Create: Cek Stok Awal
+     if ((localStock.value.stock || 0) > max) return `Melebihi kapasitas gudang (Max: ${max})`;
+  } else {
+     // Mode Edit: Cek Transaksi Masuk
+     if (transactionType.value === 'in') {
+        const newTotal = (localStock.value.stock || 0) + (transactionQty.value || 0);
+        if (newTotal > max) return `Total stok akan melebihi batas (Max: ${max})`;
+     }
+  }
+  return '';
+});
+
+// --- Validasi Stok Habis (Untuk Keluar) ---
 const stockError = computed(() => {
-  // Hanya validasi jika sedang Edit, tipe Keluar, dan Qty melebihi stok
   if (isEditing.value && transactionType.value === 'out' && transactionQty.value > localStock.value.stock) {
     return 'Stok tidak mencukupi untuk dikeluarkan!';
   }
@@ -329,21 +361,20 @@ const toggleStatus = () => {
 
 // Validasi Tombol Simpan
 const isValid = computed(() => {
-  // Cek dasar
   const basicCheck = localStock.value.item_id && localStock.value.unit_id;
   
+  // Cek Error Max Stock (baik create maupun edit)
+  if (maxStockError.value) return false;
+
   if (isEditing.value) {
-     // Jika mode edit, cek error stok (harus kosong/false)
+     // Cek Error Stok Habis
      if (stockError.value) return false;
      
-     // Cek apakah ada perubahan data master ATAU ada transaksi
      const hasMasterChange = localStock.value.price !== originalStock.value.price ||
                              localStock.value.stock_min !== originalStock.value.stock_min ||
                              localStock.value.status !== originalStock.value.status;
-     
      const hasTransaction = transactionQty.value > 0;
      
-     // Valid jika ada perubahan di salah satu
      return basicCheck && (hasMasterChange || hasTransaction);
   }
   
@@ -380,12 +411,14 @@ onUnmounted(() => document.body.style.overflow = '');
 const onClose = () => emit('close');
 
 const onSave = () => {
-  emit('save', { 
-    ...localStock.value, 
-    txType: transactionType.value, 
-    txQty: transactionQty.value, 
-    txNote: transactionNote.value 
-  });
+  if (isValid.value) {
+    emit('save', { 
+      ...localStock.value, 
+      txType: transactionType.value, 
+      txQty: transactionQty.value, 
+      txNote: transactionNote.value 
+    });
+  }
 };
 </script>
 
@@ -394,7 +427,6 @@ const onSave = () => {
 .form-input-bold { @apply block w-full rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:ring-2 focus:ring-blue-100 focus:border-blue-500 py-2.5 px-4 transition-all shadow-sm hover:border-blue-300; }
 .form-select-bold { @apply block w-full rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:ring-2 focus:ring-blue-100 focus:border-blue-500 py-2.5 px-4 transition-all cursor-pointer shadow-sm hover:border-blue-300; }
 
-/* HIDE SPINNERS for cleaner look */
 .no-spinner::-webkit-inner-spin-button, 
 .no-spinner::-webkit-outer-spin-button { 
   -webkit-appearance: none; 
@@ -408,4 +440,7 @@ const onSave = () => {
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+.fade-slide-enter-active, .fade-slide-leave-active { transition: all 0.3s ease; }
+.fade-slide-enter-from, .fade-slide-leave-to { opacity: 0; transform: translateY(-5px); }
 </style>
