@@ -191,12 +191,13 @@
         <div class="h-full rounded-2xl bg-white p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-slate-100 flex flex-col">
           <div class="mb-4">
             <h3 class="text-lg font-bold text-slate-800">Kategori Stok</h3>
-            <p class="text-sm text-slate-500">Distribusi item per kategori.</p>
+            <p class="text-sm text-slate-500">Persentase distribusi stok.</p>
           </div>
           <div class="flex-1 flex flex-col items-center justify-center py-4">
             <apexchart ref="donutChartRef" type="donut" width="300" :options="donutChartOptions" :series="donutChartSeries"></apexchart>
           </div>
           <div class="space-y-2 mt-4">
+            <!-- LOOP LEGEND YANG DYNAMIC -->
             <div 
               v-for="(cat, index) in categoryStats" 
               :key="cat.name" 
@@ -380,13 +381,14 @@ import {
   BoltIcon, ClipboardDocumentListIcon, ClockIcon, CalendarDaysIcon, ArchiveBoxIcon,
   ExclamationTriangleIcon, ArrowDownIcon, ArrowUpIcon, DocumentCheckIcon, TrophyIcon,
   CheckCircleIcon, XCircleIcon, XMarkIcon, QuestionMarkCircleIcon, NoSymbolIcon,
+  MapPinIcon, ChartPieIcon, ChartBarIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon
 } from '@heroicons/vue/24/outline';
 import { BoltIcon as BoltSolidIcon } from '@heroicons/vue/24/solid';
 
 const store = useInventoryStore();
 
 // =========================================================
-//  State untuk Toast Notifikasi & Modal
+//  STATE & TOAST
 // =========================================================
 const toast = ref({ show: false, message: '', type: 'success' });
 let toastTimeout = null;
@@ -407,16 +409,19 @@ const onConfirm = () => {
 };
 
 const currentTime = ref('');
+const currentDate = ref('');
 let timeInterval = null;
+
 const updateTime = () => {
   const now = new Date();
   currentTime.value = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' }).replace(/\./g, ':'); 
+  currentDate.value = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 };
 onMounted(() => { updateTime(); timeInterval = setInterval(updateTime, 1000); });
 onUnmounted(() => { if (timeInterval) clearInterval(timeInterval); });
 
 // =========================================================
-//  REAL-TIME STATS
+//  REAL-TIME STATS COMPUTED
 // =========================================================
 const stats = computed(() => {
   const activeUnits = store.units.filter(u => u.is_active === 1).length;
@@ -431,39 +436,163 @@ const stats = computed(() => {
 });
 
 // =========================================================
-//  DATA & ACTIONS (REAL-TIME VIA STORE)
+//  CHART LOGIC (PERBAIKAN UTAMA DI SINI)
 // =========================================================
 
-// --- RECENT ACTIVITY COMPUTED (REAL-TIME) ---
+// Data Kategori Statis untuk Chart & Legend
+// Menggunakan warna fixed agar konsisten
+const chartColors = ['#2563EB', '#22C55E', '#EAB308', '#EF4444', '#A855F7']; // Blue, Green, Yellow, Red, Purple
+const chartBgClasses = ['bg-blue-600', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500'];
+
+const categoryStats = computed(() => {
+  const catMap = {}; // Object untuk menyimpan { "Nama Kategori": JumlahStok }
+  
+  // 1. Inisialisasi Map dengan semua kategori dari Store (agar kategori kosong tetap terhitung 0)
+  store.categories.forEach(cat => {
+    catMap[cat.name] = 0;
+  });
+  
+  // 2. Loop Stok untuk mengisi jumlah
+  store.stocks.forEach(stock => {
+     const atk = store.atks.find(a => a.id === stock.item_id);
+     if(atk) {
+        const catName = store.categories.find(c => c.id === atk.category_id)?.name;
+        if(catName && catMap[catName] !== undefined) {
+           catMap[catName] += stock.stock;
+        }
+     }
+  });
+
+  // 3. Hitung Grand Total (Real-time dari hasil jumlahan di atas)
+  const grandTotal = Object.values(catMap).reduce((sum, val) => sum + val, 0);
+
+  // 4. Format Data untuk UI
+  return Object.keys(catMap).map((name, index) => ({
+    name: name,
+    value: catMap[name],
+    // Rumus Persentase: (Value / GrandTotal) * 100
+    percentage: grandTotal > 0 ? Math.round((catMap[name] / grandTotal) * 100) + '%' : '0%',
+    colorClass: chartBgClasses[index % chartBgClasses.length],
+    hexColor: chartColors[index % chartColors.length]
+  }));
+});
+
+// Donut Chart Series (Hanya mengambil array value)
+const donutChartSeries = computed(() => categoryStats.value.map(cat => cat.value));
+
+// Donut Chart Options
+const donutChartRef = ref(null);
+const selectedCategoryIndices = ref([]);
+const donutChartTotalLabel = ref('Total Item');
+const donutChartTotalValue = ref(stats.value.totalStock); // Initial
+
+// Update Center Label saat klik legend
+const updateCenterLabel = () => {
+  const count = selectedCategoryIndices.value.length;
+  // Jika tidak ada yang dipilih, tampilkan total global
+  if (count === 0) { 
+    donutChartTotalLabel.value = 'Total Item'; 
+    donutChartTotalValue.value = stats.value.realTotalStock.toLocaleString('id-ID'); 
+  }
+  // Jika 1 dipilih, tampilkan detail kategori itu
+  else if (count === 1) { 
+    const idx = selectedCategoryIndices.value[0]; 
+    donutChartTotalLabel.value = categoryStats.value[idx].name; 
+    donutChartTotalValue.value = categoryStats.value[idx].value.toLocaleString('id-ID'); 
+  }
+  // Jika banyak, jumlahkan yang dipilih
+  else { 
+    const sum = selectedCategoryIndices.value.reduce((acc, idx) => acc + categoryStats.value[idx].value, 0);
+    donutChartTotalLabel.value = 'Total Terpilih'; 
+    donutChartTotalValue.value = sum.toLocaleString('id-ID'); 
+  }
+  
+  // Force update chart options
+  if (donutChartRef.value) { 
+    donutChartRef.value.updateOptions({ 
+      plotOptions: { pie: { donut: { labels: { total: { label: donutChartTotalLabel.value, formatter: () => donutChartTotalValue.value } } } } } 
+    }); 
+  }
+};
+
+const donutChartOptions = computed(() => ({
+  chart: { 
+    type: 'donut', 
+    width: 300, 
+    fontFamily: 'Inter, sans-serif', 
+    animations: { enabled: true },
+    // Event click pada slice chart
+    events: { 
+      dataPointSelection: (event, chartContext, config) => {
+         // Sinkronkan klik di chart dengan logic legend
+         handleLegendClick(config.dataPointIndex);
+      } 
+    } 
+  },
+  labels: categoryStats.value.map(cat => cat.name),
+  colors: categoryStats.value.map(cat => cat.hexColor),
+  plotOptions: { 
+    pie: { 
+      donut: { 
+        size: '75%', 
+        labels: { 
+          show: true, 
+          name: { show: true, fontSize: '14px', fontFamily: 'Inter, sans-serif', fontWeight: 600, color: '#64748b', offsetY: -10 }, 
+          value: { show: true, fontSize: '20px', fontFamily: 'Inter, sans-serif', fontWeight: 700, color: '#1e293b', offsetY: 16, formatter: (val) => val }, 
+          total: { show: true, label: 'Total Item', color: '#64748b', formatter: () => stats.value.realTotalStock.toLocaleString('id-ID') } 
+        } 
+      } 
+    } 
+  },
+  legend: { show: false }, // Kita pakai custom legend
+  stroke: { show: true, colors: ['#ffffff'], width: 2 }, 
+  tooltip: { 
+    y: { formatter: (val) => val.toLocaleString('id-ID') + ' item' }, 
+    style: { fontSize: '12px', fontFamily: 'Inter, sans-serif' } 
+  }, 
+  dataLabels: { enabled: false }, 
+}));
+
+const handleLegendClick = (index) => {
+  const pos = selectedCategoryIndices.value.indexOf(index);
+  if (pos >= 0) selectedCategoryIndices.value.splice(pos, 1); 
+  else selectedCategoryIndices.value.push(index);
+  
+  // Toggle selection visual di chart (ApexCharts method)
+  if (donutChartRef.value) donutChartRef.value.toggleDataPointSelection(index);
+  
+  updateCenterLabel();
+};
+
+// =========================================================
+//  OTHER LISTS
+// =========================================================
+
+// --- RECENT ACTIVITY ---
 const recentActivity = computed(() => {
-  // Ambil 10 history teratas
   return store.history.slice(0, 10).map(log => {
-    // Hitung waktu relatif sederhana
     let timeLabel = 'Baru saja';
-    if (log.id) { // ID adalah timestamp
+    if (log.id) {
         const diff = Date.now() - log.id;
         const minutes = Math.floor(diff / 60000);
         if (minutes > 0 && minutes < 60) timeLabel = `${minutes} menit lalu`;
         else if (minutes >= 60 && minutes < 1440) timeLabel = `${Math.floor(minutes/60)} jam lalu`;
         else if (minutes >= 1440) timeLabel = 'Kemarin';
     }
-
     return {
       id: log.id,
       type: log.type === 'IN' ? 'masuk' : 'keluar',
       item: log.itemName,
       qty: log.qty,
-      user: log.actor, // Nama user/actor
+      user: log.actor,
       time: timeLabel
     };
   });
 });
 
-// --- POPULAR ITEMS COMPUTED (REAL-TIME) ---
+// --- TOP REQUESTED ---
 const topRequestedItems = computed(() => {
-  // Hitung frekuensi request berdasarkan history
   const frequencyMap = {};
-  
   store.history.forEach(log => {
     if (!frequencyMap[log.itemName]) {
       frequencyMap[log.itemName] = { count: 0, item_id: log.item_id };
@@ -471,76 +600,59 @@ const topRequestedItems = computed(() => {
     frequencyMap[log.itemName].count += 1;
   });
 
-  // Convert ke array dan sort
-  const sortedItems = Object.keys(frequencyMap).map(name => {
+  return Object.keys(frequencyMap).map(name => {
     const data = frequencyMap[name];
-    // Cari kategori dari master data
     let catName = '-';
-    
-    // STRATEGI 1: Cari berdasarkan item_id (jika ada)
-    if (data.item_id) {
-       const atk = store.atks.find(a => a.id === data.item_id);
-       if (atk) {
-         const cat = store.categories.find(c => c.id === atk.category_id);
-         if (cat) catName = cat.name;
-       }
+    // Cari kategori via ID atau Nama
+    const atk = store.atks.find(a => a.id === data.item_id) || store.atks.find(a => a.name === name);
+    if(atk) {
+       const cat = store.categories.find(c => c.id === atk.category_id);
+       if(cat) catName = cat.name;
     }
-    
-    // STRATEGI 2 (FALLBACK): Cari berdasarkan Nama jika ID gagal
-    // Ini memperbaiki masalah data lama yang mungkin tidak punya ID valid
-    if (catName === '-') {
-       const atkByName = store.atks.find(a => a.name === name);
-       if (atkByName) {
-          const cat = store.categories.find(c => c.id === atkByName.category_id);
-          if (cat) catName = cat.name;
-       }
-    }
-    
-    return {
-      name: name,
-      count: data.count,
-      category: catName
-    };
-  }).sort((a, b) => b.count - a.count).slice(0, 5); // Ambil Top 5
-
-  return sortedItems;
+    return { name: name, count: data.count, category: catName };
+  }).sort((a, b) => b.count - a.count).slice(0, 5);
 });
 
+// Bar Chart Static (Trend)
+const requestTrendData = ref([
+    { name: 'Jun', value: 300 }, { name: 'Jul', value: 450 }, { name: 'Ags', value: 600 },
+    { name: 'Sep', value: 500 }, { name: 'Okt', value: 750 }, { name: 'Nov', value: 900 },
+]);
+const barChartSeries = computed(() => [{ name: 'Permintaan', data: requestTrendData.value.map(month => month.value) }]);
+const barChartOptions = computed(() => ({
+  chart: { type: 'bar', height: 320, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, zoom: { enabled: false } },
+  plotOptions: { bar: { borderRadius: 4, horizontal: false, columnWidth: '55%' } },
+  dataLabels: { enabled: false }, stroke: { show: false },
+  xaxis: { categories: requestTrendData.value.map(month => month.name), labels: { style: { colors: '#64748b', fontSize: '12px' } }, axisBorder: { show: false }, axisTicks: { show: false } },
+  yaxis: { labels: { style: { colors: '#64748b', fontSize: '12px' }, formatter: (val) => val.toFixed(0) } },
+  grid: { borderColor: '#f1f5f9', strokeDashArray: 4, yaxis: { lines: { show: true } }, xaxis: { lines: { show: false } } },
+  colors: ['#3b82f6'], tooltip: { y: { formatter: (val) => val + " permintaan" } }
+}));
 
+// Actions
 const handleApprovalAction = (req, action) => {
   if (action === 'Setujui') {
     openConfirmModal({
       title: 'Konfirmasi Persetujuan',
-      message: `Setujui penambahan ${req.itemCount} stok untuk ${req.itemName} di ${req.unit}? Stok akan bertambah otomatis.`,
+      message: `Setujui penambahan ${req.itemCount} stok untuk ${req.itemName}?`,
       buttonText: 'Ya, Setujui',
-      buttonClass: 'bg-blue-600 hover:bg-blue-700 focus-visible:outline-blue-600',
-      icon: CheckCircleIcon,
-      iconBg: 'bg-blue-50',
-      iconColor: 'text-blue-600',
+      buttonClass: 'bg-blue-600 hover:bg-blue-700',
+      icon: CheckCircleIcon, iconBg: 'bg-blue-50', iconColor: 'text-blue-600',
       onConfirm: () => {
-        store.approveRestockRequest({
-           request_id: req.id, 
-           item_id: req.item_id,
-           unit_id: req.unit_id,
-           qty: parseInt(req.itemCount),
-           user: req.user,
-           price_estimate: 0 
-        });
-        triggerToast(`Permintaan disetujui. Stok ${req.unit} bertambah.`, 'success');
+        store.approveRestockRequest({ request_id: req.id, item_id: req.item_id, unit_id: req.unit_id, qty: parseInt(req.itemCount), user: req.user, price_estimate: 0 });
+        triggerToast(`Permintaan disetujui.`, 'success');
       }
     });
   } else { 
     openConfirmModal({
       title: 'Konfirmasi Penolakan',
-      message: `Apakah Anda yakin ingin menolak permintaan dari ${req.user}? Tindakan ini tidak dapat dibatalkan.`,
+      message: `Tolak permintaan dari ${req.user}?`,
       buttonText: 'Ya, Tolak',
-      buttonClass: 'bg-red-600 hover:bg-red-700 focus-visible:outline-red-600',
-      icon: NoSymbolIcon,
-      iconBg: 'bg-red-50',
-      iconColor: 'text-red-600',
+      buttonClass: 'bg-red-600 hover:bg-red-700',
+      icon: NoSymbolIcon, iconBg: 'bg-red-50', iconColor: 'text-red-600',
       onConfirm: () => {
         store.rejectRestockRequest(req.id);
-        triggerToast('Permintaan telah ditolak.', 'success');
+        triggerToast('Permintaan ditolak.', 'success');
       }
     });
   }
@@ -548,99 +660,20 @@ const handleApprovalAction = (req, action) => {
 
 const handleRequestStock = (item) => {
   openConfirmModal({
-    title: 'Konfirmasi Request Stok',
-    message: `Buat permintaan restock manual untuk item: ${item.name} di ${item.unit}? Permintaan ini akan masuk ke daftar persetujuan.`,
-    buttonText: 'Ya, Buat Request',
-    buttonClass: 'bg-blue-600 hover:bg-blue-700 focus-visible:outline-blue-600',
-    icon: QuestionMarkCircleIcon,
-    iconBg: 'bg-blue-50',
-    iconColor: 'text-blue-600',
+    title: 'Request Stok',
+    message: `Buat request untuk ${item.name}?`,
+    buttonText: 'Ya, Request',
+    buttonClass: 'bg-blue-600 hover:bg-blue-700',
+    icon: QuestionMarkCircleIcon, iconBg: 'bg-blue-50', iconColor: 'text-blue-600',
     onConfirm: () => {
-      const newRequest = {
-        id: Date.now(), 
-        user: 'System Request (Admin)',
-        unit: item.unit,
-        unit_id: item.unit_id,
-        item_id: item.item_id,
-        itemName: item.name,
-        itemCount: 20, 
-        value: 'Estimasi System'
-      };
-      store.addRestockRequest(newRequest);
-      triggerToast('Permintaan restock berhasil dibuat.', 'success');
+      store.addRestockRequest({
+        id: Date.now(), user: 'Admin (System)', unit: item.unit, unit_id: item.unit_id,
+        item_id: item.item_id, itemName: item.name, itemCount: 20, value: 'Estimasi'
+      });
+      triggerToast('Request dibuat.', 'success');
     }
   });
 };
-
-// =============================================
-//    CHART LOGIC
-// =============================================
-const totalStockNumeric = stats.value.realTotalStock; 
-
-const categoryStats = ref([
-  { name: 'Kertas & Dokumen', percentage: '45%', value: totalStockNumeric * 0.45, colorClass: 'bg-blue-600' },
-  { name: 'Tinta & Toner', percentage: '25%', value: totalStockNumeric * 0.25, colorClass: 'bg-green-500' },
-  { name: 'Alat Tulis', percentage: '20%', value: totalStockNumeric * 0.20, colorClass: 'bg-yellow-500' },
-  { name: 'Lain-lain', percentage: '10%', value: totalStockNumeric * 0.10, colorClass: 'bg-red-500' },
-]);
-
-const requestTrendData = ref([
-    { name: 'Jun', value: 300 },
-    { name: 'Jul', value: 450 },
-    { name: 'Ags', value: 600 },
-    { name: 'Sep', value: 500 },
-    { name: 'Okt', value: 750 },
-    { name: 'Nov', value: 900 },
-]);
-
-// Bar Chart Options
-const barChartSeries = computed(() => [{ name: 'Permintaan', data: requestTrendData.value.map(month => month.value) }]);
-const barChartOptions = computed(() => ({
-  chart: { type: 'bar', height: 320, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, zoom: { enabled: false } },
-  plotOptions: { bar: { borderRadius: 4, horizontal: false, columnWidth: '55%' } },
-  dataLabels: { enabled: false },
-  stroke: { show: false },
-  xaxis: { categories: requestTrendData.value.map(month => month.name), labels: { style: { colors: '#64748b', fontSize: '12px' } }, axisBorder: { show: false }, axisTicks: { show: false } },
-  yaxis: { labels: { style: { colors: '#64748b', fontSize: '12px' }, formatter: (val) => val.toFixed(0) } },
-  grid: { borderColor: '#f1f5f9', strokeDashArray: 4, yaxis: { lines: { show: true } }, xaxis: { lines: { show: false } } },
-  colors: ['#3b82f6'],
-  tooltip: { y: { formatter: (val) => val + " permintaan" } }
-}));
-
-// Donut Chart Logic
-const donutChartRef = ref(null);
-const donutChartTotalLabel = ref('Total Item');
-const donutChartTotalValue = ref(stats.value.totalStock); 
-const selectedCategoryIndices = ref([]);
-const calculateSelectedTotal = () => selectedCategoryIndices.value.reduce((sum, idx) => sum + categoryStats.value[idx].value, 0);
-const updateCenterLabel = () => {
-  const count = selectedCategoryIndices.value.length;
-  if (count === 0) { donutChartTotalLabel.value = 'Total Item'; donutChartTotalValue.value = stats.value.realTotalStock.toLocaleString('id-ID'); }
-  else if (count === 1) { const idx = selectedCategoryIndices.value[0]; donutChartTotalLabel.value = categoryStats.value[idx].name; donutChartTotalValue.value = categoryStats.value[idx].value.toLocaleString('id-ID'); }
-  else { donutChartTotalLabel.value = 'Total Terpilih'; donutChartTotalValue.value = calculateSelectedTotal().toLocaleString('id-ID'); }
-  if (donutChartRef.value) { donutChartRef.value.updateOptions({ plotOptions: { pie: { donut: { labels: { total: { label: donutChartTotalLabel.value, formatter: () => donutChartTotalValue.value } } } } } }); }
-};
-const updateSliceOpacity = () => {
-  const selected = selectedCategoryIndices.value;
-  if (!donutChartRef.value) return;
-  donutChartRef.value.updateOptions({ states: { normal: { filter: { type: selected.length === 0 ? 'none' : 'lighten', value: selected.length === 0 ? 0 : 0.5 } } } });
-};
-const handleLegendClick = (index) => {
-  const pos = selectedCategoryIndices.value.indexOf(index);
-  if (pos >= 0) selectedCategoryIndices.value.splice(pos, 1); else selectedCategoryIndices.value.push(index);
-  if (donutChartRef.value) donutChartRef.value.toggleDataPointSelection(index);
-  updateCenterLabel(); updateSliceOpacity();
-};
-const donutChartSeries = computed(() => categoryStats.value.map((cat) => cat.value));
-const donutChartOptions = computed(() => ({
-  chart: { type: 'donut', width: 300, fontFamily: 'Inter, sans-serif', animations: { enabled: true }, events: { dataPointSelection: () => {} } },
-  labels: categoryStats.value.map((cat) => cat.name),
-  colors: categoryStats.value.map((cat) => {
-    if (cat.colorClass === 'bg-blue-600') return '#2563EB'; if (cat.colorClass === 'bg-green-500') return '#22C55E'; if (cat.colorClass === 'bg-yellow-500') return '#EAB308'; if (cat.colorClass === 'bg-red-500') return '#EF4444'; return '#A3A3A3';
-  }),
-  plotOptions: { pie: { donut: { size: '75%', labels: { show: true, name: { show: true, fontSize: '14px', fontFamily: 'Inter, sans-serif', fontWeight: 600, color: '#64748b', offsetY: -10 }, value: { show: true, fontSize: '20px', fontFamily: 'Inter, sans-serif', fontWeight: 700, color: '#1e293b', offsetY: 16, formatter: (val) => val }, total: { show: true, label: donutChartTotalLabel.value, color: '#64748b', formatter: () => donutChartTotalValue.value } } } } },
-  legend: { show: false }, stroke: { show: true, colors: ['#ffffff'], width: 2 }, tooltip: { y: { formatter: (val) => val.toLocaleString('id-ID') + ' item' }, style: { fontSize: '12px', fontFamily: 'Inter, sans-serif' } }, dataLabels: { enabled: false }, states: { normal: { filter: { type: 'none', value: 0 } }, active: { filter: { type: 'none' } }, hover: { filter: { type: 'lighten', value: 0.15 } } }
-}));
 </script>
 
 <style scoped>
@@ -652,8 +685,4 @@ const donutChartOptions = computed(() => ({
 .toast-slide-top-enter-active{ transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .toast-slide-top-leave-active { transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 .toast-slide-top-enter-from, .toast-slide-top-leave-to { opacity: 0; transform: translateY(-20px) translateX(-50%); }
-.toast-fade-enter-active { transition: all 0.3s ease-out; }
-.toast-fade-leave-active { transition: all 0.8s ease-in; }
-.toast-fade-enter-from { opacity: 0; transform: translateY(-20px) scale(0.95); }
-.toast-fade-leave-to { opacity: 0; }
 </style>

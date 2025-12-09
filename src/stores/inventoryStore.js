@@ -62,8 +62,8 @@ export const useInventoryStore = defineStore('inventory', () => {
 
   // --- 4. DATA STOK ---
   const defaultStocks = [
-    { id: 101, item_id: 1, unit_id: 1, stock: 150, stock_min: 20, price: 3500, status: 'Active', created_at: '01/01/2023', updated_at: '10/12/2023', batches: [{ id:1, date:'2023-01-01', price:3500, stock:150 }] },
-    { id: 102, item_id: 2, unit_id: 1, stock: 500, stock_min: 50, price: 45000, status: 'Active', created_at: '01/01/2023', batches: [{ id:2, date:'2023-10-05', price:45000, stock:500 }] },
+    { id: 101, item_id: 1, unit_id: 1, stock: 100, stock_min: 20, price: 3500, status: 'Active', created_at: '01/01/2023', updated_at: '10/12/2023', batches: [{ id:1, date:'2023-01-01', price:3500, stock:150 }] },
+    { id: 102, item_id: 2, unit_id: 1, stock: 200, stock_min: 50, price: 45000, status: 'Active', created_at: '01/01/2023', batches: [{ id:2, date:'2023-10-05', price:45000, stock:500 }] },
     { id: 103, item_id: 3, unit_id: 2, stock: 3, stock_min: 5, price: 85000, status: 'Active', created_at: '01/01/2023', batches: [{ id:3, date:'2023-09-15', price:85000, stock:3 }] },
     { id: 104, item_id: 4, unit_id: 3, stock: 0, stock_min: 10, price: 2500, status: 'Active', created_at: '05/01/2023', batches: [] },
     { id: 105, item_id: 5, unit_id: 1, stock: 50, stock_min: 10, price: 8500, status: 'Active', created_at: '06/01/2023', batches: [{ id:4, date:'2023-01-06', price:8500, stock:50 }] },
