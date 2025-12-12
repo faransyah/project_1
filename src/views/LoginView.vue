@@ -1,35 +1,42 @@
 <template>
-  <div class="font-inter subtle-bg-pattern flex min-h-screen flex-col items-center justify-center bg-blue-900 px-4 py-12 overflow-hidden">
+  <!-- Background utama sekarang menggunakan warna solid primary-blue -->
+  <div class="font-inter flex min-h-screen flex-col items-center justify-center bg-primary-blue px-4 py-12 overflow-hidden">
     
     <Transition appear name="fade-in-up">
-      <div class="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl transition-all duration-300 hover:shadow-yellow-400/10">
+      <!-- Container Utama: Kembali ke satu kolom, dengan max-width MD -->
+      <div class="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl ring-2 ring-gray-100 transition-all duration-300">
         
-        <div class="bg-blue-800 p-8 text-center border-b border-blue-700">
+        <!-- KOTAK ATAS: Logo dan Branding (Warna Primary) -->
+        <div class="relative flex flex-col items-center justify-center p-8 text-center text-white border-b border-white/30 bg-primary-blue">
           
-          <div class="mx-auto relative flex h-14 w-14 items-center justify-center rounded-lg transition-all duration-300 hover:scale-105 overflow-hidden shadow-lg ring-4 ring-blue-700/50 bg-[#FFE600]">
-            <div class="absolute inset-0 flex items-center justify-center z-0">
-                 <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="opacity-90 scale-125">
-                    <path d="M2 5C6 2 8 8 12 5C16 2 18 8 22 5" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M2 10C6 7 8 13 12 10C16 7 18 13 22 10" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M2 15C6 12 8 18 12 15C16 12 18 18 22 15" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
-                 </svg>
+          <!-- Elemen Visual Background: Dibiarkan sebagai dekorasi, meskipun latar belakang solid -->
+          <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg width=\'100%25\' height=\'100%25\' xmlns=\'http://www.w3.org/2000/svg\'%3e%3cdefs%3e%3clinearGradient id=\'grad1\' x1=\'0%25\' y1=\'0%25\' x2=\'100%25\' y2=\'100%25\'%3e%3cstop offset=\'0%25\' stop-color=\'%23ffffff\' stop-opacity=\'0.2\' /%3e%3cstop offset=\'100%25\' stop-color=\'%23ffffff\' stop-opacity=\'0\' /%3e%3c/linearGradient%3e%3c/defs%3e%3crect width=\'100%25\' height=\'100%25\' fill=\'url(%23grad1)\' /%3e%3c/svg%3e');"></div>
+
+          <div class="relative z-10 space-y-3">
+            <!-- Logo PLN Click yang Diperbesar (h-20 w-20) -->
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-xl overflow-hidden shadow-lg ring-4 ring-white/30 bg-white p-3 transform hover:scale-105 transition-transform duration-500">
+              <img 
+                src="/pln-click.png" 
+                alt="Logo PLN Click" 
+                class="w-full h-full object-contain"
+                onerror="this.onerror=null; this.src='https://placehold.co/100x100/ffffff/000000?text=PLN'"
+              >
             </div>
-            <svg viewBox="0 0 26 24" fill="currentColor" class="h-7 w-9 text-[#E30613] z-10 relative -rotate-6 scale-110 drop-shadow-sm">
-              <path d="M13 1L6 13.6H13L8 24L19 11H11L17 1Z" />
-            </svg>
-          </div>
 
-          <div class="mt-4 flex flex-col items-center justify-center">
-            <span class="text-3xl font-extrabold leading-none tracking-tight text-white drop-shadow-sm">PLN</span>
-            <span class="text-sm font-bold text-yellow-400 -mt-0.5 tracking-wide">Icon Plus</span>
+            <p class="text-base font-semibold text-white/90 pt-1 max-w-xs mx-auto">
+              Sistem Manajemen Aset & Stok
+            </p>
           </div>
-
-          <p class="mt-2 text-sm font-medium text-blue-200">
-            Sistem Manajemen Aset & Stok
-          </p>
-        </div>
-        <div class="p-8 pt-6">
           
+        </div>
+        
+        <!-- KOTAK BAWAH: Formulir Login -->
+        <div class="p-8">
+          
+          <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+            Masuk ke Akun Anda
+          </h2>
+
           <form class="space-y-6" @submit.prevent="handleLogin">
             
             <div class="space-y-4">
@@ -38,7 +45,7 @@
                 <label for="email" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Username</label>
                 <div class="relative group">
                   <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <EnvelopeIcon class="h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+                    <EnvelopeIcon class="h-5 w-5 text-gray-400 group-focus-within:text-primary-blue transition-colors" />
                   </div>
                   <input 
                     id="email" 
@@ -46,7 +53,7 @@
                     type="text" 
                     required
                     v-model="email"
-                    class="block w-full rounded-lg border border-gray-300 bg-slate-50 py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-600 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-blue-600 sm:text-sm transition-all"
+                    class="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-primary-blue focus:shadow-lg focus:outline-none focus:ring-1 focus:ring-primary-blue sm:text-sm transition-all"
                     placeholder="Masukkan username"
                   />
                 </div>
@@ -56,7 +63,7 @@
                 <label for="password" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Password</label>
                 <div class="relative group">
                   <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <LockClosedIcon class="h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+                    <LockClosedIcon class="h-5 w-5 text-gray-400 group-focus-within:text-primary-blue transition-colors" />
                   </div>
                   <input 
                     id="password" 
@@ -64,12 +71,12 @@
                     :type="showPassword ? 'text' : 'password'" 
                     required
                     v-model="password"
-                    class="block w-full rounded-lg border border-gray-300 bg-slate-50 py-3 pl-10 pr-10 text-gray-900 placeholder-gray-400 focus:bg-white focus:border-blue-600 focus:shadow-md focus:outline-none focus:ring-1 focus:ring-blue-600 sm:text-sm transition-all"
+                    class="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-10 text-gray-900 placeholder-gray-400 focus:border-primary-blue focus:shadow-lg focus:outline-none focus:ring-1 focus:ring-primary-blue sm:text-sm transition-all"
                     placeholder="Masukkan password"
                   />
                   <button 
                     type="button" 
-                    class="absolute inset-y-0 right-0 z-10 flex items-center pr-3 text-gray-400 hover:text-blue-600 transition-colors"
+                    class="absolute inset-y-0 right-0 z-10 flex items-center pr-3 text-gray-400 hover:text-primary-blue transition-colors"
                     @click="showPassword = !showPassword"
                   >
                     <span class="sr-only">Toggle password visibility</span>
@@ -98,10 +105,10 @@
             <button 
               type="submit" 
               :disabled="isLoading"
-              class="relative flex w-full justify-center rounded-lg bg-yellow-400 px-4 py-3 text-sm font-bold text-blue-900 shadow-md transition-all duration-200 hover:bg-yellow-300 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 !mt-8"
+              class="relative flex w-full justify-center rounded-xl bg-[#00A2B9] px-4 py-3 text-sm font-bold text-[#ffffff] shadow-xl transition-all duration-300 hover:bg-yellow-300 hover:shadow-2xl hover:translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-yellow-500/50 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 !mt-8"
             >
               <span v-if="isLoading" class="flex items-center">
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -109,19 +116,22 @@
               </span>
               <span v-else>MASUK APLIKASI</span>
             </button>
+            <p class="mt-8 text-center text-sm text-gray-500">
+              Lupa Password?
+              <a href="#" class="font-semibold text-primary-blue hover:text-gray-900 transition-colors">
+                Hubungi Administrator
+              </a>
+            </p>
           </form>
 
-          <p class="mt-8 text-center text-sm text-gray-500">
-            Mengalami masalah login?
-            <a href="#" class="font-semibold text-blue-700 hover:text-blue-900 transition-colors">
-              Hubungi Administrator
-            </a>
+          <p class="mt-10 text-center text-xs text-gray-400">
+            Simulasi: Gunakan username "admin" dan password "password" untuk admin.
           </p>
         </div>
       </div>
     </Transition>
     
-    <div class="mt-8 text-center text-xs text-blue-200/60">
+    <div class="mt-8 text-center text-xs text-white/80">
       &copy; 2025 PLN Icon Plus. All rights reserved.
     </div>
   </div>
@@ -130,7 +140,6 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-// BoltIcon dihapus karena tidak dipakai lagi
 import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid';
 
 // State
@@ -168,27 +177,43 @@ const handleLogin = () => {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Deklarasi variabel CSS untuk warna primary */
+:root {
+  --color-primary-blue: #00A2B9;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 .font-inter {
   font-family: 'Inter', sans-serif;
 }
 
-/* Pola Grid Halus */
-.subtle-bg-pattern {
-  background-image: linear-gradient(rgba(0, 83, 155, 0.1) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(0, 83, 155, 0.1) 1px, transparent 1px);
-  background-size: 40px 40px;
-  background-position: center center;
+/* Utilitas Tailwind Kustom menggunakan variabel CSS */
+.bg-primary-blue {
+    background-color: var(--color-primary-blue);
 }
+
+.text-primary-blue {
+    color: var(--color-primary-blue);
+}
+
+.focus\:border-primary-blue:focus {
+    border-color: var(--color-primary-blue);
+}
+
+.focus\:ring-primary-blue:focus {
+    --tw-ring-color: var(--color-primary-blue);
+}
+
+/* Pola Grid Halus - Dihapus karena diganti solid color */
 
 /* Animasi "Pop-in" Kartu */
 .fade-in-up-enter-active {
-  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .fade-in-up-enter-from {
   opacity: 0;
-  transform: translateY(30px) scale(0.98);
+  transform: translateY(30px) scale(0.95);
 }
 .fade-in-up-enter-to {
   opacity: 1;

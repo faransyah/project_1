@@ -40,11 +40,12 @@
 
   <div class="min-h-screen bg-slate-50/50 font-inter text-slate-600 selection:bg-cyan-500 selection:text-white">
     
+    <!-- Navbar diperbaiki: inset-x-0 selalu (full width) agar logo tidak bergerak saat scroll -->
     <nav 
       class="fixed z-50 h-16 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center"
       :class="[
         isScrolled 
-          ? 'top-0 inset-x-4 md:inset-x-0 border border-white/60 bg-gray-200/80 backdrop-blur-xl shadow-lg shadow-slate-200/20 ring-1 ring-black/5' 
+          ? 'top-0 inset-x-0 border-b border-white/60 bg-gray-200/80 backdrop-blur-xl shadow-lg shadow-slate-200/20' 
           : 'top-0 inset-x-0 border-b border-transparent bg-slate-50/0 shadow-none'
       ]"
     >
@@ -52,28 +53,19 @@
         <div class="flex h-full items-center justify-between">
 
           <div class="flex shrink-0 items-center gap-3 cursor-pointer group" @click="router.push('/dashboard')">
+            <!-- LOGO BLOCK: Menggunakan Image, Zoom Permanen pada Gambar -->
             <div 
-              class="relative flex h-10 w-10 items-center justify-center rounded-md transition-all duration-300 group-hover:scale-105 overflow-hidden shadow-sm bg-[#FFE600]"
+              class="relative flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden shadow-sm ring-1 ring-slate-900/5 bg-white p-1.5 transition-all duration-500 group-hover:shadow-md"
             >
-            <div class="absolute inset-0 flex items-center justify-center z-0">
-                 <svg width="24" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="opacity-90">
-                    <path d="M2 5C6 2 8 8 12 5C16 2 18 8 22 5" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M2 10C6 7 8 13 12 10C16 7 18 13 22 10" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M2 15C6 12 8 18 12 15C16 12 18 18 22 15" stroke="#009BDB" stroke-width="2" stroke-linecap="round"/>
-                 </svg>
-              </div>
-              <svg 
-                viewBox="0 0 26 24" 
-                fill="currentColor" 
-                class="h-6 w-8 text-[#E30613] z-10 relative -rotate-6 scale-110 drop-shadow-sm"
+              <!-- class 'scale-[1.8]' ditambahkan agar gambar terlihat lebih besar (zoom in) secara default untuk menutupi border putih -->
+              <img 
+                src="/pln-click.png" 
+                alt="Logo PLN Click" 
+                class="w-full h-full object-contain scale-[1.8]"
+                onerror="this.onerror=null; this.src='https://placehold.co/100x100/ffffff/000000?text=PLN'"
               >
-                <path d="M13 1L6 13.6H13L8 24L19 11H11L17 1Z" />
-              </svg>
             </div>
-            <div class="flex flex-col items-start">
-              <span class="text-xl font-extrabold leading-none tracking-tight text-[#009BDB]">PLN</span>
-              <span class="text-[10px] font-semibold text-slate-600 -mt-0.5 tracking-wide">Icon Plus</span>
-            </div>
+            <!-- END LOGO BLOCK -->
           </div>
 
           <div 
@@ -142,10 +134,9 @@ import { useRouter, useRoute, RouterLink } from 'vue-router';
 import {
   ArrowRightOnRectangleIcon,
   UserIcon
-} from '@heroicons/vue/24/outline'; // BoltIcon (outline)
+} from '@heroicons/vue/24/outline'; 
 
-// Tambahkan import BoltSolidIcon untuk ikon petir solid
-import { BoltIcon as BoltSolidIcon } from '@heroicons/vue/24/solid'; // BoltIcon (solid)
+import { BoltIcon as BoltSolidIcon } from '@heroicons/vue/24/solid';
 
 const router = useRouter();
 const route = useRoute();
