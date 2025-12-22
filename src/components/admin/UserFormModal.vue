@@ -10,7 +10,8 @@
           <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
           <div class="flex items-center gap-5 relative">
             <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30 ring-1 ring-white">
-              <UserCircleIcon class="h-7 w-7" />
+              <UserCircleIcon v-if="!isEditing" class="h-7 w-7" />
+              <PencilSquareIcon v-else class="h-7 w-7" />
             </div>
             <div>
               <h3 class="text-xl font-extrabold leading-6 text-slate-800 tracking-tight">
@@ -30,14 +31,22 @@
           
           <div class="w-1/3 h-full bg-white border-r border-slate-200 p-8 flex flex-col items-center shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10 hidden md:flex">
              <div class="w-full max-w-xs flex flex-col h-full">
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center shrink-0">Foto Profil</label>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 text-center shrink-0">
+                  Foto Profil <span class="text-red-500">*</span>
+                </label>
                 
-                <div class="relative w-48 h-48 mx-auto rounded-full bg-slate-50 border-4 border-white shadow-xl ring-1 ring-slate-200 flex items-center justify-center overflow-hidden group cursor-pointer transition-all hover:ring-4 hover:ring-blue-200 shrink-0" @click="triggerFileInput">
+                <div 
+                  class="relative w-48 h-48 mx-auto rounded-full bg-slate-50 border-4 border-white shadow-xl ring-1 flex items-center justify-center overflow-hidden group cursor-pointer transition-all hover:ring-4 hover:ring-blue-200 shrink-0" 
+                  :class="localUser.url_photo ? 'ring-slate-200' : 'ring-red-200 bg-red-50'"
+                  @click="triggerFileInput"
+                >
                   <img v-if="localUser.url_photo" :src="localUser.url_photo" alt="Profile" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  
                   <div v-else class="flex flex-col items-center justify-center text-slate-300 group-hover:text-blue-400 transition-colors">
-                      <UserIcon class="h-24 w-24 mb-1" />
-                      <span class="text-[10px] font-bold uppercase tracking-wide opacity-50">Upload</span>
+                      <UserIcon class="h-24 w-24 mb-1" :class="{'text-red-200': !localUser.url_photo}" />
+                      <span class="text-[10px] font-bold uppercase tracking-wide opacity-50" :class="{'text-red-400': !localUser.url_photo}">Wajib Upload</span>
                   </div>
+
                   <div class="absolute inset-0 bg-slate-900/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-[1px]">
                     <CameraIcon class="h-8 w-8 text-white mb-1 drop-shadow-md" />
                     <span class="text-[10px] font-bold text-white uppercase tracking-wider drop-shadow-md">Ubah Foto</span>
@@ -61,7 +70,7 @@
                 <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
                    <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
-                      Identitas & Akun
+                     Identitas & Akun
                    </h4>
                    
                    <div class="space-y-6">
@@ -78,9 +87,9 @@
                                 <span class="text-slate-400 font-bold text-sm transition-colors group-focus-within:text-blue-600">@</span>
                              </div>
                              <input 
-                                v-model="localUser.username" 
-                                @input="applyFilter($event, 'username', 'username')"
-                                type="text" required class="form-input-bold pl-9 lowercase" placeholder="username.pln" 
+                               v-model="localUser.username" 
+                               @input="applyFilter($event, 'username', 'username')"
+                               type="text" required class="form-input-bold pl-9 lowercase" placeholder="username.pln" 
                              />
                           </div>
                         </div>
@@ -94,15 +103,14 @@
                                 <EnvelopeIcon class="h-5 w-5 text-slate-400" />
                              </div>
                              <input 
-                                v-model="localUser.email" 
-                                type="email" 
-                                required 
-                                class="form-input-bold pl-12" 
-                                :class="{'border-red-300 focus:border-red-500 text-red-600': localUser.email && !isValidEmail(localUser.email)}"
-                                placeholder="contoh@pln.co.id" 
+                               v-model="localUser.email" 
+                               type="email" required 
+                               class="form-input-bold pl-12" 
+                               :class="{'border-red-300 focus:border-red-500 text-red-600': localUser.email && !isValidEmail(localUser.email)}"
+                               placeholder="contoh@pln.co.id" 
                              />
                           </div>
-                          <p v-if="localUser.email && !isValidEmail(localUser.email)" class="text-[10px] text-red-500 mt-1 ml-1">Format email harus mengandung @ dan domain yang valid (misalnya .com)</p>
+                          <p v-if="localUser.email && !isValidEmail(localUser.email)" class="text-[10px] text-red-500 mt-1 ml-1">Format email tidak valid</p>
                         </div>
 
                         <div class="space-y-2">
@@ -112,9 +120,9 @@
                                 <PhoneIcon class="h-5 w-5 text-slate-400" />
                              </div>
                              <input 
-                                v-model="localUser.phone" 
-                                @input="applyFilter($event, 'phone', 'phone')"
-                                type="text" maxlength="15" class="form-input-bold pl-12" placeholder="0812..." 
+                               v-model="localUser.phone" 
+                               @input="applyFilter($event, 'phone', 'phone')"
+                               type="text" maxlength="15" class="form-input-bold pl-12" placeholder="0812..." 
                              />
                           </div>
                         </div>
@@ -148,93 +156,9 @@
                 </div>
 
                 <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-                   <div class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500"></div>
-                   <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
-                      Data Kepegawaian
-                   </h4>
-
-                   <div class="space-y-6">
-                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">NIP <span class="text-red-500">*</span></label>
-                           <div class="relative group">
-                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-purple-600">
-                                <IdentificationIcon class="h-5 w-5 text-slate-400" />
-                             </div>
-                             <input 
-                                v-model="localUser.nip" 
-                                @input="applyFilter($event, 'nip', 'numeric')" 
-                                maxlength="20" type="text" required class="form-input-bold pl-12 font-mono tracking-wide" placeholder="XXXXXXXX" 
-                             />
-                           </div>
-                        </div>
-                        <div class="space-y-2">
-                           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">PERNR (SAP)</label>
-                           <input 
-                                v-model="localUser.pernr" 
-                                @input="applyFilter($event, 'pernr', 'numeric')" 
-                                maxlength="20" type="text" class="form-input-bold font-mono tracking-wide px-4" placeholder="Nomor Personel" 
-                           />
-                        </div>
-                      </div>
-
-                      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                        <div class="space-y-2">
-                           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Personnel Area</label>
-                           <div class="relative group">
-                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-purple-600">
-                                <MapPinIcon class="h-5 w-5 text-slate-400" />
-                             </div>
-                             <input 
-                                v-model="localUser.personnel_area" 
-                                @input="applyFilter($event, 'personnel_area', 'alphanum')"
-                                type="text" maxlength="10" class="form-input-bold pl-12 uppercase font-mono" placeholder="KODE" 
-                             />
-                           </div>
-                        </div>
-                        <div class="space-y-2">
-                           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Personnel Sub Area</label>
-                           <input 
-                                v-model="localUser.personnel_sub_area" 
-                                @input="applyFilter($event, 'personnel_sub_area', 'alphanum')"
-                                type="text" maxlength="10" class="form-input-bold px-4 uppercase font-mono" placeholder="KODE" 
-                           />
-                        </div>
-                      </div>
-
-                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
-                        <div class="space-y-2">
-                           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Jenis Kelamin</label>
-                           <select v-model="localUser.gender" class="form-select-bold px-4">
-                             <option value="">- Pilih -</option>
-                             <option value="L">Laki-laki</option>
-                             <option value="P">Perempuan</option>
-                           </select>
-                        </div>
-                        <div class="space-y-2">
-                           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Agama</label>
-                           <select v-model="localUser.religion" class="form-select-bold px-4">
-                             <option value="">- Pilih -</option>
-                             <option value="ISLAM">Islam</option>
-                             <option value="KRISTEN">Kristen</option>
-                             <option value="KATOLIK">Katolik</option>
-                             <option value="HINDU">Hindu</option>
-                             <option value="BUDDHA">Buddha</option>
-                             <option value="KONGHUCU">Konghucu</option>
-                           </select>
-                        </div>
-                        <div class="space-y-2">
-                           <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Tgl Lahir</label>
-                           <input v-model="localUser.date_birth" type="date" class="form-input-bold px-4" />
-                        </div>
-                      </div>
-                   </div>
-                </div>
-
-                <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-500"></div>
                    <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
-                      Unit & Organisasi
+                     Unit & Organisasi
                    </h4>
                    
                    <div class="space-y-6">
@@ -257,17 +181,17 @@
                          <div class="space-y-2">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Company Code</label>
                             <input 
-                                v-model="localUser.company_code" 
-                                @input="applyFilter($event, 'company_code', 'numeric')"
-                                type="text" maxlength="6" class="form-input-bold px-4 font-mono" placeholder="4000" 
+                               v-model="localUser.company_code" 
+                               @input="applyFilter($event, 'company_code', 'numeric')"
+                               type="text" maxlength="6" class="form-input-bold px-4 font-mono" placeholder="4000" 
                             />
                          </div>
                          <div class="space-y-2">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Organization Code</label>
                             <input 
-                                v-model="localUser.organization_code" 
-                                @input="applyFilter($event, 'organization_code', 'numeric')"
-                                type="text" maxlength="12" class="form-input-bold px-4 font-mono" placeholder="50012345" 
+                               v-model="localUser.organization_code" 
+                               @input="applyFilter($event, 'organization_code', 'numeric')"
+                               type="text" maxlength="12" class="form-input-bold px-4 font-mono" placeholder="50012345" 
                             />
                          </div>
                       </div>
@@ -280,102 +204,91 @@
                          <div class="space-y-2">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Kode Jabatan</label>
                             <input 
-                                v-model="localUser.position_code" 
-                                @input="applyFilter($event, 'position_code', 'numeric')"
-                                type="text" maxlength="12" class="form-input-bold px-4 font-mono" placeholder="cth: 50012345" 
+                               v-model="localUser.position_code" 
+                               @input="applyFilter($event, 'position_code', 'numeric')"
+                               type="text" maxlength="12" class="form-input-bold px-4 font-mono" placeholder="cth: 50012345" 
                             />
                          </div>
                       </div>
                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                   
-                   <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-                      <div class="absolute left-0 top-0 bottom-0 w-1 bg-slate-400"></div>
-                      <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
-                        <UserGroupIcon class="h-5 w-5 text-slate-400" /> Atasan
-                      </h4>
-                      <div class="space-y-4">
-                         <div class="space-y-2">
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Nama Atasan</label>
-                            <input v-model="localUser.superior_name" type="text" class="form-input-bold px-4" placeholder="Nama atasan langsung" />
-                         </div>
-                         <div class="space-y-2">
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">NIP Atasan</label>
-                            <input 
-                                v-model="localUser.superior_nip" 
-                                @input="applyFilter($event, 'superior_nip', 'numeric')"
-                                type="text" class="form-input-bold px-4" placeholder="NIP Atasan" 
-                            />
-                         </div>
-                      </div>
-                   </div>
-
-                   <div class="flex flex-col gap-6">
-                      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
-                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
-                         <div class="space-y-2">
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Role Aplikasi <span class="text-red-500">*</span></label>
-                            <div class="relative group">
-                               <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-600">
-                                  <ShieldCheckIcon class="h-5 w-5 text-slate-400" />
-                               </div>
-                               <select v-model="localUser.role" required class="form-select-bold pl-12">
-                                  <option value="User">User (Karyawan)</option>
-                                  <option value="Admin">Administrator</option>
-                               </select>
-                            </div>
-                         </div>
-                      </div>
-
-                      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
-                          <div class="flex items-center justify-between cursor-pointer group" @click="localUser.is_active = localUser.is_active ? 0 : 1">
-                            <div>
-                              <span class="block text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">Status Akun Aktif</span>
-                              <span class="text-[11px] text-slate-500">Akses login sistem.</span>
-                            </div>
-                            <button type="button" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none" :class="localUser.is_active ? 'bg-green-500' : 'bg-slate-300'">
-                              <span aria-hidden="true" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" :class="localUser.is_active ? 'translate-x-5' : 'translate-x-0'"></span>
-                            </button>
-                          </div>
-
-                          <div class="border-t border-slate-100"></div>
-
-                          <div class="flex items-center justify-between cursor-pointer group" @click="localUser.is_sso = localUser.is_sso ? 0 : 1">
-                            <div>
-                              <span class="block text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">Single Sign On</span>
-                              <span class="text-[11px] text-slate-500">Login via akun korporat.</span>
-                            </div>
-                            <button type="button" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none" :class="localUser.is_sso ? 'bg-blue-600' : 'bg-slate-300'">
-                              <span aria-hidden="true" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" :class="localUser.is_sso ? 'translate-x-5' : 'translate-x-0'"></span>
-                            </button>
-                          </div>
-                      </div>
-                   </div>
-                </div>
-
-                <div v-if="isEditing" class="bg-slate-50 rounded-2xl p-5 border border-slate-200">
-                   <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 flex items-center gap-2">
-                     <ClockIcon class="h-4 w-4" /> Jejak Audit
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+                   <div class="absolute left-0 top-0 bottom-0 w-1 bg-purple-500"></div>
+                   <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
+                     Akses & Lainnya
                    </h4>
-                   <div class="grid grid-cols-2 gap-4 text-[10px] text-slate-500">
-                     <div>
-                       <span class="block font-bold text-slate-700 mb-0.5">Created</span>
-                       <div class="flex items-center gap-2">
-                         <div class="h-5 w-5 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-400">SY</div>
-                         <span>{{ localUser.created_by || 'System' }}</span>
-                       </div>
-                       <span class="font-mono ml-7 mt-0.5 block">{{ localUser.created_at || '-' }}</span>
-                     </div>
-                     <div>
-                       <span class="block font-bold text-slate-700 mb-0.5">Updated</span>
-                       <div class="flex items-center gap-2">
-                         <div class="h-5 w-5 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[8px] font-bold text-slate-400">AD</div>
-                         <span>{{ localUser.updated_by || 'Admin' }}</span>
-                       </div>
-                       <span class="font-mono ml-7 mt-0.5 block">{{ localUser.updated_at || '-' }}</span>
-                     </div>
+
+                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div class="space-y-2">
+                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 flex justify-between">
+                           <span>Role Aplikasi <span class="text-red-500">*</span></span>
+                           <span v-if="localUser.unit_id && !isPusat" class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold">Auto User</span>
+                         </label>
+                         <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-purple-600">
+                               <ShieldCheckIcon class="h-5 w-5" :class="isPusat ? 'text-slate-400' : 'text-slate-300'" />
+                            </div>
+                            <select 
+                              v-model="localUser.role" 
+                              required 
+                              class="form-select-bold pl-12"
+                              :class="{'bg-slate-100 text-slate-500 cursor-not-allowed': !isPusat}"
+                              :disabled="!isPusat"
+                            >
+                               <option value="User">User (Karyawan)</option>
+                               <option v-if="isPusat || localUser.role === 'Admin'" value="Admin">Administrator</option>
+                            </select>
+                         </div>
+                         <p v-if="!isPusat && localUser.unit_id" class="text-[10px] text-slate-400 mt-1 ml-1">
+                           Role Admin hanya tersedia untuk Unit Pusat (ID 3).
+                         </p>
+                      </div>
+
+                      <div class="space-y-2">
+                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Jenis Kelamin</label>
+                         <select v-model="localUser.gender" class="form-select-bold px-4">
+                           <option value="">- Pilih -</option>
+                           <option value="L">Laki-laki</option>
+                           <option value="P">Perempuan</option>
+                         </select>
+                      </div>
+                   </div>
+                   
+                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                      <div class="space-y-2">
+                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Agama</label>
+                         <select v-model="localUser.religion" class="form-select-bold px-4">
+                           <option value="">- Pilih -</option>
+                           <option value="ISLAM">Islam</option>
+                           <option value="KRISTEN">Kristen</option>
+                           <option value="KATOLIK">Katolik</option>
+                           <option value="HINDU">Hindu</option>
+                           <option value="BUDDHA">Buddha</option>
+                           <option value="KONGHUCU">Konghucu</option>
+                         </select>
+                      </div>
+                      
+                      <div class="space-y-2">
+                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">NIP <span class="text-red-500">*</span></label>
+                         <input 
+                            v-model="localUser.nip" 
+                            @input="applyFilter($event, 'nip', 'numeric')" 
+                            maxlength="20" type="text" required class="form-input-bold px-4 font-mono tracking-wide" placeholder="XXXXXXXX" 
+                         />
+                      </div>
+                   </div>
+
+                   <div class="mt-6 flex flex-col gap-4">
+                      <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center justify-between cursor-pointer group" @click="localUser.is_active = localUser.is_active ? 0 : 1">
+                        <div>
+                          <span class="block text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">Status Akun Aktif</span>
+                          <span class="text-[11px] text-slate-500">Izinkan user login ke sistem.</span>
+                        </div>
+                        <button type="button" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none" :class="localUser.is_active ? 'bg-green-500' : 'bg-slate-300'">
+                          <span aria-hidden="true" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out" :class="localUser.is_active ? 'translate-x-5' : 'translate-x-0'"></span>
+                        </button>
+                      </div>
                    </div>
                 </div>
 
@@ -387,8 +300,8 @@
 
         <div class="flex items-center justify-between px-8 py-5 bg-white border-t border-slate-200 shrink-0 rounded-b-2xl z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
           <div class="text-xs font-bold" :class="isValid ? 'text-emerald-600' : 'text-slate-400'">
-             <span v-if="isValid" class="flex items-center gap-1.5"><CheckBadgeIcon class="h-5 w-5" /> DATA LENGKAP</span>
-             <span v-else>Lengkapi kolom bertanda *</span>
+              <span v-if="isValid" class="flex items-center gap-1.5"><CheckBadgeIcon class="h-5 w-5" /> DATA LENGKAP</span>
+              <span v-else>Lengkapi kolom bertanda *</span>
           </div>
           <div class="flex gap-4">
             <button @click="onClose" class="px-6 py-2.5 text-sm font-bold bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 rounded-xl transition-colors border border-transparent">
@@ -417,7 +330,7 @@ import {
   BuildingOfficeIcon, Cog6ToothIcon, CameraIcon, EyeIcon, EyeSlashIcon,
   UserGroupIcon, LockClosedIcon, CheckBadgeIcon, CalendarDaysIcon,
   ShieldCheckIcon, FingerPrintIcon, InformationCircleIcon, ClockIcon,
-  MapPinIcon, EnvelopeIcon, PhoneIcon, UserIcon
+  MapPinIcon, EnvelopeIcon, PhoneIcon, UserIcon, PencilSquareIcon
 } from '@heroicons/vue/24/outline';
 
 const props = defineProps({
@@ -441,44 +354,42 @@ const handleFileUpload = (event) => {
   if (file) localUser.value.url_photo = URL.createObjectURL(file);
 };
 
-// ==========================================
-// --- VALIDASI & CONSTRAINT INPUT (CORE) ---
-// ==========================================
+// --- CONSTRAINT LOGIC: ROLE ---
+const isPusat = computed(() => localUser.value.unit_id === 3);
+
+watch(() => localUser.value.unit_id, (newVal) => {
+  if (props.show) { 
+      if (newVal === 3) {
+        if (!isEditing.value) localUser.value.role = 'User'; 
+      } else {
+        localUser.value.role = 'User';
+      }
+  }
+});
+
+// --- FILTER & VALIDATION ---
 const applyFilter = (event, field, type) => {
   let val = event.target.value;
+  if (type === 'numeric') val = val.replace(/[^0-9]/g, '');
+  else if (type === 'phone') val = val.replace(/[^0-9+\-\(\)\s]/g, '');
+  else if (type === 'username') val = val.replace(/[^a-zA-Z0-9._]/g, '');
+  else if (type === 'alphanum') val = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
   
-  if (type === 'numeric') {
-    // Hanya angka 0-9 (NIP, PERNR, Kode)
-    val = val.replace(/[^0-9]/g, '');
-  } else if (type === 'phone') {
-    // Angka, +, -, spasi, kurung (No HP)
-    val = val.replace(/[^0-9+\-\(\)\s]/g, '');
-  } else if (type === 'username') {
-    // Huruf, angka, titik, underscore (Username)
-    val = val.replace(/[^a-zA-Z0-9._]/g, '');
-  } else if (type === 'alphanum') {
-    // Huruf dan angka saja, auto Uppercase (Kode Area)
-    val = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-  }
-
-  // Paksa update model dan tampilan
   localUser.value[field] = val;
   if (event.target.value !== val) event.target.value = val;
 };
 
-// Regex Validasi Email Standard
-const isValidEmail = (email) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const isValid = computed(() => {
   return localUser.value.full_name?.trim() &&
          localUser.value.username?.trim() &&
          localUser.value.email?.trim() &&
-         isValidEmail(localUser.value.email) && // Cek format email di tombol save
+         isValidEmail(localUser.value.email) &&
          localUser.value.nip?.trim() &&
          localUser.value.unit_id &&
-         localUser.value.role; 
+         localUser.value.role &&
+         localUser.value.url_photo; // WAJIB ADA FOTO
 });
 
 const isModified = computed(() => {
@@ -503,11 +414,11 @@ watch(() => props.show, (newVal) => {
     } else {
       localUser.value = {
         full_name: '', username: '', email: '', phone: '', password: '123',
-        nip: '', pernr: '', gender: '', religion: '', date_birth: '', date_entry: '',
+        nip: '', pernr: '', gender: '', religion: '', date_birth: '',
         unit_id: '', position_name: '', position_code: '',
-        superior_name: '', superior_nip: '', superior_position: '',
-        personnel_area: '', personnel_sub_area: '', company_code: '', organization_code: '',
-        role: 'User', is_active: 1, is_sso: 0, created_by: 'Admin'
+        superior_name: '', superior_nip: '',
+        company_code: '', organization_code: '',
+        role: 'User', is_active: 1, is_sso: 0, created_by: 'Admin', url_photo: ''
       };
       originalUser.value = {};
     }
@@ -520,6 +431,7 @@ onUnmounted(() => document.body.style.overflow = '');
 const onClose = () => emit('close');
 const onSave = () => {
   if (isValid.value) {
+    if (localUser.value.unit_id !== 3) localUser.value.role = 'User';
     const payload = { ...localUser.value };
     if (isEditing.value && payload.password === DUMMY_PASSWORD) delete payload.password;
     emit('save', payload);
@@ -528,7 +440,6 @@ const onSave = () => {
 </script>
 
 <style scoped>
-/* --- Professional Form Styles (Bold & Clean) --- */
 .form-input-bold {
   @apply block w-full rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold tracking-wide
   focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:bg-white
@@ -545,4 +456,4 @@ const onSave = () => {
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-</style>  
+</style>
