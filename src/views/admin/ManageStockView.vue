@@ -443,9 +443,9 @@ import {
   ArrowDownIcon
 } from '@heroicons/vue/24/outline';
 
-import { useInventoryStore } from '../stores/inventoryStore';
-import StockFormModal from '../components/StockFormModal.vue';
-import StockDetailModal from '../components/StockDetailModal.vue';
+import { useInventoryStore } from '../../stores/inventoryStore';
+import StockFormModal from '../../components/admin/StockFormModal.vue';
+import StockDetailModal from '../../components/admin/StockDetailModal.vue';
 
 const store = useInventoryStore();
 

@@ -40,7 +40,6 @@
 
   <div class="min-h-screen bg-slate-50/50 font-inter text-slate-600 selection:bg-cyan-500 selection:text-white">
     
-    <!-- Navbar diperbaiki: inset-x-0 selalu (full width) agar logo tidak bergerak saat scroll -->
     <nav 
       class="fixed z-50 h-16 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center"
       :class="[
@@ -52,12 +51,10 @@
       <div class="w-full h-full px-4 sm:px-6">
         <div class="flex h-full items-center justify-between">
 
-          <div class="flex shrink-0 items-center gap-3 cursor-pointer group" @click="router.push('/dashboard')">
-            <!-- LOGO BLOCK: Menggunakan Image, Zoom Permanen pada Gambar -->
+          <div class="flex shrink-0 items-center gap-3 cursor-pointer group" @click="router.push('/admin/dashboard')">
             <div 
               class="relative flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden shadow-sm ring-1 ring-slate-900/5 bg-white p-1.5 transition-all duration-500 group-hover:shadow-md"
             >
-              <!-- class 'scale-[1.8]' ditambahkan agar gambar terlihat lebih besar (zoom in) secara default untuk menutupi border putih -->
               <img 
                 src="/pln-click.png" 
                 alt="Logo PLN Click" 
@@ -65,7 +62,6 @@
                 onerror="this.onerror=null; this.src='https://placehold.co/100x100/ffffff/000000?text=PLN'"
               >
             </div>
-            <!-- END LOGO BLOCK -->
           </div>
 
           <div 
@@ -93,8 +89,8 @@
             
             <div class="hidden sm:flex items-center gap-3 pr-1 cursor-default select-none">
               <div class="flex flex-col items-end">
-                 <span class="text-xs font-bold text-slate-700 leading-none">{{ currentUser }}</span>
-                 <span class="text-[10px] font-medium text-slate-400 leading-none mt-0.5 tracking-wide">Administrator</span>
+                  <span class="text-xs font-bold text-slate-700 leading-none">{{ currentUser }}</span>
+                  <span class="text-[10px] font-medium text-slate-400 leading-none mt-0.5 tracking-wide">Administrator</span>
               </div>
               <UserIcon class="h-5 w-5 text-slate-400" />
             </div>
@@ -115,7 +111,7 @@
       </div>
     </nav>
 
-    <main class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 pb-12">
+    <main class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-12">
       <div class="min-h-[600px]">
         <router-view v-slot="{ Component }">
            <component :is="Component" />
@@ -129,51 +125,47 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute, RouterLink } from 'vue-router';
-
-// Import Icons
-import {
-  ArrowRightOnRectangleIcon,
-  UserIcon
-} from '@heroicons/vue/24/outline'; 
-
-import { BoltIcon as BoltSolidIcon } from '@heroicons/vue/24/solid';
+import { ArrowRightOnRectangleIcon, UserIcon } from '@heroicons/vue/24/outline'; 
 
 const router = useRouter();
 const route = useRoute();
 
-// --- State Scroll & Navbar ---
+// --- State Scroll ---
 const isScrolled = ref(false);
+const handleScroll = () => { isScrolled.value = window.scrollY > 20; };
 
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 20;
-};
+watch(() => route.path, () => {
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); 
+  isScrolled.value = false;
+});
 
-// Fix Scroll Position: Reset ke atas setiap pindah halaman
-watch(
-  () => route.path, 
-  () => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); 
-    isScrolled.value = false;
-  }
-);
-
-// --- Data Menu ---
+// --- Data Menu (Admin Only) ---
+// Sesuaikan href dengan path router admin
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard' },
-  { name: 'Users', href: '/manage-users' },
-  { name: 'Units', href: '/manage-units' },
-  { name: 'Master ATK', href: '/master-atk' },
-  { name: 'Stock', href: '/manage-stock' }
+  { name: 'Dashboard', href: '/admin/dashboard' },
+  { name: 'Users', href: '/admin/users' },
+  { name: 'Units', href: '/admin/units' },
+  { name: 'Master ATK', href: '/admin/atk' },
+  { name: 'Stock', href: '/admin/stock' }
 ];
 
 // --- State User ---
-const currentUser = ref('Muhammad Rezza');
+const currentUser = ref('Administrator');
 const isLogoutModalOpen = ref(false);
 
 // --- Lifecycle ---
 onMounted(() => {
   const storedUser = localStorage.getItem('activeUser');
-  if (storedUser) currentUser.value = storedUser;
+  if (storedUser) {
+    try {
+      // FIX: Parse JSON agar tidak menampilkan object penuh
+      const parsedUser = JSON.parse(storedUser);
+      currentUser.value = parsedUser.full_name || 'Administrator';
+    } catch (e) {
+      console.error('User data error', e);
+      currentUser.value = 'Administrator';
+    }
+  }
   
   window.addEventListener('scroll', handleScroll);
 });
@@ -182,14 +174,13 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
 
-// --- Helper Methods ---
+// --- Helpers ---
 const isActive = (href) => route.path.startsWith(href);
 const openLogoutModal = () => isLogoutModalOpen.value = true;
 const closeLogoutModal = () => isLogoutModalOpen.value = false;
 
 const confirmLogout = () => {
-  localStorage.removeItem('userLoggedIn');
-  localStorage.removeItem('activeUser');
+  localStorage.clear(); // Hapus semua sesi
   router.push('/login');
   isLogoutModalOpen.value = false;
 };

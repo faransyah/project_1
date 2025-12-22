@@ -1,19 +1,14 @@
 <template>
-  <!-- Background utama sekarang menggunakan warna solid primary-blue -->
   <div class="font-inter flex min-h-screen flex-col items-center justify-center bg-primary-blue px-4 py-12 overflow-hidden">
     
     <Transition appear name="fade-in-up">
-      <!-- Container Utama: Kembali ke satu kolom, dengan max-width MD -->
       <div class="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl ring-2 ring-gray-100 transition-all duration-300">
         
-        <!-- KOTAK ATAS: Logo dan Branding (Warna Primary) -->
         <div class="relative flex flex-col items-center justify-center p-8 text-center text-white border-b border-white/30 bg-primary-blue">
           
-          <!-- Elemen Visual Background: Dibiarkan sebagai dekorasi, meskipun latar belakang solid -->
           <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg width=\'100%25\' height=\'100%25\' xmlns=\'http://www.w3.org/2000/svg\'%3e%3cdefs%3e%3clinearGradient id=\'grad1\' x1=\'0%25\' y1=\'0%25\' x2=\'100%25\' y2=\'100%25\'%3e%3cstop offset=\'0%25\' stop-color=\'%23ffffff\' stop-opacity=\'0.2\' /%3e%3cstop offset=\'100%25\' stop-color=\'%23ffffff\' stop-opacity=\'0\' /%3e%3c/linearGradient%3e%3c/defs%3e%3crect width=\'100%25\' height=\'100%25\' fill=\'url(%23grad1)\' /%3e%3c/svg%3e');"></div>
 
           <div class="relative z-10 space-y-3">
-            <!-- Logo PLN Click yang Diperbesar (h-20 w-20) -->
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-xl overflow-hidden shadow-lg ring-4 ring-white/30 bg-white p-3 transform hover:scale-105 transition-transform duration-500">
               <img 
                 src="/pln-click.png" 
@@ -30,7 +25,6 @@
           
         </div>
         
-        <!-- KOTAK BAWAH: Formulir Login -->
         <div class="p-8">
           
           <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
@@ -39,51 +33,48 @@
 
           <form class="space-y-6" @submit.prevent="handleLogin">
             
-            <div class="space-y-4">
-              
-              <div>
-                <label for="email" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Username</label>
-                <div class="relative group">
-                  <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <EnvelopeIcon class="h-5 w-5 text-gray-400 group-focus-within:text-primary-blue transition-colors" />
-                  </div>
-                  <input 
-                    id="email" 
-                    name="email" 
-                    type="text" 
-                    required
-                    v-model="email"
-                    class="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-primary-blue focus:shadow-lg focus:outline-none focus:ring-1 focus:ring-primary-blue sm:text-sm transition-all"
-                    placeholder="Masukkan username"
-                  />
+            <div>
+              <label for="username" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Username</label>
+              <div class="relative group">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <EnvelopeIcon class="h-5 w-5 text-gray-400 group-focus-within:text-primary-blue transition-colors" />
                 </div>
+                <input 
+                  id="username" 
+                  name="username" 
+                  type="text" 
+                  required
+                  v-model="username"
+                  class="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-primary-blue focus:shadow-lg focus:outline-none focus:ring-1 focus:ring-primary-blue sm:text-sm transition-all"
+                  placeholder="Masukkan username"
+                />
               </div>
-              
-              <div>
-                <label for="password" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Password</label>
-                <div class="relative group">
-                  <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <LockClosedIcon class="h-5 w-5 text-gray-400 group-focus-within:text-primary-blue transition-colors" />
-                  </div>
-                  <input 
-                    id="password" 
-                    name="password" 
-                    :type="showPassword ? 'text' : 'password'" 
-                    required
-                    v-model="password"
-                    class="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-10 text-gray-900 placeholder-gray-400 focus:border-primary-blue focus:shadow-lg focus:outline-none focus:ring-1 focus:ring-primary-blue sm:text-sm transition-all"
-                    placeholder="Masukkan password"
-                  />
-                  <button 
-                    type="button" 
-                    class="absolute inset-y-0 right-0 z-10 flex items-center pr-3 text-gray-400 hover:text-primary-blue transition-colors"
-                    @click="showPassword = !showPassword"
-                  >
-                    <span class="sr-only">Toggle password visibility</span>
-                    <EyeSlashIcon v-if="showPassword" class="h-5 w-5" />
-                    <EyeIcon v-else class="h-5 w-5" />
-                  </button>
+            </div>
+            
+            <div>
+              <label for="password" class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Password</label>
+              <div class="relative group">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                  <LockClosedIcon class="h-5 w-5 text-gray-400 group-focus-within:text-primary-blue transition-colors" />
                 </div>
+                <input 
+                  id="password" 
+                  name="password" 
+                  :type="showPassword ? 'text' : 'password'" 
+                  required
+                  v-model="password"
+                  class="block w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-10 text-gray-900 placeholder-gray-400 focus:border-primary-blue focus:shadow-lg focus:outline-none focus:ring-1 focus:ring-primary-blue sm:text-sm transition-all"
+                  placeholder="Masukkan password"
+                />
+                <button 
+                  type="button" 
+                  class="absolute inset-y-0 right-0 z-10 flex items-center pr-3 text-gray-400 hover:text-primary-blue transition-colors"
+                  @click="showPassword = !showPassword"
+                >
+                  <span class="sr-only">Toggle password visibility</span>
+                  <EyeSlashIcon v-if="showPassword" class="h-5 w-5" />
+                  <EyeIcon v-else class="h-5 w-5" />
+                </button>
               </div>
             </div>
 
@@ -124,8 +115,10 @@
             </p>
           </form>
 
-          <p class="mt-10 text-center text-xs text-gray-400">
-            Simulasi: Gunakan username "admin" dan password "password" untuk admin.
+          <p class="mt-10 text-center text-xs text-gray-400 space-y-1">
+            <span class="block">Simulasi Login:</span>
+            <span class="block">Admin: <b>budi.santoso</b> / 123</span>
+            <span class="block">Pegawai: <b>siti.aminah</b> / 123</span>
           </p>
         </div>
       </div>
@@ -140,37 +133,55 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+// Import Store
+import { useInventoryStore } from '../../stores/inventoryStore'; 
 import { EnvelopeIcon, LockClosedIcon, EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid';
 
 // State
-const email = ref('');
+const username = ref(''); // Ganti dari 'email' menjadi 'username'
 const password = ref('');
 const errorMsg = ref('');
 const isLoading = ref(false);
 const showPassword = ref(false); 
 const router = useRouter();
+const store = useInventoryStore(); // Init store
 
 const handleLogin = () => {
   isLoading.value = true;
   errorMsg.value = '';
 
   setTimeout(() => {
-    // Logika Login (Admin)
-    if (email.value === 'admin' && password.value === 'password') {
+    // 1. Cari user di Store berdasarkan Username & Password
+    // (Data dummy password di store adalah '123')
+    const user = store.users.find(u => 
+      u.username === username.value && (u.password || '123') === password.value
+    );
+
+    if (user) {
+      // Cek status aktif
+      if (user.is_active !== 1) {
+        errorMsg.value = 'Akun Anda non-aktif. Hubungi Admin.';
+        isLoading.value = false;
+        return;
+      }
+
+      // 2. Simpan Sesi
       localStorage.setItem('userLoggedIn', 'true');
-      localStorage.setItem('activeUser', 'Admin'); 
-      router.push('/dashboard'); 
-    } 
-    // Logika Login (User Rezza)
-    else if (email.value === 'rezza' && password.value === '123') {
-      localStorage.setItem('userLoggedIn', 'true');
-      localStorage.setItem('activeUser', 'Rezza'); 
-      router.push('/dashboard'); 
-    } 
-    // Login Gagal
-    else {
+      localStorage.setItem('activeUser', JSON.stringify(user));
+      localStorage.setItem('userRole', user.role);
+
+      // 3. Redirect Berdasarkan Role
+      if (user.role === 'Admin') {
+        router.push('/admin/dashboard');
+      } else {
+        // Asumsi selain Admin adalah User (Pegawai)
+        router.push('/user/request');
+      }
+    } else {
+      // Login Gagal
       errorMsg.value = 'Username atau password salah!';
     }
+    
     isLoading.value = false;
   }, 1000);
 };
@@ -204,8 +215,6 @@ const handleLogin = () => {
 .focus\:ring-primary-blue:focus {
     --tw-ring-color: var(--color-primary-blue);
 }
-
-/* Pola Grid Halus - Dihapus karena diganti solid color */
 
 /* Animasi "Pop-in" Kartu */
 .fade-in-up-enter-active {

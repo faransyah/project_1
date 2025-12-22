@@ -267,8 +267,8 @@ import {
   ChevronLeftIcon, ChevronRightIcon, PhotoIcon, TagIcon
 } from '@heroicons/vue/24/outline';
 
-import { useInventoryStore } from '../stores/inventoryStore';
-import ATKFormModal from '../components/ATKFormModal.vue';
+import { useInventoryStore } from '../../stores/inventoryStore';
+import ATKFormModal from '../../components/admin/ATKFormModal.vue';
 
 const store = useInventoryStore();
 

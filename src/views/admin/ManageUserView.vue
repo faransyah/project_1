@@ -191,9 +191,9 @@ import {
   UserIcon, MapPinIcon, EnvelopeIcon, PhoneIcon, ChevronLeftIcon, ChevronRightIcon 
 } from '@heroicons/vue/24/outline';
 
-import { useInventoryStore } from '../stores/inventoryStore';
-import UserFormModal from '../components/UserFormModal.vue';
-import UserDetailModal from '../components/UserDetailModal.vue';
+import { useInventoryStore } from '../../stores/inventoryStore';
+import UserFormModal from '../../components/admin/UserFormModal.vue';
+import UserDetailModal from '../../components/admin/UserDetailModal.vue';
 
 const store = useInventoryStore();
 

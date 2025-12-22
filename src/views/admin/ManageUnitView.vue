@@ -262,8 +262,8 @@ import {
   MagnifyingGlassIcon, ChevronLeftIcon, ChevronRightIcon 
 } from '@heroicons/vue/24/outline';
 
-import { useInventoryStore } from '../stores/inventoryStore';
-import UnitFormModal from '../components/UnitFormModal.vue';
+import { useInventoryStore } from '../../stores/inventoryStore';
+import UnitFormModal from '../../components/admin/UnitFormModal.vue';
 
 const store = useInventoryStore();
 const toast = ref({ show: false, message: '', type: 'success' });

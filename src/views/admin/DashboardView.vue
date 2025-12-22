@@ -374,7 +374,7 @@
 <script setup>
 import { ref, computed, shallowRef, onMounted, onUnmounted } from 'vue'; 
 import VueApexCharts from 'vue3-apexcharts';
-import { useInventoryStore } from '../stores/inventoryStore'; 
+import { useInventoryStore } from '../../stores/inventoryStore'; 
 
 // Impor ikon
 import {

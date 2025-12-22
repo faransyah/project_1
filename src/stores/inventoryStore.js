@@ -25,45 +25,46 @@ export const useInventoryStore = defineStore('inventory', () => {
   ];
 
   // =======================================================================
-  // 2. DATA MASTER ATK (eatk_item) - 15 Data
+  // 2. DATA MASTER ATK (eatk_item) - LENGKAP DENGAN FOTO
   // =======================================================================
+  // Foto disimpan di folder public/contoh.jpeg
   const defaultATKs = [
-    { id: 1, code: 'ATK-001', name: 'Pensil 2B Faber-Castell', category_id: 1, description: 'Pensil ujian standar komputer', min_stock: 10, max_stock: 100, price: 3500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-01', url_photo: 'contoh.jpeg' },
-    { id: 2, code: 'ATK-002', name: 'Kertas A4 Sinar Dunia 80gr', category_id: 2, description: 'Kertas HVS putih ukuran A4', min_stock: 20, max_stock: 200, price: 45000, uom: 'Rim', status: 'Active', created_by: 'System', created_at: '2023-01-01', url_photo: 'contoh.jpeg' },
-    { id: 3, code: 'ATK-003', name: 'Tinta Printer Epson 003 Black', category_id: 3, description: 'Tinta botol original Epson L3110', min_stock: 5, max_stock: 50, price: 85000, uom: 'Botol', status: 'Active', created_by: 'System', created_at: '2023-01-02', url_photo: 'contoh.jpeg' },
-    { id: 4, code: 'ATK-004', name: 'Pulpen Standard AE7 Hitam', category_id: 1, description: 'Pulpen bola mata 0.5mm', min_stock: 50, max_stock: 500, price: 2500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-02', url_photo: 'contoh.jpeg' },
-    { id: 5, code: 'ATK-005', name: 'Spidol Snowman Boardmarker Black', category_id: 1, description: 'Spidol papan tulis hitam', min_stock: 20, max_stock: 200, price: 8500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-03', url_photo: 'contoh.jpeg' },
-    { id: 6, code: 'ATK-006', name: 'Map Plastik Folio Bening', category_id: 2, description: 'Map L transparan', min_stock: 50, max_stock: 300, price: 2500, uom: 'Pcs', status: 'Active', created_by: 'Admin', created_at: '2023-01-05', url_photo: 'contoh.jpeg' },
-    { id: 7, code: 'ATK-007', name: 'Stopmap Kertas Warna Biru', category_id: 2, description: 'Stopmap bahan kertas buffalo', min_stock: 50, max_stock: 500, price: 1500, uom: 'Pcs', status: 'Active', created_by: 'Admin', created_at: '2023-01-05', url_photo: 'contoh.jpeg' },
-    { id: 8, code: 'ATK-008', name: 'Stiker Label A4 103', category_id: 2, description: 'Label nama undangan no 103', min_stock: 10, max_stock: 50, price: 7000, uom: 'Pack', status: 'Active', created_by: 'Admin', created_at: '2023-01-06', url_photo: 'contoh.jpeg' },
-    { id: 9, code: 'ATK-009', name: 'Toner HP 12A LaserJet', category_id: 3, description: 'Cartridge toner original HP', min_stock: 2, max_stock: 20, price: 850000, uom: 'Unit', status: 'Active', created_by: 'Admin', created_at: '2023-01-10', url_photo: 'contoh.jpeg' },
-    { id: 10, code: 'ATK-010', name: 'Lakban Bening 2 Inch', category_id: 5, description: 'Lakban bening daimaru', min_stock: 10, max_stock: 100, price: 12000, uom: 'Roll', status: 'Active', created_by: 'Admin', created_at: '2023-01-10', url_photo: 'contoh.jpeg' },
-    { id: 11, code: 'ATK-011', name: 'Buku Tulis Sinar Dunia 38', category_id: 1, description: 'Buku tulis sekolah isi 38 lembar', min_stock: 20, max_stock: 200, price: 3500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-12', url_photo: 'contoh.jpeg' },
-    { id: 12, code: 'ATK-012', name: 'Penghapus Karet Staedtler', category_id: 1, description: 'Penghapus pensil hitam kecil', min_stock: 20, max_stock: 100, price: 3000, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-12', url_photo: 'contoh.jpeg' },
-    { id: 13, code: 'ATK-013', name: 'Penggaris Besi 30cm', category_id: 1, description: 'Penggaris stainless steel', min_stock: 10, max_stock: 50, price: 7500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-15', url_photo: 'contoh.jpeg' },
-    { id: 14, code: 'ATK-014', name: 'Gunting Besar Joyko', category_id: 4, description: 'Gunting kertas ukuran besar', min_stock: 5, max_stock: 30, price: 15000, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-15', url_photo: 'contoh.jpeg' },
-    { id: 15, code: 'ATK-015', name: 'Cutter Kenko Besar', category_id: 4, description: 'Cutter L-500', min_stock: 10, max_stock: 50, price: 18000, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-18', url_photo: 'contoh.jpeg' },
+    { id: 1, code: 'ATK-001', name: 'Pensil 2B Faber-Castell', category_id: 1, description: 'Pensil ujian standar komputer', min_stock: 10, max_stock: 100, price: 3500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-01', url_photo: '/contoh.jpeg' },
+    { id: 2, code: 'ATK-002', name: 'Kertas A4 Sinar Dunia 80gr', category_id: 2, description: 'Kertas HVS putih ukuran A4', min_stock: 20, max_stock: 200, price: 45000, uom: 'Rim', status: 'Active', created_by: 'System', created_at: '2023-01-01', url_photo: '/contoh.jpeg' },
+    { id: 3, code: 'ATK-003', name: 'Tinta Printer Epson 003 Black', category_id: 3, description: 'Tinta botol original Epson L3110', min_stock: 5, max_stock: 50, price: 85000, uom: 'Botol', status: 'Active', created_by: 'System', created_at: '2023-01-02', url_photo: '/contoh.jpeg' },
+    { id: 4, code: 'ATK-004', name: 'Pulpen Standard AE7 Hitam', category_id: 1, description: 'Pulpen bola mata 0.5mm', min_stock: 50, max_stock: 500, price: 2500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-02', url_photo: '/contoh.jpeg' },
+    { id: 5, code: 'ATK-005', name: 'Spidol Snowman Boardmarker Black', category_id: 1, description: 'Spidol papan tulis hitam', min_stock: 20, max_stock: 200, price: 8500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-03', url_photo: '/contoh.jpeg' },
+    { id: 6, code: 'ATK-006', name: 'Map Plastik Folio Bening', category_id: 2, description: 'Map L transparan', min_stock: 50, max_stock: 300, price: 2500, uom: 'Pcs', status: 'Active', created_by: 'Admin', created_at: '2023-01-05', url_photo: '/contoh.jpeg' },
+    { id: 7, code: 'ATK-007', name: 'Stopmap Kertas Warna Biru', category_id: 2, description: 'Stopmap bahan kertas buffalo', min_stock: 50, max_stock: 500, price: 1500, uom: 'Pcs', status: 'Active', created_by: 'Admin', created_at: '2023-01-05', url_photo: '/contoh.jpeg' },
+    { id: 8, code: 'ATK-008', name: 'Stiker Label A4 103', category_id: 2, description: 'Label nama undangan no 103', min_stock: 10, max_stock: 50, price: 7000, uom: 'Pack', status: 'Active', created_by: 'Admin', created_at: '2023-01-06', url_photo: '/contoh.jpeg' },
+    { id: 9, code: 'ATK-009', name: 'Toner HP 12A LaserJet', category_id: 3, description: 'Cartridge toner original HP', min_stock: 2, max_stock: 20, price: 850000, uom: 'Unit', status: 'Active', created_by: 'Admin', created_at: '2023-01-10', url_photo: '/contoh.jpeg' },
+    { id: 10, code: 'ATK-010', name: 'Lakban Bening 2 Inch', category_id: 5, description: 'Lakban bening daimaru', min_stock: 10, max_stock: 100, price: 12000, uom: 'Roll', status: 'Active', created_by: 'Admin', created_at: '2023-01-10', url_photo: '/contoh.jpeg' },
+    { id: 11, code: 'ATK-011', name: 'Buku Tulis Sinar Dunia 38', category_id: 1, description: 'Buku tulis sekolah isi 38 lembar', min_stock: 20, max_stock: 200, price: 3500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-12', url_photo: '/contoh.jpeg' },
+    { id: 12, code: 'ATK-012', name: 'Penghapus Karet Staedtler', category_id: 1, description: 'Penghapus pensil hitam kecil', min_stock: 20, max_stock: 100, price: 3000, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-12', url_photo: '/contoh.jpeg' },
+    { id: 13, code: 'ATK-013', name: 'Penggaris Besi 30cm', category_id: 1, description: 'Penggaris stainless steel', min_stock: 10, max_stock: 50, price: 7500, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-15', url_photo: '/contoh.jpeg' },
+    { id: 14, code: 'ATK-014', name: 'Gunting Besar Joyko', category_id: 4, description: 'Gunting kertas ukuran besar', min_stock: 5, max_stock: 30, price: 15000, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-15', url_photo: '/contoh.jpeg' },
+    { id: 15, code: 'ATK-015', name: 'Cutter Kenko Besar', category_id: 4, description: 'Cutter L-500', min_stock: 10, max_stock: 50, price: 18000, uom: 'Pcs', status: 'Active', created_by: 'System', created_at: '2023-01-18', url_photo: '/contoh.jpeg' },
   ];
 
   // =======================================================================
-  // 3. DATA USERS (c_sec_user) - 15 Data
+  // 3. DATA USERS (c_sec_user) - LENGKAP DENGAN FOTO LUFFY
   // =======================================================================
   const defaultUsers = [
-    { id: 1, full_name: 'Budi Santoso', username: 'budi.santoso', email: 'budi.santoso@pln.co.id', phone: '081234567890', nip: '198501012010011001', pernr: '70012345', gender: 'L', religion: 'ISLAM', date_birth: '1985-01-01', unit_id: 1, position_name: 'Manager UP3', position_code: '50010001', superior_name: 'GM Jatim', superior_nip: '19700101', personnel_area: 'ID01', personnel_sub_area: 'ID01', company_code: '4000', organization_code: '10002000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: 'contoh.jpeg', created_by: 'System', created_at: '2023-01-01' },
-    { id: 2, full_name: 'Siti Aminah', username: 'siti.aminah', email: 'siti.aminah@pln.co.id', phone: '081234567891', nip: '199002022015012002', pernr: '70012346', gender: 'P', religion: 'ISLAM', date_birth: '1990-02-02', unit_id: 1, position_name: 'Staff Gudang', position_code: '50010002', superior_name: 'Budi Santoso', superior_nip: '19850101', personnel_area: 'ID01', personnel_sub_area: 'ID01', company_code: '4000', organization_code: '10002001', role: 'User', is_active: 1, is_sso: 0, url_photo: 'contoh.jpeg', created_by: 'Admin', created_at: '2023-01-02' },
-    { id: 3, full_name: 'Rudi Hartono', username: 'rudi.hartono', email: 'rudi.hartono@pln.co.id', phone: '081234567892', nip: '198803032012011003', pernr: '70012347', gender: 'L', religion: 'KRISTEN', date_birth: '1988-03-03', unit_id: 2, position_name: 'Supervisor Logistik', position_code: '50020001', superior_name: 'Manager Jabar', superior_nip: '19800505', personnel_area: 'ID02', personnel_sub_area: 'ID02', company_code: '4000', organization_code: '10003000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: 'contoh.jpeg', created_by: 'System', created_at: '2023-01-03' },
-    { id: 4, full_name: 'Dewi Sartika', username: 'dewi.sartika', email: 'dewi.sartika@pln.co.id', phone: '081234567893', nip: '199204042016012004', pernr: '70012348', gender: 'P', religion: 'ISLAM', date_birth: '1992-04-04', unit_id: 2, position_name: 'Staff Admin', position_code: '50020002', superior_name: 'Rudi Hartono', superior_nip: '19880303', personnel_area: 'ID02', personnel_sub_area: 'ID02', company_code: '4000', organization_code: '10003001', role: 'User', is_active: 1, is_sso: 0, url_photo: 'contoh.jpeg', created_by: 'Admin', created_at: '2023-01-04' },
-    { id: 5, full_name: 'Agus Salim', username: 'agus.salim', email: 'agus.salim@pln.co.id', phone: '081234567894', nip: '198705052011011005', pernr: '70012349', gender: 'L', religion: 'ISLAM', date_birth: '1987-05-05', unit_id: 3, position_name: 'Manager Area', position_code: '50030001', superior_name: 'GM Jaya', superior_nip: '19750505', personnel_area: 'ID03', personnel_sub_area: 'ID03', company_code: '4000', organization_code: '10004000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: 'contoh.jpeg', created_by: 'System', created_at: '2023-01-05' },
-    { id: 6, full_name: 'Rina Wati', username: 'rina.wati', email: 'rina.wati@pln.co.id', phone: '081234567895', nip: '199306062017012006', pernr: '70012350', gender: 'P', religion: 'HINDU', date_birth: '1993-06-06', unit_id: 3, position_name: 'Staff Keuangan', position_code: '50030002', superior_name: 'Agus Salim', superior_nip: '19870505', personnel_area: 'ID03', personnel_sub_area: 'ID03', company_code: '4000', organization_code: '10004001', role: 'User', is_active: 1, is_sso: 0, url_photo: 'contoh.jpeg', created_by: 'Admin', created_at: '2023-01-06' },
-    { id: 7, full_name: 'Joko Widodo', username: 'joko.widodo', email: 'joko.widodo@pln.co.id', phone: '081234567896', nip: '198607072010011007', pernr: '70012351', gender: 'L', religion: 'ISLAM', date_birth: '1986-07-07', unit_id: 4, position_name: 'Kepala Gudang', position_code: '50040001', superior_name: 'Manager Jateng', superior_nip: '19800707', personnel_area: 'ID04', personnel_sub_area: 'ID04', company_code: '4000', organization_code: '10005000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: 'contoh.jpeg', created_by: 'System', created_at: '2023-01-07' },
-    { id: 8, full_name: 'Megawati', username: 'megawati', email: 'megawati@pln.co.id', phone: '081234567897', nip: '199108082015012008', pernr: '70012352', gender: 'P', religion: 'ISLAM', date_birth: '1991-08-08', unit_id: 4, position_name: 'Staff Gudang', position_code: '50040002', superior_name: 'Joko Widodo', superior_nip: '19860707', personnel_area: 'ID04', personnel_sub_area: 'ID04', company_code: '4000', organization_code: '10005001', role: 'User', is_active: 1, is_sso: 0, url_photo: 'contoh.jpeg', created_by: 'Admin', created_at: '2023-01-08' },
-    { id: 9, full_name: 'Susilo Bambang', username: 'susilo.b', email: 'susilo.b@pln.co.id', phone: '081234567898', nip: '198909092013011009', pernr: '70012353', gender: 'L', religion: 'ISLAM', date_birth: '1989-09-09', unit_id: 5, position_name: 'Supervisor', position_code: '50050001', superior_name: 'Manager Bali', superior_nip: '19800909', personnel_area: 'ID05', personnel_sub_area: 'ID05', company_code: '4000', organization_code: '10006000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: 'contoh.jpeg', created_by: 'System', created_at: '2023-01-09' },
-    { id: 10, full_name: 'Ani Yudhoyono', username: 'ani.y', email: 'ani.y@pln.co.id', phone: '081234567899', nip: '199410102018012010', pernr: '70012354', gender: 'P', religion: 'ISLAM', date_birth: '1994-10-10', unit_id: 5, position_name: 'Staff', position_code: '50050002', superior_name: 'Susilo Bambang', superior_nip: '19890909', personnel_area: 'ID05', personnel_sub_area: 'ID05', company_code: '4000', organization_code: '10006001', role: 'User', is_active: 1, is_sso: 0, url_photo: 'contoh.jpeg', created_by: 'Admin', created_at: '2023-01-10' },
-    { id: 11, full_name: 'B.J. Habibie', username: 'bj.habibie', email: 'bj.habibie@pln.co.id', phone: '081234567800', nip: '198411112009011011', pernr: '70012355', gender: 'L', religion: 'ISLAM', date_birth: '1984-11-11', unit_id: 6, position_name: 'Senior Manager', position_code: '50060001', superior_name: 'Direktur', superior_nip: '19701111', personnel_area: 'ID06', personnel_sub_area: 'ID06', company_code: '4000', organization_code: '10007000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: 'contoh.jpeg', created_by: 'System', created_at: '2023-01-11' },
-    { id: 12, full_name: 'Ainun Habibie', username: 'ainun.h', email: 'ainun.h@pln.co.id', phone: '081234567801', nip: '199512122019012012', pernr: '70012356', gender: 'P', religion: 'ISLAM', date_birth: '1995-12-12', unit_id: 6, position_name: 'Sekretaris', position_code: '50060002', superior_name: 'B.J. Habibie', superior_nip: '19841111', personnel_area: 'ID06', personnel_sub_area: 'ID06', company_code: '4000', organization_code: '10007001', role: 'User', is_active: 1, is_sso: 0, url_photo: 'contoh.jpeg', created_by: 'Admin', created_at: '2023-01-12' },
-    { id: 13, full_name: 'Abdurrahman Wahid', username: 'gus.dur', email: 'gus.dur@pln.co.id', phone: '081234567802', nip: '198301132008011013', pernr: '70012357', gender: 'L', religion: 'ISLAM', date_birth: '1983-01-13', unit_id: 7, position_name: 'Manager', position_code: '50070001', superior_name: 'GM Sumut', superior_nip: '19750113', personnel_area: 'ID07', personnel_sub_area: 'ID07', company_code: '4000', organization_code: '10008000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: 'contoh.jpeg', created_by: 'System', created_at: '2023-01-13' },
-    { id: 14, full_name: 'Sinta Nuriyah', username: 'sinta.n', email: 'sinta.n@pln.co.id', phone: '081234567803', nip: '199602142020012014', pernr: '70012358', gender: 'P', religion: 'ISLAM', date_birth: '1996-02-14', unit_id: 7, position_name: 'Staff', position_code: '50070002', superior_name: 'Abdurrahman Wahid', superior_nip: '19830113', personnel_area: 'ID07', personnel_sub_area: 'ID07', company_code: '4000', organization_code: '10008001', role: 'User', is_active: 1, is_sso: 0, url_photo: 'contoh.jpeg', created_by: 'Admin', created_at: '2023-01-14' },
-    { id: 15, full_name: 'Soekarno', username: 'soekarno', email: 'soekarno@pln.co.id', phone: '081234567804', nip: '198203152007011015', pernr: '70012359', gender: 'L', religion: 'ISLAM', date_birth: '1982-03-15', unit_id: 11, position_name: 'General Manager', position_code: '50110001', superior_name: 'Direktur', superior_nip: '19700315', personnel_area: 'ID11', personnel_sub_area: 'ID11', company_code: '4000', organization_code: '10012000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: 'contoh.jpeg', created_by: 'System', created_at: '2023-01-15' },
+    { id: 1, full_name: 'Budi Santoso', username: 'budi.santoso', email: 'budi.santoso@pln.co.id', phone: '081234567890', nip: '198501012010011001', pernr: '70012345', gender: 'L', religion: 'ISLAM', date_birth: '1985-01-01', unit_id: 1, position_name: 'Manager UP3', position_code: '50010001', superior_name: 'GM Jatim', superior_nip: '19700101', personnel_area: 'ID01', personnel_sub_area: 'ID01', company_code: '4000', organization_code: '10002000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-01' },
+    { id: 2, full_name: 'Siti Aminah', username: 'siti.aminah', email: 'siti.aminah@pln.co.id', phone: '081234567891', nip: '199002022015012002', pernr: '70012346', gender: 'P', religion: 'ISLAM', date_birth: '1990-02-02', unit_id: 1, position_name: 'Staff Gudang', position_code: '50010002', superior_name: 'Budi Santoso', superior_nip: '19850101', personnel_area: 'ID01', personnel_sub_area: 'ID01', company_code: '4000', organization_code: '10002001', role: 'User', is_active: 1, is_sso: 0, url_photo: '/luffy.jpg', created_by: 'Admin', created_at: '2023-01-02' },
+    { id: 3, full_name: 'Rudi Hartono', username: 'rudi.hartono', email: 'rudi.hartono@pln.co.id', phone: '081234567892', nip: '198803032012011003', pernr: '70012347', gender: 'L', religion: 'KRISTEN', date_birth: '1988-03-03', unit_id: 2, position_name: 'Supervisor Logistik', position_code: '50020001', superior_name: 'Manager Jabar', superior_nip: '19800505', personnel_area: 'ID02', personnel_sub_area: 'ID02', company_code: '4000', organization_code: '10003000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-03' },
+    { id: 4, full_name: 'Dewi Sartika', username: 'dewi.sartika', email: 'dewi.sartika@pln.co.id', phone: '081234567893', nip: '199204042016012004', pernr: '70012348', gender: 'P', religion: 'ISLAM', date_birth: '1992-04-04', unit_id: 2, position_name: 'Staff Admin', position_code: '50020002', superior_name: 'Rudi Hartono', superior_nip: '19880303', personnel_area: 'ID02', personnel_sub_area: 'ID02', company_code: '4000', organization_code: '10003001', role: 'User', is_active: 1, is_sso: 0, url_photo: '/luffy.jpg', created_by: 'Admin', created_at: '2023-01-04' },
+    { id: 5, full_name: 'Agus Salim', username: 'agus.salim', email: 'agus.salim@pln.co.id', phone: '081234567894', nip: '198705052011011005', pernr: '70012349', gender: 'L', religion: 'ISLAM', date_birth: '1987-05-05', unit_id: 3, position_name: 'Manager Area', position_code: '50030001', superior_name: 'GM Jaya', superior_nip: '19750505', personnel_area: 'ID03', personnel_sub_area: 'ID03', company_code: '4000', organization_code: '10004000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-05' },
+    { id: 6, full_name: 'Rina Wati', username: 'rina.wati', email: 'rina.wati@pln.co.id', phone: '081234567895', nip: '199306062017012006', pernr: '70012350', gender: 'P', religion: 'HINDU', date_birth: '1993-06-06', unit_id: 3, position_name: 'Staff Keuangan', position_code: '50030002', superior_name: 'Agus Salim', superior_nip: '19870505', personnel_area: 'ID03', personnel_sub_area: 'ID03', company_code: '4000', organization_code: '10004001', role: 'User', is_active: 1, is_sso: 0, url_photo: '/luffy.jpg', created_by: 'Admin', created_at: '2023-01-06' },
+    { id: 7, full_name: 'Joko Widodo', username: 'joko.widodo', email: 'joko.widodo@pln.co.id', phone: '081234567896', nip: '198607072010011007', pernr: '70012351', gender: 'L', religion: 'ISLAM', date_birth: '1986-07-07', unit_id: 4, position_name: 'Kepala Gudang', position_code: '50040001', superior_name: 'Manager Jateng', superior_nip: '19800707', personnel_area: 'ID04', personnel_sub_area: 'ID04', company_code: '4000', organization_code: '10005000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-07' },
+    { id: 8, full_name: 'Megawati', username: 'megawati', email: 'megawati@pln.co.id', phone: '081234567897', nip: '199108082015012008', pernr: '70012352', gender: 'P', religion: 'ISLAM', date_birth: '1991-08-08', unit_id: 4, position_name: 'Staff Gudang', position_code: '50040002', superior_name: 'Joko Widodo', superior_nip: '19860707', personnel_area: 'ID04', personnel_sub_area: 'ID04', company_code: '4000', organization_code: '10005001', role: 'User', is_active: 1, is_sso: 0, url_photo: '/luffy.jpg', created_by: 'Admin', created_at: '2023-01-08' },
+    { id: 9, full_name: 'Susilo Bambang', username: 'susilo.b', email: 'susilo.b@pln.co.id', phone: '081234567898', nip: '198909092013011009', pernr: '70012353', gender: 'L', religion: 'ISLAM', date_birth: '1989-09-09', unit_id: 5, position_name: 'Supervisor', position_code: '50050001', superior_name: 'Manager Bali', superior_nip: '19800909', personnel_area: 'ID05', personnel_sub_area: 'ID05', company_code: '4000', organization_code: '10006000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-09' },
+    { id: 10, full_name: 'Ani Yudhoyono', username: 'ani.y', email: 'ani.y@pln.co.id', phone: '081234567899', nip: '199410102018012010', pernr: '70012354', gender: 'P', religion: 'ISLAM', date_birth: '1994-10-10', unit_id: 5, position_name: 'Staff', position_code: '50050002', superior_name: 'Susilo Bambang', superior_nip: '19890909', personnel_area: 'ID05', personnel_sub_area: 'ID05', company_code: '4000', organization_code: '10006001', role: 'User', is_active: 1, is_sso: 0, url_photo: '/luffy.jpg', created_by: 'Admin', created_at: '2023-01-10' },
+    { id: 11, full_name: 'B.J. Habibie', username: 'bj.habibie', email: 'bj.habibie@pln.co.id', phone: '081234567800', nip: '198411112009011011', pernr: '70012355', gender: 'L', religion: 'ISLAM', date_birth: '1984-11-11', unit_id: 6, position_name: 'Senior Manager', position_code: '50060001', superior_name: 'Direktur', superior_nip: '19701111', personnel_area: 'ID06', personnel_sub_area: 'ID06', company_code: '4000', organization_code: '10007000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-11' },
+    { id: 12, full_name: 'Ainun Habibie', username: 'ainun.h', email: 'ainun.h@pln.co.id', phone: '081234567801', nip: '199512122019012012', pernr: '70012356', gender: 'P', religion: 'ISLAM', date_birth: '1995-12-12', unit_id: 6, position_name: 'Sekretaris', position_code: '50060002', superior_name: 'B.J. Habibie', superior_nip: '19841111', personnel_area: 'ID06', personnel_sub_area: 'ID06', company_code: '4000', organization_code: '10007001', role: 'User', is_active: 1, is_sso: 0, url_photo: '/luffy.jpg', created_by: 'Admin', created_at: '2023-01-12' },
+    { id: 13, full_name: 'Abdurrahman Wahid', username: 'gus.dur', email: 'gus.dur@pln.co.id', phone: '081234567802', nip: '198301132008011013', pernr: '70012357', gender: 'L', religion: 'ISLAM', date_birth: '1983-01-13', unit_id: 7, position_name: 'Manager', position_code: '50070001', superior_name: 'GM Sumut', superior_nip: '19750113', personnel_area: 'ID07', personnel_sub_area: 'ID07', company_code: '4000', organization_code: '10008000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-13' },
+    { id: 14, full_name: 'Sinta Nuriyah', username: 'sinta.n', email: 'sinta.n@pln.co.id', phone: '081234567803', nip: '199602142020012014', pernr: '70012358', gender: 'P', religion: 'ISLAM', date_birth: '1996-02-14', unit_id: 7, position_name: 'Staff', position_code: '50070002', superior_name: 'Abdurrahman Wahid', superior_nip: '19830113', personnel_area: 'ID07', personnel_sub_area: 'ID07', company_code: '4000', organization_code: '10008001', role: 'User', is_active: 1, is_sso: 0, url_photo: '/luffy.jpg', created_by: 'Admin', created_at: '2023-01-14' },
+    { id: 15, full_name: 'Soekarno', username: 'soekarno', email: 'soekarno@pln.co.id', phone: '081234567804', nip: '198203152007011015', pernr: '70012359', gender: 'L', religion: 'ISLAM', date_birth: '1982-03-15', unit_id: 11, position_name: 'General Manager', position_code: '50110001', superior_name: 'Direktur', superior_nip: '19700315', personnel_area: 'ID11', personnel_sub_area: 'ID11', company_code: '4000', organization_code: '10012000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-15' },
   ];
 
   // =======================================================================
@@ -88,8 +89,28 @@ export const useInventoryStore = defineStore('inventory', () => {
   ];
 
   // =======================================================================
-  // 5. DATA PENDING APPROVALS (eatk_transaction)
+  // 5. DATA TRANSAKSI (eatk_transaction)
   // =======================================================================
+  // Header Transaksi
+  const defaultTransactions = [
+    { id: 1, code: 'TRX-20231001-001', user_id: 2, unit_id: 1, trx_date: '2023-10-01T10:00:00', description: 'Permintaan bulanan staff gudang', status: 'Pending', created_at: '2023-10-01' },
+    { id: 2, code: 'TRX-20231005-002', user_id: 2, unit_id: 1, trx_date: '2023-10-05T14:30:00', description: 'Urgent untuk meeting', status: 'Approved', created_at: '2023-10-05' },
+  ];
+
+  // =======================================================================
+  // 6. DATA DETAIL TRANSAKSI (eatk_transaction_detail)
+  // =======================================================================
+  // Isi Keranjang (Item) dari Transaksi
+  const defaultTransactionDetails = [
+    { id: 1, transaction_id: 1, item_id: 1, qty: 10, notes: 'Hitam' },
+    { id: 2, transaction_id: 1, item_id: 2, qty: 5, notes: '' },
+    { id: 3, transaction_id: 2, item_id: 5, qty: 2, notes: 'Warna Merah' },
+  ];
+
+  // =======================================================================
+  // 7. DATA PENDING APPROVALS (Untuk Dashboard Admin)
+  // =======================================================================
+  // Ini adalah "View" gabungan untuk Admin agar mudah approve/reject.
   const defaultPendingApprovals = [
     { id: 1, user: 'Andi (UID Jatim)', unit: 'UID Jatim', unit_id: 1, item_id: 2, itemName: 'Kertas A4 Sinar Dunia', itemCount: 50, value: 'Rp 2.250.000' },
     { id: 2, user: 'Budi (UID Jabar)', unit: 'UID Jabar', unit_id: 2, item_id: 3, itemName: 'Tinta Epson 003', itemCount: 10, value: 'Rp 850.000' },
@@ -99,7 +120,7 @@ export const useInventoryStore = defineStore('inventory', () => {
   ];
 
   // =======================================================================
-  // 6. DEFAULT HISTORY
+  // 8. DEFAULT HISTORY
   // =======================================================================
   const defaultHistory = [
     { id: Date.now() - 3600000, type: 'IN', date: new Date(Date.now() - 3600000).toLocaleString('id-ID'), item_id: 2, itemName: 'Kertas A4 Sinar Dunia 80gr', qty: 200, actor: 'Admin Gudang', note: 'Restock Mingguan' },
@@ -125,8 +146,11 @@ export const useInventoryStore = defineStore('inventory', () => {
   const categories = ref(JSON.parse(localStorage.getItem('categories')) || defaultCategories);
   const history = ref(JSON.parse(localStorage.getItem('history')) || defaultHistory);
   const pendingApprovals = ref(JSON.parse(localStorage.getItem('pendingApprovals')) || defaultPendingApprovals);
+  const transactions = ref(JSON.parse(localStorage.getItem('transactions')) || defaultTransactions);
+  const transactionDetails = ref(JSON.parse(localStorage.getItem('transactionDetails')) || defaultTransactionDetails);
 
   // --- GETTERS ---
+  // 1. Low Stock Items (Untuk Dashboard Admin)
   const lowStockItems = computed(() => {
     return stocks.value
       .filter(item => {
@@ -142,9 +166,27 @@ export const useInventoryStore = defineStore('inventory', () => {
         return {
           ...item,
           name: atk.name || 'Unknown Item',
+          code: atk.code || '-',
+          uom: atk.uom || '-',
+          url_photo: atk.url_photo, // Mengambil foto dari Master ATK
           unit: unit.alias || 'Unknown Unit'
         };
       });
+  });
+
+  // 2. Formatted Stocks (Agar Stok di Table juga muncul fotonya)
+  const formattedStocks = computed(() => {
+    return stocks.value.map(item => {
+        const atk = atks.value.find(a => a.id === item.item_id) || {};
+        return {
+            ...item,
+            name: atk.name,
+            code: atk.code,
+            uom: atk.uom,
+            url_photo: atk.url_photo,
+            category_id: atk.category_id
+        }
+    })
   });
 
   // --- ACTIONS ---
@@ -232,6 +274,77 @@ export const useInventoryStore = defineStore('inventory', () => {
     history.value.unshift(logEntry);
   };
 
+  // --- NEW ACTION: USER REQUEST TRANSACTION ---
+  const createTransaction = (payload) => {
+    // 1. Buat Header Transaksi
+    const newTrxId = Date.now();
+    const dateNow = new Date();
+    // Format Code: TRX-YYYYMMDD-Random
+    const code = `TRX-${dateNow.toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(Math.random()*1000)}`;
+    
+    const newTrx = {
+      id: newTrxId,
+      code: code,
+      user_id: payload.user_id,
+      unit_id: payload.unit_id,
+      trx_date: dateNow.toISOString(),
+      description: payload.description,
+      status: 'Pending', // Default Pending
+      created_at: dateNow.toISOString()
+    };
+
+    transactions.value.unshift(newTrx);
+
+    // 2. Buat Detail Transaksi
+    payload.details.forEach(detail => {
+      transactionDetails.value.push({
+        id: Date.now() + Math.random(),
+        transaction_id: newTrxId,
+        item_id: detail.item_id,
+        qty: detail.qty,
+        notes: detail.notes
+      });
+    });
+
+    // 3. (Optional) Masukkan ke Pending Approvals (Dashboard Admin)
+    // Mapping agar muncul di dashboard admin
+    const user = users.value.find(u => u.id === payload.user_id);
+    const unit = units.value.find(u => u.id === payload.unit_id);
+    
+    // Karena Dashboard Admin saat ini menampilkan per-item (flat list),
+    // kita loop details untuk push ke pendingApprovals
+    payload.details.forEach(detail => {
+        const item = atks.value.find(i => i.id === detail.item_id);
+        pendingApprovals.value.unshift({
+            id: Date.now() + Math.random(),
+            request_id: newTrxId, // Link ke Parent ID Transaksi
+            user: user ? user.full_name : 'Unknown',
+            unit: unit ? unit.alias : 'Unknown',
+            unit_id: payload.unit_id,
+            item_id: detail.item_id,
+            itemName: item ? item.name : 'Unknown Item',
+            itemCount: detail.qty,
+            value: 'Menunggu Approval'
+        });
+    });
+  };
+
+  const cancelTransaction = (trxId) => {
+    // 1. Cari index transaksi
+    const idx = transactions.value.findIndex(t => t.id === trxId);
+    if (idx !== -1 && transactions.value[idx].status === 'Pending') {
+      // 2. Ubah status jadi Cancelled (atau hapus jika ingin hard delete)
+      // Disini kita hapus saja agar bersih (Hard Delete) untuk simulasi
+      transactions.value.splice(idx, 1);
+      
+      // 3. Hapus juga detail barangnya
+      transactionDetails.value = transactionDetails.value.filter(d => d.transaction_id !== trxId);
+      
+      // 4. Hapus dari Pending Approvals (Dashboard Admin)
+      pendingApprovals.value = pendingApprovals.value.filter(p => p.request_id !== trxId);
+    }
+  };
+
   // --- PERSISTENCE ---
   watch(units, (val) => localStorage.setItem('units', JSON.stringify(val)), { deep: true });
   watch(atks, (val) => localStorage.setItem('atks', JSON.stringify(val)), { deep: true });
@@ -239,14 +352,17 @@ export const useInventoryStore = defineStore('inventory', () => {
   watch(users, (val) => localStorage.setItem('users', JSON.stringify(val)), { deep: true });
   watch(history, (val) => localStorage.setItem('history', JSON.stringify(val)), { deep: true });
   watch(pendingApprovals, (val) => localStorage.setItem('pendingApprovals', JSON.stringify(val)), { deep: true });
+  watch(transactions, (val) => localStorage.setItem('transactions', JSON.stringify(val)), { deep: true });
+  watch(transactionDetails, (val) => localStorage.setItem('transactionDetails', JSON.stringify(val)), { deep: true });
 
   return { 
-    units, atks, stocks, users, history, categories, pendingApprovals,
-    lowStockItems,
+    units, atks, stocks, users, history, categories, pendingApprovals, transactions, transactionDetails,
+    lowStockItems, formattedStocks,
     addUnit, updateUnit, deleteUnit,
     addATK, updateATK, deleteATK,
     addStock, updateStock, deleteStock, addHistory,
     addUser, updateUser, deleteUser,
-    addRestockRequest, rejectRestockRequest, approveRestockRequest
+    addRestockRequest, rejectRestockRequest, approveRestockRequest,
+    createTransaction, cancelTransaction
   };
 });
