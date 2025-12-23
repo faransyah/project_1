@@ -2,17 +2,14 @@ import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 
 export const useInventoryStore = defineStore('inventory', () => {
-  
+
   // =======================================================================
   // 1. DATA UNIT (c_master_unit)
-  // ID 3 = UID PUSAT (Markas Admin)
   // =======================================================================
   const defaultUnits = [
     { id: 1, alias: 'UID Jatim', name: 'PT PLN (Persero) Unit Induk Distribusi Jawa Timur', address: 'Jl. Embong Trengguli No. 19-21, Surabaya', phone: '(031) 5340651', ref_id: 'UID-001', parent_id: 3, is_active: 1, created_at: '2023-01-15' },
     { id: 2, alias: 'UID Jabar', name: 'PT PLN (Persero) Unit Induk Distribusi Jawa Barat', address: 'Jl. Asia Afrika No. 63, Bandung', phone: '(022) 4230747', ref_id: 'UID-002', parent_id: 3, is_active: 1, created_at: '2023-02-20' },
-    // --- UNIT PUSAT (ADMIN BASE) ---
     { id: 3, alias: 'UID PUSAT', name: 'Kantor Pusat PT PLN (Persero)', address: 'Jl. Trunojoyo Blok M - I No. 135, Jakarta', phone: '(021) 7251234', ref_id: 'KPS-001', parent_id: 0, is_active: 1, created_at: '2023-03-10' },
-    // -------------------------------
     { id: 4, alias: 'UID Jateng', name: 'PT PLN (Persero) Unit Induk Distribusi Jawa Tengah & DIY', address: 'Jl. Teuku Umar No. 47, Semarang', phone: '(024) 8411991', ref_id: 'UID-004', parent_id: 3, is_active: 1, created_at: '2023-04-05' },
     { id: 5, alias: 'UID Bali', name: 'PT PLN (Persero) Unit Induk Distribusi Bali', address: 'Jl. Letda Tantular No. 1, Denpasar', phone: '(0361) 221960', ref_id: 'UID-005', parent_id: 3, is_active: 1, created_at: '2023-05-12' },
     { id: 6, alias: 'UID Sulsel', name: 'PT PLN (Persero) Unit Induk Distribusi Sulselrabar', address: 'Jl. Letjen Hertasning, Makassar', phone: '(0411) 444488', ref_id: 'UID-006', parent_id: 3, is_active: 1, created_at: '2023-06-01' },
@@ -50,17 +47,14 @@ export const useInventoryStore = defineStore('inventory', () => {
 
   // =======================================================================
   // 3. DATA USERS (c_sec_user)
-  // Unit 3 = Admin | Unit Lain = User
   // =======================================================================
   const defaultUsers = [
     { id: 1, full_name: 'Budi Santoso', username: 'budi.santoso', email: 'budi.santoso@pln.co.id', phone: '081234567890', nip: '198501012010011001', pernr: '70012345', gender: 'L', religion: 'ISLAM', date_birth: '1985-01-01', unit_id: 1, position_name: 'Manager UP3', position_code: '50010001', superior_name: 'GM Jatim', superior_nip: '19700101', personnel_area: 'ID01', personnel_sub_area: 'ID01', company_code: '4000', organization_code: '10002000', role: 'User', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-01' },
     { id: 2, full_name: 'Siti Aminah', username: 'siti.aminah', email: 'siti.aminah@pln.co.id', phone: '081234567891', nip: '199002022015012002', pernr: '70012346', gender: 'P', religion: 'ISLAM', date_birth: '1990-02-02', unit_id: 1, position_name: 'Staff Gudang', position_code: '50010002', superior_name: 'Budi Santoso', superior_nip: '19850101', personnel_area: 'ID01', personnel_sub_area: 'ID01', company_code: '4000', organization_code: '10002001', role: 'User', is_active: 1, is_sso: 0, url_photo: '/luffy.jpg', created_by: 'Admin', created_at: '2023-01-02' },
     { id: 3, full_name: 'Rudi Hartono', username: 'rudi.hartono', email: 'rudi.hartono@pln.co.id', phone: '081234567892', nip: '198803032012011003', pernr: '70012347', gender: 'L', religion: 'KRISTEN', date_birth: '1988-03-03', unit_id: 2, position_name: 'Supervisor Logistik', position_code: '50020001', superior_name: 'Manager Jabar', superior_nip: '19800505', personnel_area: 'ID02', personnel_sub_area: 'ID02', company_code: '4000', organization_code: '10003000', role: 'User', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-03' },
     { id: 4, full_name: 'Dewi Sartika', username: 'dewi.sartika', email: 'dewi.sartika@pln.co.id', phone: '081234567893', nip: '199204042016012004', pernr: '70012348', gender: 'P', religion: 'ISLAM', date_birth: '1992-04-04', unit_id: 2, position_name: 'Staff Admin', position_code: '50020002', superior_name: 'Rudi Hartono', superior_nip: '19880303', personnel_area: 'ID02', personnel_sub_area: 'ID02', company_code: '4000', organization_code: '10003001', role: 'User', is_active: 1, is_sso: 0, url_photo: '/luffy.jpg', created_by: 'Admin', created_at: '2023-01-04' },
-    // ADMIN (Unit 3 - PUSAT)
     { id: 5, full_name: 'Agus Salim', username: 'agus.salim', email: 'agus.salim@pln.co.id', phone: '081234567894', nip: '198705052011011005', pernr: '70012349', gender: 'L', religion: 'ISLAM', date_birth: '1987-05-05', unit_id: 3, position_name: 'Manager Area', position_code: '50030001', superior_name: 'GM Jaya', superior_nip: '19750505', personnel_area: 'ID03', personnel_sub_area: 'ID03', company_code: '4000', organization_code: '10004000', role: 'Admin', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-05' },
     { id: 6, full_name: 'Rina Wati', username: 'rina.wati', email: 'rina.wati@pln.co.id', phone: '081234567895', nip: '199306062017012006', pernr: '70012350', gender: 'P', religion: 'HINDU', date_birth: '1993-06-06', unit_id: 3, position_name: 'Staff Keuangan', position_code: '50030002', superior_name: 'Agus Salim', superior_nip: '19870505', personnel_area: 'ID03', personnel_sub_area: 'ID03', company_code: '4000', organization_code: '10004001', role: 'Admin', is_active: 1, is_sso: 0, url_photo: '/luffy.jpg', created_by: 'Admin', created_at: '2023-01-06' },
-    // END ADMIN
     { id: 7, full_name: 'Joko Widodo', username: 'joko.widodo', email: 'joko.widodo@pln.co.id', phone: '081234567896', nip: '198607072010011007', pernr: '70012351', gender: 'L', religion: 'ISLAM', date_birth: '1986-07-07', unit_id: 4, position_name: 'Kepala Gudang', position_code: '50040001', superior_name: 'Manager Jateng', superior_nip: '19800707', personnel_area: 'ID04', personnel_sub_area: 'ID04', company_code: '4000', organization_code: '10005000', role: 'User', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-07' },
     { id: 8, full_name: 'Megawati', username: 'megawati', email: 'megawati@pln.co.id', phone: '081234567897', nip: '199108082015012008', pernr: '70012352', gender: 'P', religion: 'ISLAM', date_birth: '1991-08-08', unit_id: 4, position_name: 'Staff Gudang', position_code: '50040002', superior_name: 'Joko Widodo', superior_nip: '19860707', personnel_area: 'ID04', personnel_sub_area: 'ID04', company_code: '4000', organization_code: '10005001', role: 'User', is_active: 1, is_sso: 0, url_photo: '/luffy.jpg', created_by: 'Admin', created_at: '2023-01-08' },
     { id: 9, full_name: 'Susilo Bambang', username: 'susilo.b', email: 'susilo.b@pln.co.id', phone: '081234567898', nip: '198909092013011009', pernr: '70012353', gender: 'L', religion: 'ISLAM', date_birth: '1989-09-09', unit_id: 5, position_name: 'Supervisor', position_code: '50050001', superior_name: 'Manager Bali', superior_nip: '19800909', personnel_area: 'ID05', personnel_sub_area: 'ID05', company_code: '4000', organization_code: '10006000', role: 'User', is_active: 1, is_sso: 1, url_photo: '/luffy.jpg', created_by: 'System', created_at: '2023-01-09' },
@@ -73,7 +67,7 @@ export const useInventoryStore = defineStore('inventory', () => {
   ];
 
   // =======================================================================
-  // 4. DATA STOK (eatk_item_unit) - 15 Data
+  // 4. DATA STOK (eatk_item_unit)
   // =======================================================================
   const defaultStocks = [
     { id: 101, item_id: 1, unit_id: 1, stock: 100, stock_min: 20, price: 3500, status: 'Active', created_at: '2023-01-01', updated_at: '2023-12-10', batches: [{ id:1, date:'2023-01-01', price:3500, stock:150 }] },
@@ -94,38 +88,24 @@ export const useInventoryStore = defineStore('inventory', () => {
   ];
 
   // =======================================================================
-  // 5. DATA TRANSAKSI (eatk_transaction)
+  // 5. DATA TRANSAKSI
   // =======================================================================
-  // Header Transaksi
   const defaultTransactions = [
-    { id: 1, code: 'TRX-20231001-001', user_id: 2, unit_id: 1, trx_date: '2023-10-01T10:00:00', description: 'Permintaan bulanan staff gudang', status: 'Pending', created_at: '2023-10-01' },
-    { id: 2, code: 'TRX-20231005-002', user_id: 2, unit_id: 1, trx_date: '2023-10-05T14:30:00', description: 'Urgent untuk meeting', status: 'Approved', created_at: '2023-10-05' },
+    { id: 1, code: 'TRX-20231001-001', user_id: 2, unit_id: 1, trx_date: '2023-10-01T10:00:00', description: 'Permintaan bulanan staff gudang', status: 'Pending', rejection_reason: null, created_at: '2023-10-01' },
+    { id: 2, code: 'TRX-20231005-002', user_id: 2, unit_id: 1, trx_date: '2023-10-05T14:30:00', description: 'Urgent untuk meeting', status: 'Approved', rejection_reason: null, created_at: '2023-10-05' },
   ];
 
   // =======================================================================
-  // 6. DATA DETAIL TRANSAKSI (eatk_transaction_detail)
+  // 6. DATA DETAIL TRANSAKSI
   // =======================================================================
-  // Isi Keranjang (Item) dari Transaksi
   const defaultTransactionDetails = [
-    { id: 1, transaction_id: 1, item_id: 1, qty: 10, notes: 'Hitam' },
-    { id: 2, transaction_id: 1, item_id: 2, qty: 5, notes: '' },
-    { id: 3, transaction_id: 2, item_id: 5, qty: 2, notes: 'Warna Merah' },
+    { id: 1, transaction_id: 1, item_id: 1, qty: 10, notes: 'Hitam', status: 'Pending', reject_reason: null },
+    { id: 2, transaction_id: 1, item_id: 2, qty: 5, notes: '', status: 'Pending', reject_reason: null },
+    { id: 3, transaction_id: 2, item_id: 5, qty: 2, notes: 'Warna Merah', status: 'Approved', reject_reason: null },
   ];
 
   // =======================================================================
-  // 7. DATA PENDING APPROVALS (Untuk Dashboard Admin)
-  // =======================================================================
-  // Ini adalah "View" gabungan untuk Admin agar mudah approve/reject.
-  const defaultPendingApprovals = [
-    { id: 1, user: 'Andi (UID Jatim)', unit: 'UID Jatim', unit_id: 1, item_id: 2, itemName: 'Kertas A4 Sinar Dunia', itemCount: 50, value: 'Rp 2.250.000' },
-    { id: 2, user: 'Budi (UID Jabar)', unit: 'UID Jabar', unit_id: 2, item_id: 3, itemName: 'Tinta Epson 003', itemCount: 10, value: 'Rp 850.000' },
-    { id: 3, user: 'Citra (UID Pusat)', unit: 'UID Jaya', unit_id: 3, item_id: 5, itemName: 'Spidol Boardmarker', itemCount: 24, value: 'Rp 204.000' },
-    { id: 4, user: 'Dewi (UID Jateng)', unit: 'UID Jateng', unit_id: 4, item_id: 11, itemName: 'Buku Tulis', itemCount: 100, value: 'Rp 350.000' },
-    { id: 5, user: 'Eka (UID Bali)', unit: 'UID Bali', unit_id: 5, item_id: 1, itemName: 'Pensil 2B', itemCount: 20, value: 'Rp 70.000' },
-  ];
-
-  // =======================================================================
-  // 8. DEFAULT HISTORY
+  // 7. DEFAULT HISTORY
   // =======================================================================
   const defaultHistory = [
     { id: Date.now() - 3600000, type: 'IN', date: new Date(Date.now() - 3600000).toLocaleString('id-ID'), item_id: 2, itemName: 'Kertas A4 Sinar Dunia 80gr', qty: 200, actor: 'Admin Gudang', note: 'Restock Mingguan' },
@@ -143,26 +123,25 @@ export const useInventoryStore = defineStore('inventory', () => {
     { id: 5, name: 'Lain-lain' },
   ];
 
-  // --- STATE REAKTIF (Ambil dari LocalStorage atau Default) ---
+  // --- STATE REAKTIF (LocalStorage) ---
   const units = ref(JSON.parse(localStorage.getItem('units')) || defaultUnits);
   const atks = ref(JSON.parse(localStorage.getItem('atks')) || defaultATKs);
   const stocks = ref(JSON.parse(localStorage.getItem('stocks')) || defaultStocks);
   const users = ref(JSON.parse(localStorage.getItem('users')) || defaultUsers);
   const categories = ref(JSON.parse(localStorage.getItem('categories')) || defaultCategories);
   const history = ref(JSON.parse(localStorage.getItem('history')) || defaultHistory);
-  const pendingApprovals = ref(JSON.parse(localStorage.getItem('pendingApprovals')) || defaultPendingApprovals);
   const transactions = ref(JSON.parse(localStorage.getItem('transactions')) || defaultTransactions);
   const transactionDetails = ref(JSON.parse(localStorage.getItem('transactionDetails')) || defaultTransactionDetails);
+  
+  // Pending Approvals (Legacy support)
+  const pendingApprovals = ref([]); 
 
   // --- GETTERS ---
   const lowStockItems = computed(() => {
     return stocks.value
       .filter(item => {
         const isLow = item.stock <= item.stock_min;
-        const isAlreadyRequested = pendingApprovals.value.some(
-          req => req.item_id === item.item_id && req.unit_id === item.unit_id
-        );
-        return isLow && !isAlreadyRequested;
+        return isLow;
       })
       .map(item => {
         const atk = atks.value.find(a => a.id === item.item_id) || {};
@@ -172,7 +151,7 @@ export const useInventoryStore = defineStore('inventory', () => {
           name: atk.name || 'Unknown Item',
           code: atk.code || '-',
           uom: atk.uom || '-',
-          url_photo: atk.url_photo, // Mengambil foto dari Master ATK
+          url_photo: atk.url_photo,
           unit: unit.alias || 'Unknown Unit'
         };
       });
@@ -192,10 +171,34 @@ export const useInventoryStore = defineStore('inventory', () => {
     })
   });
 
-  // --- ACTIONS ---
-  // Catatan: Function push/update di sini hanya memanipulasi array lokal.
-  // Nantinya, bagian ini akan diganti dengan axios.post / axios.put ke API Database.
+  // Getter Baru: List Transaksi Pending untuk Admin Dashboard (Batch View)
+  const pendingTransactionList = computed(() => {
+    return transactions.value
+      .filter(t => t.status === 'Pending')
+      .map(trx => {
+        const user = users.value.find(u => u.id === trx.user_id) || {};
+        const unit = units.value.find(u => u.id === trx.unit_id) || {};
+        const details = transactionDetails.value
+            .filter(d => d.transaction_id === trx.id)
+            .map(d => {
+                const item = atks.value.find(i => i.id === d.item_id) || {};
+                return { ...d, itemName: item.name, itemCode: item.code };
+            });
 
+        return {
+          ...trx,
+          user_name: user.full_name || 'Unknown User',
+          unit_name: unit.alias || 'Unknown Unit',
+          details: details,
+          itemCount: details.length,
+          summaryItems: details.map(d => d.itemName).join(', ')
+        };
+      })
+      .sort((a, b) => new Date(b.trx_date) - new Date(a.trx_date));
+  });
+
+  // --- ACTIONS (CRUD - Management Views) ---
+  // INI BAGIAN YANG ANDA MINTA UNTUK TIDAK DIHILANGKAN
   const addUnit = (unit) => units.value.push(unit);
   const updateUnit = (unit) => { const idx = units.value.findIndex(u => u.id === unit.id); if (idx !== -1) units.value[idx] = unit; };
   const deleteUnit = (id) => units.value = units.value.filter(u => u.id !== id);
@@ -214,75 +217,11 @@ export const useInventoryStore = defineStore('inventory', () => {
   const updateUser = (user) => { const idx = users.value.findIndex(u => u.id === user.id); if (idx !== -1) users.value[idx] = user; };
   const deleteUser = (id) => users.value = users.value.filter(u => u.id !== id);
 
-  const addRestockRequest = (requestData) => {
-    pendingApprovals.value.unshift(requestData);
-  };
+  // --- TRANSACTION ACTIONS ---
 
-  const rejectRestockRequest = (requestId) => {
-    pendingApprovals.value = pendingApprovals.value.filter(r => r.id !== requestId);
-  };
-
-  // --- BUSINESS LOGIC: APPROVAL SYSTEM ---
-  const approveRestockRequest = (requestData) => {
-    const existingIndex = stocks.value.findIndex(
-      s => s.item_id === requestData.item_id && s.unit_id === requestData.unit_id
-    );
-
-    const now = new Date().toLocaleString('id-ID');
-    const itemMaster = atks.value.find(a => a.id === requestData.item_id);
-    const itemName = itemMaster ? itemMaster.name : 'Unknown Item';
-
-    if (existingIndex !== -1) {
-      const currentStock = stocks.value[existingIndex];
-      const newQty = currentStock.stock + requestData.qty;
-      
-      stocks.value[existingIndex] = {
-        ...currentStock,
-        stock: newQty,
-        updated_at: new Date().toLocaleDateString('en-GB')
-      };
-    } else {
-      const newStock = {
-        id: Date.now(),
-        item_id: requestData.item_id,
-        unit_id: requestData.unit_id,
-        stock: requestData.qty,
-        stock_min: 10,
-        price: requestData.price_estimate || (itemMaster ? itemMaster.price : 0),
-        status: 'Active',
-        created_at: new Date().toLocaleDateString('en-GB'),
-        updated_at: new Date().toLocaleDateString('en-GB'),
-        batches: []
-      };
-      stocks.value.push(newStock);
-    }
-
-    if (requestData.request_id) {
-       pendingApprovals.value = pendingApprovals.value.filter(r => r.id !== requestData.request_id);
-    } else {
-       pendingApprovals.value = pendingApprovals.value.filter(r => !(r.item_id === requestData.item_id && r.unit_id === requestData.unit_id));
-    }
-
-    // Catat Log Audit
-    const logEntry = {
-      id: Date.now(),
-      type: 'IN',
-      date: now,
-      item_id: requestData.item_id,
-      itemName: itemName,
-      qty: requestData.qty,
-      actor: 'Admin (Dashboard)',
-      note: `Approval Request: ${requestData.user}`
-    };
-    history.value.unshift(logEntry);
-  };
-
-  // --- NEW ACTION: USER REQUEST TRANSACTION ---
   const createTransaction = (payload) => {
-    // 1. Buat Header Transaksi
     const newTrxId = Date.now();
     const dateNow = new Date();
-    // Format Code: TRX-YYYYMMDD-Random
     const code = `TRX-${dateNow.toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(Math.random()*1000)}`;
     
     const newTrx = {
@@ -292,61 +231,122 @@ export const useInventoryStore = defineStore('inventory', () => {
       unit_id: payload.unit_id,
       trx_date: dateNow.toISOString(),
       description: payload.description,
-      status: 'Pending', // Default Pending
+      status: 'Pending',
+      rejection_reason: null, 
       created_at: dateNow.toISOString()
     };
 
     transactions.value.unshift(newTrx);
 
-    // 2. Buat Detail Transaksi
     payload.details.forEach(detail => {
       transactionDetails.value.push({
         id: Date.now() + Math.random(),
         transaction_id: newTrxId,
         item_id: detail.item_id,
         qty: detail.qty,
-        notes: detail.notes
+        notes: detail.notes,
+        status: 'Pending', // Add granular status
+        reject_reason: null
       });
-    });
-
-    // 3. (Optional) Masukkan ke Pending Approvals (Dashboard Admin)
-    // Mapping agar muncul di dashboard admin
-    const user = users.value.find(u => u.id === payload.user_id);
-    const unit = units.value.find(u => u.id === payload.unit_id);
-    
-    // Karena Dashboard Admin saat ini menampilkan per-item (flat list),
-    // kita loop details untuk push ke pendingApprovals
-    payload.details.forEach(detail => {
-        const item = atks.value.find(i => i.id === detail.item_id);
-        pendingApprovals.value.unshift({
-            id: Date.now() + Math.random(),
-            request_id: newTrxId, // Link ke Parent ID Transaksi
-            user: user ? user.full_name : 'Unknown',
-            unit: unit ? unit.alias : 'Unknown',
-            unit_id: payload.unit_id,
-            item_id: detail.item_id,
-            itemName: item ? item.name : 'Unknown Item',
-            itemCount: detail.qty,
-            value: 'Menunggu Approval'
-        });
     });
   };
 
   const cancelTransaction = (trxId) => {
-    // 1. Cari index transaksi
     const idx = transactions.value.findIndex(t => t.id === trxId);
     if (idx !== -1 && transactions.value[idx].status === 'Pending') {
-      // 2. Ubah status jadi Cancelled (atau hapus jika ingin hard delete)
-      // Disini kita hapus saja agar bersih (Hard Delete) untuk simulasi
       transactions.value.splice(idx, 1);
-      
-      // 3. Hapus juga detail barangnya
       transactionDetails.value = transactionDetails.value.filter(d => d.transaction_id !== trxId);
-      
-      // 4. Hapus dari Pending Approvals (Dashboard Admin)
-      pendingApprovals.value = pendingApprovals.value.filter(p => p.request_id !== trxId);
     }
   };
+
+  const rejectTransaction = (trxId, reason) => {
+    // Legacy single reject (if needed by dashboard old logic)
+    const trx = transactions.value.find(t => t.id === trxId);
+    if (trx) {
+      trx.status = 'Rejected';
+      trx.rejection_reason = reason;
+    }
+  };
+
+  // --- NEW: PROCESS BATCH TRANSACTION (GRANULAR) ---
+  const processBatchTransaction = (trxId, processedItems) => {
+    const trx = transactions.value.find(t => t.id === trxId);
+    if (!trx) return;
+
+    // Loop through processed items from Modal
+    processedItems.forEach(processed => {
+        // Find specific detail record
+        const detailIdx = transactionDetails.value.findIndex(d => d.transaction_id === trxId && d.item_id === processed.item_id);
+        if (detailIdx === -1) return;
+
+        // Update Detail Status & Reason
+        transactionDetails.value[detailIdx].status = processed.action === 'approve' ? 'Approved' : 'Rejected';
+        transactionDetails.value[detailIdx].reject_reason = processed.action === 'reject' ? processed.reason : null;
+
+        // If Approved, Update Stock Logic
+        if (processed.action === 'approve') {
+            const masterItem = atks.value.find(a => a.id === processed.item_id);
+            if (!masterItem) return;
+
+            let existingStockIndex = stocks.value.findIndex(s => s.item_id === processed.item_id && s.unit_id === trx.unit_id);
+            let currentStock = existingStockIndex !== -1 ? stocks.value[existingStockIndex].stock : 0;
+            
+            // Final Calculation (Constraint checked in UI, but good to have fallback)
+            let finalStock = currentStock + parseInt(processed.approved_qty);
+            if (finalStock > masterItem.max_stock) finalStock = masterItem.max_stock;
+            
+            const addedQty = finalStock - currentStock;
+
+            // Update Stock Data
+            if (existingStockIndex !== -1) {
+                stocks.value[existingStockIndex].stock = finalStock;
+                stocks.value[existingStockIndex].updated_at = new Date().toISOString();
+            } else {
+                stocks.value.push({
+                    id: Date.now() + Math.random(),
+                    item_id: processed.item_id,
+                    unit_id: trx.unit_id,
+                    stock: finalStock,
+                    stock_min: masterItem.min_stock,
+                    price: masterItem.price,
+                    status: 'Active',
+                    created_at: new Date().toISOString(),
+                    batches: []
+                });
+            }
+
+            // Log History
+            if (addedQty > 0) {
+                history.value.unshift({
+                    id: Date.now() + Math.random(),
+                    type: 'IN',
+                    date: new Date().toLocaleString('id-ID'),
+                    item_id: processed.item_id,
+                    itemName: masterItem.name,
+                    qty: addedQty,
+                    actor: 'Admin',
+                    note: `Approved Batch: ${trx.code}`
+                });
+            }
+        }
+    });
+
+    // Update Header Status to Completed (or Partially Approved)
+    trx.status = 'Completed';
+  };
+
+  // Helper Compatibility Wrappers
+  const addRestockRequest = (requestData) => {
+     createTransaction({
+        user_id: 2, 
+        unit_id: requestData.unit_id,
+        description: 'Manual Request from Dashboard',
+        details: [{ item_id: requestData.item_id, qty: requestData.itemCount }]
+     });
+  };
+  const rejectRestockRequest = (requestId) => {}; 
+  const approveRestockRequest = (requestData) => {};
+  const approveTransaction = (trxId, payload) => {}; // Legacy placeholder
 
   // --- PERSISTENCE ---
   watch(units, (val) => localStorage.setItem('units', JSON.stringify(val)), { deep: true });
@@ -360,12 +360,12 @@ export const useInventoryStore = defineStore('inventory', () => {
 
   return { 
     units, atks, stocks, users, history, categories, pendingApprovals, transactions, transactionDetails,
-    lowStockItems, formattedStocks,
+    lowStockItems, formattedStocks, pendingTransactionList,
     addUnit, updateUnit, deleteUnit,
     addATK, updateATK, deleteATK,
     addStock, updateStock, deleteStock, addHistory,
     addUser, updateUser, deleteUser,
-    addRestockRequest, rejectRestockRequest, approveRestockRequest,
-    createTransaction, cancelTransaction
+    addRestockRequest, rejectRestockRequest, approveRestockRequest, 
+    createTransaction, cancelTransaction, rejectTransaction, processBatchTransaction, approveTransaction
   };
 });
