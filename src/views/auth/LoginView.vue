@@ -107,17 +107,10 @@
               </span>
               <span v-else>MASUK APLIKASI</span>
             </button>
-            <p class="mt-8 text-center text-sm text-gray-500">
-              Lupa Password?
-              <a href="#" class="font-semibold text-primary-blue hover:text-gray-900 transition-colors">
-                Hubungi Administrator
-              </a>
-            </p>
           </form>
-
           <p class="mt-10 text-center text-xs text-gray-400 space-y-1">
             <span class="block">Simulasi Login:</span>
-            <span class="block">Admin: <b>budi.santoso</b> / 123</span>
+            <span class="block">Admin: <b>agus.salim</b> / 123</span>
             <span class="block">Pegawai: <b>siti.aminah</b> / 123</span>
           </p>
         </div>
