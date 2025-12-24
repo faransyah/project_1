@@ -411,32 +411,49 @@ const defaultTransactionDetails = [
     }
   };
 
-  // --- NEW: PROCESS BATCH TRANSACTION (GRANULAR) ---
+// --- NEW: PROCESS BATCH TRANSACTION (GRANULAR) ---
   const processBatchTransaction = (trxId, processedItems) => {
     const trx = transactions.value.find(t => t.id === trxId);
     if (!trx) return;
 
     // Loop through processed items from Modal
     processedItems.forEach(processed => {
-        // Find specific detail record
+        // Find specific detail record in STORE state
         const detailIdx = transactionDetails.value.findIndex(d => d.transaction_id === trxId && d.item_id === processed.item_id);
         if (detailIdx === -1) return;
 
-        // Update Detail Status & Reason
-        transactionDetails.value[detailIdx].status = processed.action === 'approve' ? 'Approved' : 'Rejected';
-        transactionDetails.value[detailIdx].reject_reason = processed.action === 'reject' ? processed.reason : null;
+        const detailItem = transactionDetails.value[detailIdx];
+
+        // ============================================================
+        // PERBAIKAN DI SINI: Simpan qty_approved ke Store State
+        // ============================================================
+        if (processed.action === 'approve') {
+             detailItem.status = 'Approved';
+             detailItem.qty_approved = parseInt(processed.approved_qty); // Simpan jumlah yang disetujui
+             detailItem.reject_reason = null;
+        } else {
+             detailItem.status = 'Rejected';
+             detailItem.qty_approved = 0; // Set 0 jika ditolak
+             detailItem.reject_reason = processed.reason;
+        }
 
         // If Approved, Update Stock Logic
-        if (processed.action === 'approve') {
+        if (processed.action === 'approve' && detailItem.qty_approved > 0) {
             const masterItem = atks.value.find(a => a.id === processed.item_id);
             if (!masterItem) return;
 
             let existingStockIndex = stocks.value.findIndex(s => s.item_id === processed.item_id && s.unit_id === trx.unit_id);
             let currentStock = existingStockIndex !== -1 ? stocks.value[existingStockIndex].stock : 0;
             
-            // Final Calculation (Constraint checked in UI, but good to have fallback)
-            let finalStock = currentStock + parseInt(processed.approved_qty);
-            if (finalStock > masterItem.max_stock) finalStock = masterItem.max_stock;
+            // Calculate Final Stock
+            let finalStock = currentStock + detailItem.qty_approved;
+            
+            // Safety Check: Jangan melebihi Max Stock Master
+            if (finalStock > masterItem.max_stock) {
+                finalStock = masterItem.max_stock;
+                // Opsional: adjust qty_approved agar sinkron dengan limit fisik
+                // detailItem.qty_approved = finalStock - currentStock; 
+            }
             
             const addedQty = finalStock - currentStock;
 
@@ -468,14 +485,16 @@ const defaultTransactionDetails = [
                     itemName: masterItem.name,
                     qty: addedQty,
                     actor: 'Admin',
-                    note: `Approved Batch: ${trx.code}`
+                    note: `Approved Request: ${trx.code}`
                 });
             }
         }
     });
 
-    // Update Header Status to Completed (or Partially Approved)
+    // Update Header Status to Completed
     trx.status = 'Completed';
+    // Update timestamp agar user tahu kapan diproses
+    trx.updated_at = new Date().toISOString(); 
   };
 
   // Helper Compatibility Wrappers
