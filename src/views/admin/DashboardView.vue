@@ -4,7 +4,7 @@
     <Transition name="toast-slide-top">
       <div 
         v-if="toast.show" 
-        class="fixed top-6 left-1/2 z-[100] w-full max-w-sm -translate-x-1/2 transform px-4"
+        class="fixed top-20 left-1/2 z-[100] w-full max-w-sm -translate-x-1/2 transform px-4"
       >
         <div 
           class="flex items-center overflow-hidden rounded-2xl p-4 shadow-2xl backdrop-blur-xl ring-1 transition-all"
