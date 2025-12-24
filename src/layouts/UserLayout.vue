@@ -43,12 +43,7 @@
           <span class="text-sm font-bold">Dashboard & Request</span>
         </router-link>
 
-        <a href="#" class="flex items-center gap-3 px-4 py-3.5 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-all duration-200 group">
-          <div class="p-2 rounded-lg bg-slate-100 text-slate-400 group-hover:bg-white group-hover:shadow-sm">
-            <ClockIcon class="h-5 w-5" />
-          </div>
-          <span class="text-sm font-bold">Riwayat Approval</span>
-        </a>
+        
       </nav>
 
       <div class="absolute bottom-8 left-0 right-0 px-6">
@@ -79,10 +74,6 @@
           <div>
             <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">Selamat Datang 👋</h1>
             <p class="text-sm text-slate-500 mt-1">Kelola kebutuhan operasional unit Anda di sini.</p>
-          </div>
-          <div class="relative p-2.5 bg-white border border-slate-200 rounded-full shadow-sm hover:shadow-md cursor-pointer transition-all">
-             <span class="absolute top-0 right-0 h-3 w-3 bg-red-500 border-2 border-white rounded-full"></span>
-             <BellIcon class="h-6 w-6 text-slate-400 hover:text-slate-600" />
           </div>
         </div>
 
