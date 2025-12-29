@@ -65,8 +65,9 @@
                     </p>
                 </div>
                 <div class="col-span-1 md:col-span-2">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1.5">Catatan Pengajuan Anda</p>
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-sm text-slate-600 italic flex gap-2">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1.5">Catatan Pengajuan</p>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-sm text-slate-600 italic flex gap-2"
+                          :class="{'border-l-4 border-l-blue-500': detailModal.data.description.includes('System Alert')}">
                         <ChatBubbleBottomCenterTextIcon class="h-5 w-5 text-slate-400 shrink-0" />
                         "{{ detailModal.data.description || 'Tidak ada catatan.' }}"
                     </div>
@@ -78,16 +79,20 @@
                      class="bg-white rounded-2xl border shadow-sm overflow-hidden flex flex-col md:flex-row transition-all hover:shadow-md"
                      :class="{
                         'border-slate-200': detailModal.data.status === 'Pending',
-                        // Approved (Green)
-                        'border-emerald-500 ring-1 ring-emerald-500/20': detailModal.data.status !== 'Pending' && item.qty_approved > 0,
-                        // Rejected (Red)
+                        
+                        // HIJAU: Jika Disetujui >= Request
+                        'border-emerald-500 ring-1 ring-emerald-500/20': detailModal.data.status !== 'Pending' && item.qty_approved >= item.qty,
+                        
+                        // KUNING: Jika Disetujui Parsial (< Request)
+                        'border-amber-500 ring-1 ring-amber-500/20': detailModal.data.status !== 'Pending' && item.qty_approved > 0 && item.qty_approved < item.qty,
+                        
+                        // MERAH: Jika Ditolak (0)
                         'border-red-500 ring-1 ring-red-500/20': detailModal.data.status !== 'Pending' && (item.qty_approved === 0 || item.qty_approved === null)
                      }">
                     
                     <div class="w-full md:w-32 bg-slate-50 flex items-center justify-center p-4 border-b md:border-b-0 md:border-r border-slate-100 relative">
                         <img v-if="getDetailItem(item.item_id)?.url_photo" :src="getDetailItem(item.item_id).url_photo" class="h-20 w-20 object-contain mix-blend-multiply" />
                         <CubeIcon v-else class="h-10 w-10 text-slate-300" />
-                        
                         <span class="absolute top-2 left-2 text-[9px] font-bold text-slate-500 bg-white/90 px-2 py-0.5 rounded border border-slate-200 shadow-sm">
                             {{ getCategoryName(getDetailItem(item.item_id)?.category_id) }}
                         </span>
@@ -102,18 +107,43 @@
                         </div>
 
                         <p v-if="item.notes" class="text-xs text-slate-500 mt-2 italic bg-slate-50 w-fit px-2 py-1 rounded border border-slate-100">
-                            Note: "{{ item.notes }}"
+                            Note User: "{{ item.notes }}"
                         </p>
 
-                        <div v-if="detailModal.data.status !== 'Pending' && (item.qty_approved === 0 || item.qty_approved < item.qty)" 
-                             class="mt-3 bg-red-50 border border-red-200 p-3 rounded-xl flex items-start gap-3 shadow-sm animate-fade-in-up">
-                            <div class="bg-red-100 p-1 rounded-full text-red-600 shrink-0">
-                                <ExclamationCircleIcon class="h-4 w-4" />
+                        <div v-if="detailModal.data.status !== 'Pending'" 
+                             class="mt-3 border p-3 rounded-xl flex items-start gap-3 shadow-sm animate-fade-in-up"
+                             :class="{
+                                 'bg-emerald-50 border-emerald-200': item.qty_approved >= item.qty,
+                                 'bg-amber-50 border-amber-200': item.qty_approved > 0 && item.qty_approved < item.qty,
+                                 'bg-red-50 border-red-200': item.qty_approved === 0 || item.qty_approved === null
+                             }">
+                            
+                            <div class="p-1 rounded-full shrink-0"
+                                 :class="{
+                                     'bg-emerald-100 text-emerald-600': item.qty_approved >= item.qty,
+                                     'bg-amber-100 text-amber-600': item.qty_approved > 0 && item.qty_approved < item.qty,
+                                     'bg-red-100 text-red-600': item.qty_approved === 0 || item.qty_approved === null
+                                 }">
+                                <InformationCircleIcon class="h-4 w-4" />
                             </div>
+                            
                             <div>
-                                <p class="text-[10px] font-bold text-red-600 uppercase tracking-wide mb-0.5">Alasan Admin:</p>
-                                <p class="text-sm text-red-800 font-bold italic leading-snug">
-                                    "{{ item.reject_reason || 'Tidak disetujui / Stok Habis' }}"
+                                <p class="text-[10px] font-bold uppercase tracking-wide mb-0.5"
+                                   :class="{
+                                     'text-emerald-600': item.qty_approved >= item.qty,
+                                     'text-amber-600': item.qty_approved > 0 && item.qty_approved < item.qty,
+                                     'text-red-600': item.qty_approved === 0 || item.qty_approved === null
+                                   }">
+                                   {{ item.qty_approved === 0 ? 'Alasan Penolakan:' : 'Catatan Admin:' }}
+                                </p>
+                                
+                                <p class="text-sm font-bold italic leading-snug"
+                                   :class="{
+                                     'text-emerald-800': item.qty_approved >= item.qty,
+                                     'text-amber-800': item.qty_approved > 0 && item.qty_approved < item.qty,
+                                     'text-red-800': item.qty_approved === 0 || item.qty_approved === null
+                                   }">
+                                    "{{ item.reject_reason || getAutoTemplateMessage(item) }}"
                                 </p>
                             </div>
                         </div>
@@ -127,16 +157,33 @@
                         </div>
 
                         <div v-if="detailModal.data.status !== 'Pending'">
-                            <p class="text-[10px] font-bold uppercase tracking-wider" 
-                               :class="item.qty_approved > 0 ? 'text-emerald-600' : 'text-red-600'">
-                                {{ item.qty_approved > 0 ? 'Disetujui' : 'Ditolak' }}
+                            <p class="text-[10px] font-bold uppercase tracking-wider mb-0.5" 
+                               :class="{
+                                   'text-emerald-600': item.qty_approved >= item.qty,
+                                   'text-amber-600': item.qty_approved > 0 && item.qty_approved < item.qty,
+                                   'text-red-600': item.qty_approved === 0 || item.qty_approved === null
+                               }">
+                                <span v-if="item.qty_approved > item.qty">Disetujui Lebih</span>
+                                <span v-else-if="item.qty_approved === item.qty">Disetujui Penuh</span>
+                                <span v-else-if="item.qty_approved > 0">Disetujui Sebagian</span>
+                                <span v-else>Ditolak</span>
                             </p>
                             
                             <div class="flex items-baseline justify-end gap-1">
-                                <p class="text-2xl font-black" :class="item.qty_approved > 0 ? 'text-emerald-600' : 'text-red-600'">
+                                <p class="text-2xl font-black" 
+                                   :class="{
+                                       'text-emerald-600': item.qty_approved >= item.qty,
+                                       'text-amber-600': item.qty_approved > 0 && item.qty_approved < item.qty,
+                                       'text-red-600': item.qty_approved === 0 || item.qty_approved === null
+                                   }">
                                     {{ item.qty_approved ?? 0 }}
                                 </p>
-                                <span class="text-xs font-bold" :class="item.qty_approved > 0 ? 'text-emerald-600' : 'text-red-600'">Pcs</span>
+                                <span class="text-xs font-bold" 
+                                      :class="{
+                                          'text-emerald-600': item.qty_approved >= item.qty,
+                                          'text-amber-600': item.qty_approved > 0 && item.qty_approved < item.qty,
+                                          'text-red-600': item.qty_approved === 0 || item.qty_approved === null
+                                      }">Pcs</span>
                             </div>
                         </div>
 
@@ -193,18 +240,32 @@
                 </div>
                 <div class="max-h-64 overflow-y-auto custom-scrollbar">
                     <div v-if="unreadNotifications.length === 0" class="p-6 text-center text-slate-400 text-xs">Semua permintaan telah dicek.</div>
+                    
                     <div v-else v-for="notif in unreadNotifications" :key="notif.id" class="p-4 border-b border-slate-50 hover:bg-blue-50/30 transition-colors cursor-pointer group" @click="openDetailModalFromNotif(notif)">
                         <div class="flex gap-3 items-start">
-                            <div class="h-8 w-8 rounded-full flex items-center justify-center shrink-0 bg-blue-100 text-blue-600">
-                                <InformationCircleIcon class="h-5 w-5" />
+                            
+                            <div class="h-8 w-8 rounded-full flex items-center justify-center shrink-0"
+                                 :class="{
+                                    'bg-blue-100 text-blue-600': notif.status === 'Pending', 
+                                    'bg-emerald-100 text-emerald-600': notif.status === 'Completed',
+                                    'bg-red-100 text-red-600': notif.status === 'Rejected'
+                                 }">
+                                <InformationCircleIcon v-if="notif.status === 'Pending'" class="h-5 w-5" />
+                                <CheckBadgeIcon v-else-if="notif.status === 'Completed'" class="h-5 w-5" />
+                                <XCircleIcon v-else class="h-5 w-5" />
                             </div>
+
                             <div>
                                 <p class="text-xs text-slate-700 font-medium leading-snug">
-                                    Request <span class="font-mono font-bold text-blue-600">{{ notif.code }}</span> 
-                                    telah diproses.
+                                    <span v-if="notif.status === 'Pending'">
+                                        <span class="font-bold text-blue-600">Pesan Admin:</span> Stok Menipis. Harap cek request <span class="font-mono">{{ notif.code }}</span>.
+                                    </span>
+                                    <span v-else>
+                                        Request <span class="font-mono font-bold text-blue-600">{{ notif.code }}</span> telah diproses.
+                                    </span>
                                 </p>
                                 <p class="text-[10px] text-slate-400 mt-1 font-mono">
-                                    {{ getRelativeTime(notif.updated_at || notif.trx_date) }}
+                                    {{ getRelativeTime(notif.updated_at || notif.trx_date || notif.created_at) }}
                                 </p>
                             </div>
                         </div>
@@ -388,7 +449,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useInventoryStore } from '../../stores/inventoryStore'; 
 import { 
   PlusCircleIcon, CheckCircleIcon, CubeIcon, ShoppingCartIcon, 
@@ -430,6 +491,23 @@ const closeDetailModal = () => {
     detailModal.value.show = false;
 };
 
+// --- SCROLL LOCK WATCHER ---
+watch(() => detailModal.value.show, (val) => {
+    if (val) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+});
+
+// --- LOGIC TEMPLATE PESAN OTOMATIS ---
+const getAutoTemplateMessage = (item) => {
+    if (item.qty_approved === 0 || item.qty_approved === null) return "Permintaan ditolak / Stok Kosong";
+    if (item.qty_approved > item.qty) return "Penambahan dari Admin (Bonus/Min Order)";
+    if (item.qty_approved < item.qty) return "Stok terbatas / Disesuaikan oleh Admin";
+    return "Permintaan disetujui sesuai pengajuan";
+};
+
 // --- LOGIC NOTIFIKASI ---
 const toggleNotifications = () => { 
     showNotifications.value = !showNotifications.value; 
@@ -440,7 +518,10 @@ const toggleNotifications = () => {
 
 const handleClickOutside = (event) => { if (notificationRef.value && !notificationRef.value.contains(event.target)) { showNotifications.value = false; } };
 onMounted(() => { document.addEventListener('click', handleClickOutside); });
-onUnmounted(() => { document.removeEventListener('click', handleClickOutside); });
+onUnmounted(() => { 
+    document.removeEventListener('click', handleClickOutside); 
+    document.body.style.overflow = ''; // Clean up scroll lock
+});
 
 // USER & DATA
 const storedUser = JSON.parse(localStorage.getItem('activeUser') || '{}');
@@ -595,9 +676,16 @@ const groupedTransactions = computed(() => {
     return groups;
 });
 
+// LOGIKA NOTIFIKASI DIUPDATE DI SINI
 const unreadNotifications = computed(() => {
     return myTransactions.value
-        .filter(t => t.status === 'Completed' || t.status === 'Rejected')
+        .filter(t => 
+             // Tampilkan jika Completed/Rejected (User biasa)
+             t.status === 'Completed' || 
+             t.status === 'Rejected' || 
+             // Tampilkan juga jika Pending TAPI ada pesan "System Alert" (Request dari Admin)
+             (t.status === 'Pending' && t.description && t.description.includes('System Alert'))
+        )
         .slice(0, 5); 
 });
 
