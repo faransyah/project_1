@@ -80,13 +80,8 @@
                 class="bg-white rounded-2xl border p-5 shadow-sm transition-all flex flex-col xl:flex-row gap-6 items-start xl:items-center group hover:shadow-md"
                 :class="{
                   'border-red-200 bg-red-50/20': item.action === 'reject',
-                  
-                  // HIJAU: Jika Approved >= Request
                   'border-emerald-200 bg-emerald-50/20': item.action === 'approve' && item.approved_qty >= item.reqQty,
-                  
-                  // KUNING: Jika Approved < Request (Parsial)
                   'border-amber-200 bg-amber-50/20': item.action === 'approve' && item.approved_qty > 0 && item.approved_qty < item.reqQty,
-                  
                   'border-slate-200': !item.action
                 }"
               >
@@ -156,7 +151,7 @@
                                 
                                 <div class="flex-1">
                                   <label class="text-[10px] font-bold uppercase mb-1.5 block flex justify-between" 
-                                         :class="(item.approved_qty > 0 && item.approved_qty < item.reqQty) ? 'text-amber-600' : 'text-emerald-600'">
+                                           :class="(item.approved_qty > 0 && item.approved_qty < item.reqQty) ? 'text-amber-600' : 'text-emerald-600'">
                                      <span>Jml Disetujui</span>
                                      <span v-if="item.approved_qty > 0 && item.approved_qty < item.reqQty" class="text-[9px] bg-amber-100 px-1.5 rounded">Parsial</span>
                                      <span v-else-if="item.approved_qty > item.reqQty" class="text-[9px] bg-emerald-100 px-1.5 rounded">Lebih / Bonus</span>
@@ -170,13 +165,8 @@
                                        :max="item.maxAllocatable"
                                        class="w-full text-center rounded-lg shadow-sm font-bold text-slate-800 text-sm py-2 transition-colors"
                                        :class="{
-                                         // KUNING: Kurang dari request
                                          'border-amber-300 focus:border-amber-500 focus:ring-amber-500 text-amber-700': item.approved_qty > 0 && item.approved_qty < item.reqQty,
-                                         
-                                         // HIJAU: Sesuai atau Lebih
                                          'border-emerald-200 focus:border-emerald-500 focus:ring-emerald-500': item.approved_qty >= item.reqQty,
-                                         
-                                         // MERAH: Invalid
                                          'border-red-300 focus:border-red-500 focus:ring-red-500 text-red-600': !item.approved_qty || item.approved_qty <= 0
                                        }"
                                      />
@@ -338,7 +328,8 @@
       </div>
 
       <div class="grid grid-cols-12 gap-6">
-        <div class="col-span-12 lg:col-span-7 xl:col-span-8">
+        
+        <div class="col-span-12 lg:col-span-8">
           <div class="h-full rounded-2xl bg-white p-6 shadow-sm border border-slate-100">
             <div class="mb-6">
               <h3 class="text-lg font-bold text-slate-800">Tren Permintaan</h3>
@@ -348,7 +339,7 @@
           </div>
         </div>
 
-        <div class="col-span-12 lg:col-span-5 xl:col-span-4">
+        <div class="col-span-12 lg:col-span-4">
           <div class="h-full rounded-2xl bg-white p-6 shadow-sm border border-slate-100 flex flex-col">
             <div class="mb-4">
               <h3 class="text-lg font-bold text-slate-800">Kategori Stok</h3>
@@ -360,7 +351,7 @@
           </div>
         </div>
 
-        <div class="col-span-12 lg:col-span-7">
+        <div class="col-span-12">
           <div class="h-full rounded-2xl bg-white shadow-sm border border-slate-100 overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100">
               <div class="flex items-center justify-between">
@@ -375,48 +366,50 @@
             </div>
 
             <div class="flex-1 overflow-hidden p-0">
-              <div class="custom-scrollbar h-[400px] overflow-y-auto p-6 pt-0">
-                <ul role="list" class="space-y-4 mt-6">
-                  <li v-if="sortedPendingTransactions.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
+              <div class="custom-scrollbar max-h-[500px] overflow-y-auto p-6 pt-0">
+                <ul role="list" class="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-6">
+                  <li v-if="sortedPendingTransactions.length === 0" class="col-span-full flex flex-col items-center justify-center py-16 text-center">
                     <div class="h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
                       <DocumentCheckIcon class="h-8 w-8 text-slate-300" />
                     </div>
                     <p class="text-slate-500 font-medium">Tidak ada permintaan baru.</p>
                   </li>
 
-                  <li v-for="trx in sortedPendingTransactions" :key="trx.id" class="group flex flex-col sm:flex-row sm:items-start justify-between gap-4 rounded-2xl border border-slate-100 bg-white p-5 transition-all hover:border-blue-200 hover:bg-blue-50/20 hover:shadow-md">
-                    <div class="flex items-start gap-4 flex-1">
+                  <li v-for="trx in sortedPendingTransactions" :key="trx.id" class="group relative flex flex-col justify-between rounded-2xl border border-slate-100 bg-white p-5 transition-all hover:border-blue-200 hover:bg-blue-50/30 hover:shadow-md h-full">
+                    
+                    <div class="flex items-start gap-4 mb-4">
                       <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-lg shadow-md shadow-blue-500/20">
                         {{ trx.user_name.charAt(0) }}
                       </div>
                       <div class="min-w-0 flex-1">
-                        <div class="flex items-center justify-between">
-                           <p class="text-sm font-bold text-slate-900">{{ trx.user_name }}</p>
-                           <span class="text-[10px] text-slate-400 font-mono">{{ trx.code }}</span>
+                        <div class="flex items-center justify-between mb-1">
+                          <p class="text-sm font-bold text-slate-900 truncate pr-2">{{ trx.user_name }}</p>
+                          <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-mono border border-slate-200 flex-shrink-0">{{ trx.code }}</span>
                         </div>
-                        <p class="text-xs text-slate-500 font-semibold mb-2">{{ trx.unit_name }}</p>
-                        
-                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl relative group-hover:bg-white transition-colors">
-                          <div class="absolute left-0 top-3 bottom-3 w-1 bg-blue-500 rounded-r-full"></div>
-                          <p class="text-xs font-bold text-slate-700 pl-3 flex items-center gap-2">
-                             <ArchiveBoxIcon class="h-3.5 w-3.5 text-slate-400" />
-                             {{ trx.itemCount }} Jenis Barang
-                          </p>
-                          <p class="text-xs text-slate-500 leading-relaxed pl-3 mt-1 line-clamp-2" v-if="trx.description">
-                             <span class="font-bold text-slate-400 italic">"{{ trx.description }}"</span>
-                          </p>
+                        <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                          <BuildingOfficeIcon class="h-3.5 w-3.5" /> 
+                          <span class="truncate">{{ trx.unit_name }}</span>
+                          <span class="text-slate-300">|</span>
+                          <ClockIcon class="h-3.5 w-3.5" /> 
+                          <span>{{ formatTime(trx.created_at) }}</span>
                         </div>
                       </div>
                     </div>
-                    
-                    <div class="flex flex-col justify-center gap-2 sm:ml-auto w-full sm:w-auto pt-1">
-                      <span class="inline-flex items-center justify-center px-2 py-1 rounded bg-slate-50 border border-slate-100 text-[10px] text-slate-400 font-mono mb-2">
-                          <ClockIcon class="h-3 w-3 mr-1" /> {{ formatTime(trx.created_at) }}
-                      </span>
-                      <button @click="openApprovalModal(trx)" type="button" class="w-full sm:w-auto rounded-xl bg-blue-600 px-5 py-3 text-xs font-bold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
-                          <ClipboardDocumentCheckIcon class="h-4 w-4" /> Review & Putuskan
-                      </button>
+
+                    <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 mb-4 flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <ArchiveBoxIcon class="h-4 w-4 text-slate-400" />
+                            <span class="text-xs font-bold text-slate-700">{{ trx.itemCount }} Jenis Barang</span>
+                        </div>
+                        <p v-if="trx.description" class="text-xs text-slate-500 italic line-clamp-2">
+                          "{{ trx.description }}"
+                        </p>
+                        <p v-else class="text-xs text-slate-400 italic">Tidak ada catatan.</p>
                     </div>
+                    
+                    <button @click="openApprovalModal(trx)" type="button" class="w-full rounded-xl bg-white border border-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 px-4 py-2.5 text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2 group-hover:shadow-blue-200">
+                        <ClipboardDocumentCheckIcon class="h-4 w-4" /> Review & Putuskan
+                    </button>
                   </li>
                 </ul>
               </div>
@@ -424,7 +417,7 @@
           </div>
         </div>
 
-        <div class="col-span-12 lg:col-span-5">
+        <div class="col-span-12 lg:col-span-6">
           <div class="h-full rounded-2xl bg-white shadow-sm border border-slate-100 overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100">
               <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -437,7 +430,7 @@
               <p class="text-sm text-slate-500">Segera lakukan restock barang.</p>
             </div>
             <div class="flex-1 overflow-hidden p-0">
-              <div class="custom-scrollbar h-[400px] overflow-y-auto p-6 pt-0">
+              <div class="custom-scrollbar h-[350px] overflow-y-auto p-6 pt-0">
                 <ul role="list" class="divide-y divide-slate-100 mt-2">
                   <li v-if="store.lowStockItems.length === 0" class="py-12 text-center">
                     <div class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-green-50 text-green-600 mb-3">
@@ -761,12 +754,13 @@ const stats = computed(() => {
   return { activeUnits, totalATK, totalStock: formattedStock, realTotalStock: totalStock, lowStockCount };
 });
 
-// =========================================================
-//  CHART LOGIC
+/// =========================================================
+//  CHART LOGIC (SUDAH DIPERBAIKI - OTOMATIS)
 // =========================================================
 const chartColors = ['#2563EB', '#22C55E', '#EAB308', '#EF4444', '#A855F7']; 
 const chartBgClasses = ['bg-blue-600', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500'];
 
+// --- 1. DONUT CHART (KATEGORI) ---
 const categoryStats = computed(() => {
   const catMap = {}; 
   store.categories.forEach(cat => { catMap[cat.name] = 0; });
@@ -841,9 +835,66 @@ const topRequestedItems = computed(() => {
   }).sort((a, b) => b.count - a.count).slice(0, 5);
 });
 
-const requestTrendData = ref([{ name: 'Jun', value: 300 }, { name: 'Jul', value: 450 }, { name: 'Ags', value: 600 }, { name: 'Sep', value: 500 }, { name: 'Okt', value: 750 }, { name: 'Nov', value: 900 },]);
-const barChartSeries = computed(() => [{ name: 'Permintaan', data: requestTrendData.value.map(month => month.value) }]);
-const barChartOptions = computed(() => ({ chart: { type: 'bar', height: 320, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, zoom: { enabled: false } }, plotOptions: { bar: { borderRadius: 4, horizontal: false, columnWidth: '55%' } }, dataLabels: { enabled: false }, stroke: { show: false }, xaxis: { categories: requestTrendData.value.map(month => month.name), labels: { style: { colors: '#64748b', fontSize: '12px' } }, axisBorder: { show: false }, axisTicks: { show: false } }, yaxis: { labels: { style: { colors: '#64748b', fontSize: '12px' }, formatter: (val) => val.toFixed(0) } }, grid: { borderColor: '#f1f5f9', strokeDashArray: 4, yaxis: { lines: { show: true } }, xaxis: { lines: { show: false } } }, colors: ['#3b82f6'], tooltip: { y: { formatter: (val) => val + " permintaan" } } }));
+// --- 2. BAR CHART (TREN PERMINTAAN - FIX: DYNAMIC DATA) ---
+const monthlyRequestStats = computed(() => {
+  // 1. Inisialisasi Array 12 Bulan (0 semua)
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+  const counts = Array(12).fill(0);
+  const currentYear = new Date().getFullYear();
+
+  // 2. Ambil semua transaksi (Pending & Completed)
+  //    Jika ingin hanya yg completed, hapus `...store.pendingTransactionList`
+  const allTransactions = [...store.transactions, ...store.pendingTransactionList];
+
+  // 3. Hitung jumlah transaksi per bulan
+  allTransactions.forEach(trx => {
+    const d = new Date(trx.created_at);
+    // Hanya hitung tahun ini agar data relevan
+    if (d.getFullYear() === currentYear) {
+      counts[d.getMonth()]++; // getMonth() return 0-11
+    }
+  });
+
+  // 4. Logic untuk menampilkan "6 Bulan Terakhir" atau "Sampai Bulan Ini"
+  const currentMonthIndex = new Date().getMonth(); 
+  // Kita ambil range dari (Bulan ini - 5) sampai (Bulan ini)
+  // Contoh: Sekarang Des (11), ambil dari Jun (6) s/d Des (11)
+  let start = currentMonthIndex - 5;
+  let end = currentMonthIndex + 1;
+  
+  // Handle jika awal tahun (misal Januari, jangan minus)
+  if (start < 0) start = 0;
+
+  const labels = monthNames.slice(start, end);
+  const data = counts.slice(start, end);
+
+  return { labels, data };
+});
+
+// Masukkan data dinamis ke Chart Series
+const barChartSeries = computed(() => [{ 
+  name: 'Permintaan', 
+  data: monthlyRequestStats.value.data 
+}]);
+
+// Masukkan label bulan dinamis ke Chart Options
+const barChartOptions = computed(() => ({ 
+  chart: { type: 'bar', height: 320, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, zoom: { enabled: false } }, 
+  plotOptions: { bar: { borderRadius: 4, horizontal: false, columnWidth: '55%' } }, 
+  dataLabels: { enabled: false }, 
+  stroke: { show: false }, 
+  xaxis: { 
+    categories: monthlyRequestStats.value.labels, // Pakai Label Dinamis
+    labels: { style: { colors: '#64748b', fontSize: '12px' } }, 
+    axisBorder: { show: false }, 
+    axisTicks: { show: false } 
+  }, 
+  yaxis: { labels: { style: { colors: '#64748b', fontSize: '12px' }, formatter: (val) => val.toFixed(0) } }, 
+  grid: { borderColor: '#f1f5f9', strokeDashArray: 4, yaxis: { lines: { show: true } }, xaxis: { lines: { show: false } } }, 
+  colors: ['#3b82f6'], 
+  tooltip: { y: { formatter: (val) => val + " permintaan" } } 
+}));
+
 </script>
 
 <style scoped>
