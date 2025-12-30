@@ -29,6 +29,188 @@
     </Transition>
 
     <Transition name="modal-fade">
+      <div v-if="chartModal.show" class="fixed inset-0 z-[80] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity" @click="closeChartModal"></div>
+
+        <div class="relative w-full max-w-4xl h-[85vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-scale-up ring-1 ring-white/20">
+            
+            <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/80 backdrop-blur shrink-0 z-20">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <component :is="chartModal.icon" class="h-6 w-6" :class="chartModal.colorClass" />
+                        {{ chartModal.title }}
+                    </h3>
+                    <p class="text-sm text-slate-500 mt-1">{{ chartModal.subtitle }}</p>
+                </div>
+                <button @click="closeChartModal" class="p-2 rounded-full bg-white border border-slate-200 hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors shadow-sm">
+                    <XMarkIcon class="h-6 w-6" />
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scrollbar bg-white relative">
+                
+                <div v-if="chartModal.data.length > 0" class="px-8 pt-6 pb-4 grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0">
+                    <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 p-4 rounded-2xl flex items-center gap-4 shadow-sm relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <component :is="chartModal.type === 'transaction' ? TrophyIcon : ArrowTrendingUpIcon" class="h-16 w-16 text-emerald-600" />
+                        </div>
+                        <div class="h-12 w-12 rounded-xl bg-white text-emerald-600 flex items-center justify-center shadow-sm border border-emerald-100 shrink-0">
+                            <ArrowTrendingUpIcon class="h-6 w-6" />
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-0.5">
+                                {{ chartModal.type === 'transaction' ? 'Paling Banyak Diminta' : 'Stok Tertinggi' }}
+                            </p>
+                            <h4 class="text-sm font-black text-slate-800 line-clamp-1">{{ chartModal.stats.topItem?.name || '-' }}</h4>
+                            <p class="text-xs text-slate-500 font-mono">
+                                <span class="font-bold text-emerald-600">{{ chartModal.stats.topItem?.value || 0 }}</span> {{ chartModal.type === 'transaction' ? 'Pcs (Total)' : 'Unit' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 p-4 rounded-2xl flex items-center gap-4 shadow-sm relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                             <component :is="chartModal.type === 'transaction' ? ArrowTrendingDownIcon : ExclamationCircleIcon" class="h-16 w-16 text-amber-600" />
+                        </div>
+                        <div class="h-12 w-12 rounded-xl bg-white text-amber-600 flex items-center justify-center shadow-sm border border-amber-100 shrink-0">
+                            <ArrowTrendingDownIcon class="h-6 w-6" />
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-0.5">
+                                 {{ chartModal.type === 'transaction' ? 'Paling Sedikit Diminta' : 'Stok Terendah' }}
+                            </p>
+                            <h4 class="text-sm font-black text-slate-800 line-clamp-1">{{ chartModal.stats.lowItem?.name || '-' }}</h4>
+                            <p class="text-xs text-slate-500 font-mono">
+                                <span class="font-bold text-amber-600">{{ chartModal.stats.lowItem?.value || 0 }}</span> {{ chartModal.type === 'transaction' ? 'Pcs (Total)' : 'Unit' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="chartModal.data.length === 0" class="flex flex-col items-center justify-center h-40 text-slate-400">
+                    <CubeIcon class="h-12 w-12 mb-2 opacity-50" />
+                    <p>Tidak ada data detail untuk item ini.</p>
+                </div>
+
+                <div v-if="chartModal.type === 'transaction'" class="w-full">
+                    
+                    <div class="px-8 pb-4">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Ringkasan Item</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                            <div 
+                                v-for="(summary, idx) in itemSummaries" 
+                                :key="idx"
+                                class="relative flex items-center p-2 rounded-md border border-slate-100 shadow-sm transition-all hover:shadow-md bg-white border-l-[3px]"
+                                :class="getCategoryColor(summary.categoryId)"
+                            >
+                                <div class="h-8 w-8 rounded bg-white/50 flex items-center justify-center shrink-0 mr-3 border border-black/5 overflow-hidden">
+                                     <img v-if="summary.url_photo" :src="summary.url_photo" class="h-full w-full object-cover mix-blend-multiply" />
+                                     <CubeIcon v-else class="h-4 w-4 opacity-50" />
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-bold truncate leading-tight">{{ summary.itemName }}</p>
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        <span class="text-[10px] font-medium opacity-80 bg-white/60 px-1.5 rounded">
+                                           {{ summary.totalRequests }} Permintaan
+                                        </span>
+                                        <span class="text-[10px] font-bold opacity-100">
+                                           {{ summary.totalQty }} Pcs
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-white sticky top-0 z-30 shadow-[0_1px_2px_rgba(0,0,0,0.05)] border-b border-slate-100">
+                            <tr>
+                                <th class="py-3 pl-8 pr-4 text-[10px] font-black text-slate-400 uppercase tracking-wider">Detail Barang</th>
+                                <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-wider">Pemohon</th>
+                                <th class="py-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Jumlah</th>
+                                <th class="py-3 pl-4 pr-8 text-[10px] font-black text-slate-400 uppercase tracking-wider text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr v-for="(item, idx) in chartModal.data" :key="idx" class="hover:bg-slate-50 transition-colors group">
+                                <td class="py-3 pl-8 pr-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-9 w-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden">
+                                            <img v-if="item.url_photo" :src="item.url_photo" class="h-full w-full object-cover mix-blend-multiply" />
+                                            <CubeIcon v-else class="h-4 w-4 text-slate-300" />
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-bold text-slate-800 truncate">{{ item.itemName }}</p>
+                                            <p class="text-[10px] text-slate-500 font-mono bg-slate-100 w-fit px-1.5 rounded">{{ item.itemCode }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
+                                            {{ item.userName.charAt(0) }}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-bold text-slate-700 truncate">{{ item.userName }}</p>
+                                            <p class="text-[10px] text-slate-400 truncate">{{ item.unitName }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs font-bold border border-slate-200">
+                                        {{ item.qty }}
+                                    </span>
+                                </td>
+                                <td class="py-3 pl-4 pr-8 text-right">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border"
+                                        :class="{
+                                            'bg-emerald-50 text-emerald-600 border-emerald-100': item.status === 'Completed' || item.status === 'Approved',
+                                            'bg-amber-50 text-amber-600 border-amber-100': item.status === 'Pending',
+                                            'bg-red-50 text-red-600 border-red-100': item.status === 'Rejected'
+                                        }">
+                                        <span class="w-1.5 h-1.5 rounded-full mr-1.5" :class="{
+                                             'bg-emerald-500': item.status === 'Completed',
+                                             'bg-amber-500': item.status === 'Pending',
+                                             'bg-red-500': item.status === 'Rejected'
+                                        }"></span>
+                                        {{ item.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div v-else-if="chartModal.type === 'stock'" class="px-8 pb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div v-for="(item, idx) in chartModal.data" :key="idx" class="bg-white border border-slate-100 rounded-2xl p-4 flex items-center gap-4 hover:shadow-lg hover:border-blue-200 hover:-translate-y-0.5 transition-all group">
+                         <div class="h-14 w-14 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden relative group-hover:bg-white transition-colors">
+                            <img v-if="item.url_photo" :src="item.url_photo" class="h-full w-full object-cover mix-blend-multiply" />
+                            <CubeIcon v-else class="h-6 w-6 text-slate-300" />
+                            <div class="absolute top-0 right-0 bg-blue-500 w-2 h-2 rounded-bl-lg shadow-sm"></div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[10px] font-bold text-blue-500 mb-0.5 uppercase tracking-wide">{{ item.categoryName }}</p>
+                            <h4 class="text-sm font-bold text-slate-800 truncate group-hover:text-blue-600 transition-colors">{{ item.itemName }}</h4>
+                            <p class="text-[10px] text-slate-400 font-mono">{{ item.itemCode }}</p>
+                        </div>
+                        <div class="text-right">
+                             <p class="text-[10px] text-slate-400 font-bold uppercase mb-0.5">Stok</p>
+                             <p class="text-xl font-black text-slate-700 leading-none group-hover:text-blue-600 transition-colors">{{ item.stock }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-8 py-5 bg-slate-50 border-t border-slate-200 text-right shrink-0 z-20">
+                <button @click="closeChartModal" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-100 hover:text-slate-800 transition-colors shadow-sm active:scale-95">
+                    Tutup
+                </button>
+            </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="modal-fade">
       <div v-if="approvalModal.show" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeApprovalModal"></div>
 
@@ -42,15 +224,15 @@
                   Review Permintaan
                 </h3>
                 <div class="flex flex-wrap gap-3 mt-3">
-                   <div class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-xs font-semibold text-white">
+                    <div class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-xs font-semibold text-white">
                       <UserIcon class="h-3.5 w-3.5 opacity-80" /> {{ approvalModal.data?.user_name }}
-                   </div>
-                   <div class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-xs font-semibold text-white">
+                    </div>
+                    <div class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-xs font-semibold text-white">
                       <BuildingOfficeIcon class="h-3.5 w-3.5 opacity-80" /> {{ approvalModal.data?.unit_name }}
-                   </div>
-                   <div class="flex items-center gap-2 bg-white text-blue-700 px-3 py-1 rounded-full text-xs font-bold font-mono">
+                    </div>
+                    <div class="flex items-center gap-2 bg-white text-blue-700 px-3 py-1 rounded-full text-xs font-bold font-mono">
                       <HashtagIcon class="h-3.5 w-3.5" /> {{ approvalModal.data?.code }}
-                   </div>
+                    </div>
                 </div>
               </div>
               <button @click="closeApprovalModal" class="rounded-full bg-white/10 p-2 hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300">
@@ -186,7 +368,7 @@
                                     :placeholder="item.approved_qty !== item.reqQty ? 'Alasan penyesuaian...' : 'Tambahkan catatan...'"
                                 />
                             </div>
-                              
+                             
                             <div class="mt-1">
                                 <p v-if="!item.approved_qty || item.approved_qty <= 0" class="text-[10px] text-red-600 font-bold flex items-center gap-1">
                                     <ExclamationCircleIcon class="h-3 w-3" /> Wajib diisi (>0)
@@ -331,21 +513,29 @@
         
         <div class="col-span-12 lg:col-span-8">
           <div class="h-full rounded-2xl bg-white p-6 shadow-sm border border-slate-100">
-            <div class="mb-6">
-              <h3 class="text-lg font-bold text-slate-800">Tren Permintaan</h3>
-              <p class="text-sm text-slate-500">Statistik 6 bulan terakhir.</p>
+            <div class="mb-6 flex justify-between items-start">
+               <div>
+                  <h3 class="text-lg font-bold text-slate-800">Tren Permintaan</h3>
+                  <p class="text-sm text-slate-500">Statistik permintaan tahun 2025.</p>
+               </div>
+               <ChartBarIcon class="h-6 w-6 text-blue-500 opacity-50" />
             </div>
-            <div class="-ml-2"><apexchart type="bar" height="350" :options="barChartOptions" :series="barChartSeries"></apexchart></div>
+            <div class="-ml-2 cursor-pointer">
+                <apexchart type="bar" height="350" :options="barChartOptions" :series="barChartSeries"></apexchart>
+            </div>
           </div>
         </div>
 
         <div class="col-span-12 lg:col-span-4">
           <div class="h-full rounded-2xl bg-white p-6 shadow-sm border border-slate-100 flex flex-col">
-            <div class="mb-4">
-              <h3 class="text-lg font-bold text-slate-800">Kategori Stok</h3>
-              <p class="text-sm text-slate-500">Persentase distribusi stok.</p>
+            <div class="mb-4 flex justify-between items-start">
+               <div>
+                   <h3 class="text-lg font-bold text-slate-800">Kategori Stok</h3>
+                   <p class="text-sm text-slate-500">Klik irisan untuk lihat item.</p>
+               </div>
+               <ChartPieIcon class="h-6 w-6 text-purple-500 opacity-50" />
             </div>
-            <div class="flex-1 flex flex-col items-center justify-center py-4">
+            <div class="flex-1 flex flex-col items-center justify-center py-4 cursor-pointer">
               <apexchart ref="donutChartRef" type="donut" width="300" :options="donutChartOptions" :series="donutChartSeries"></apexchart>
             </div>
           </div>
@@ -519,7 +709,7 @@
 </template>
 
 <script setup>
-import { ref, computed, shallowRef, onMounted, onUnmounted } from 'vue'; 
+import { ref, computed, shallowRef, onMounted, onUnmounted, watch } from 'vue'; 
 import VueApexCharts from 'vue3-apexcharts';
 import { useInventoryStore } from '../../stores/inventoryStore'; 
 
@@ -547,14 +737,315 @@ const triggerToast = (message, type = 'success') => {
 };
 
 // =========================================================
-//  PENDING APPROVAL LIST (SORTED OLDER FIRST)
+//  CHART MODAL INTERACTION (ENHANCED)
+// =========================================================
+const chartModal = ref({
+    show: false,
+    title: '',
+    subtitle: '',
+    type: 'transaction', // 'transaction' or 'stock'
+    data: [],
+    stats: {}, // Store calculated highlights
+    icon: ChartBarIcon,
+    colorClass: 'text-blue-500'
+});
+
+const closeChartModal = () => { chartModal.value.show = false; };
+
+const openChartModal = (config) => {
+    chartModal.value = { ...chartModal.value, ...config, show: true };
+};
+
+// --- LOGIC: Summary Detail Barang (Grouping) ---
+const itemSummaries = computed(() => {
+  if (!chartModal.value.data || chartModal.value.type !== 'transaction') return [];
+
+  const summary = {};
+
+  chartModal.value.data.forEach(item => {
+    const key = item.itemCode || item.itemName;
+    if (!summary[key]) {
+      summary[key] = {
+        itemName: item.itemName,
+        itemCode: item.itemCode,
+        totalRequests: 0, 
+        totalQty: 0,      
+        url_photo: item.url_photo,
+        categoryId: item.categoryId // Capture Category ID
+      };
+    }
+    summary[key].totalRequests += 1;
+    summary[key].totalQty += parseInt(item.qty || 0);
+  });
+
+  return Object.values(summary).sort((a, b) => b.totalQty - a.totalQty);
+});
+
+// LOGIC BARU: Warna Berdasarkan Kategori
+const getCategoryColor = (categoryId) => {
+  // Mapping ID Kategori ke Style Warna
+  const map = {
+    1: 'border-l-blue-500 bg-blue-50 text-blue-700',      // Alat Tulis (Blue)
+    2: 'border-l-emerald-500 bg-emerald-50 text-emerald-700', // Kertas (Green)
+    3: 'border-l-violet-500 bg-violet-50 text-violet-700',   // Tinta (Purple)
+    4: 'border-l-amber-500 bg-amber-50 text-amber-700',     // Perlengkapan (Orange)
+    5: 'border-l-rose-500 bg-rose-50 text-rose-700',        // Perekat (Red)
+  };
+  // Default jika ID tidak ditemukan
+  return map[categoryId] || 'border-l-slate-500 bg-slate-50 text-slate-700';
+};
+
+// SCROLL LOCK WATCHER
+watch(() => chartModal.value.show, (val) => {
+    document.body.style.overflow = val ? 'hidden' : '';
+});
+
+// =========================================================
+//  CHART: BAR CHART LOGIC (REAL DATA FROM STORE)
+// =========================================================
+const monthlyRequestStats = computed(() => {
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+  const counts = Array(12).fill(0);
+  
+  // Use current year based on store context (2025)
+  const currentYear = 2025; 
+  
+  store.transactions.forEach(trx => {
+    const d = new Date(trx.trx_date); 
+    if (d.getFullYear() === currentYear) {
+      counts[d.getMonth()]++; 
+    }
+  });
+
+  const currentMonthIndex = 11; // December 2025
+  let start = currentMonthIndex - 5;
+  if (start < 0) start = 0;
+  let end = currentMonthIndex + 1;
+
+  const labels = monthNames.slice(start, end);
+  const data = counts.slice(start, end);
+  
+  const monthIndices = [];
+  for(let i=start; i<end; i++) monthIndices.push(i);
+
+  return { labels, data, monthIndices };
+});
+
+const barChartSeries = computed(() => [{ 
+  name: 'Permintaan', 
+  data: monthlyRequestStats.value.data 
+}]);
+
+const barChartOptions = computed(() => ({ 
+  chart: { 
+      type: 'bar', 
+      height: 320, 
+      fontFamily: 'Inter, sans-serif', 
+      toolbar: { show: false }, 
+      zoom: { enabled: false },
+      events: {
+        dataPointSelection: (e, chartContext, config) => {
+            handleBarChartClick(config.dataPointIndex);
+        }
+      }
+  }, 
+  plotOptions: { 
+    bar: { 
+      distributed: true, 
+      borderRadius: 4, 
+      horizontal: false, 
+      columnWidth: '55%' 
+    } 
+  }, 
+  dataLabels: { enabled: false }, 
+  stroke: { show: false }, 
+  xaxis: { 
+    categories: monthlyRequestStats.value.labels, 
+    labels: { style: { colors: '#64748b', fontSize: '12px' } }, 
+    axisBorder: { show: false }, 
+    axisTicks: { show: false } 
+  }, 
+  yaxis: { labels: { style: { colors: '#64748b', fontSize: '12px' }, formatter: (val) => val.toFixed(0) } }, 
+  grid: { borderColor: '#f1f5f9', strokeDashArray: 4, yaxis: { lines: { show: true } }, xaxis: { lines: { show: false } } }, 
+  colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'], 
+  legend: { show: false }, 
+  tooltip: { y: { formatter: (val) => val + " permintaan" } } 
+}));
+
+// HANDLER: CLICK BAR CHART (Drill Down to Transactions)
+const handleBarChartClick = (dataPointIndex) => {
+    if (dataPointIndex < 0) return;
+    
+    const monthIndex = monthlyRequestStats.value.monthIndices[dataPointIndex];
+    const monthName = monthlyRequestStats.value.labels[dataPointIndex];
+    const currentYear = 2025;
+
+    const filteredTrx = store.transactions.filter(trx => {
+        const d = new Date(trx.trx_date);
+        return d.getMonth() === monthIndex && d.getFullYear() === currentYear;
+    });
+
+    const detailList = [];
+    const itemAggregates = {};
+
+    filteredTrx.forEach(trx => {
+        const user = store.users.find(u => u.id === trx.user_id) || { full_name: 'Unknown', unit_id: 0 };
+        const unit = store.units.find(u => u.id === trx.unit_id) || { alias: 'Unknown Unit' };
+        
+        const details = store.transactionDetails.filter(d => d.transaction_id === trx.id);
+        
+        details.forEach(d => {
+            const item = store.atks.find(a => a.id === d.item_id);
+            
+            if (item) {
+                detailList.push({
+                    itemName: item.name,
+                    itemCode: item.code,
+                    url_photo: item.url_photo,
+                    uom: item.uom,
+                    qty: d.qty,
+                    status: trx.status, 
+                    userName: user.full_name,
+                    unitName: unit.alias,
+                    categoryId: item.category_id // Include Category ID for Coloring
+                });
+
+                if (!itemAggregates[item.name]) itemAggregates[item.name] = 0;
+                itemAggregates[item.name] += d.qty;
+            }
+        });
+    });
+
+    let topItem = null;
+    let lowItem = null;
+    const sortedKeys = Object.keys(itemAggregates).sort((a, b) => itemAggregates[b] - itemAggregates[a]);
+    
+    if (sortedKeys.length > 0) {
+        topItem = { name: sortedKeys[0], value: itemAggregates[sortedKeys[0]] };
+        lowItem = { name: sortedKeys[sortedKeys.length - 1], value: itemAggregates[sortedKeys[sortedKeys.length - 1]] };
+    }
+
+    openChartModal({
+        title: `Detail Permintaan: ${monthName} ${currentYear}`,
+        subtitle: `Total ${filteredTrx.length} transaksi dengan ${detailList.length} item barang.`,
+        type: 'transaction',
+        data: detailList,
+        stats: { topItem, lowItem },
+        icon: ChartBarIcon,
+        colorClass: 'text-blue-600'
+    });
+};
+
+// =========================================================
+//  CHART: DONUT CHART LOGIC (REAL DATA FROM STORE)
+// =========================================================
+const chartColors = ['#2563EB', '#22C55E', '#EAB308', '#EF4444', '#A855F7']; 
+const chartBgClasses = ['bg-blue-600', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500'];
+
+const categoryStats = computed(() => {
+  const catMap = {}; 
+  store.categories.forEach(cat => { catMap[cat.name] = 0; });
+  
+  store.stocks.forEach(stock => {
+      const atk = store.atks.find(a => a.id === stock.item_id);
+      if(atk) {
+         const cat = store.categories.find(c => c.id === atk.category_id);
+         if(cat && catMap[cat.name] !== undefined) { 
+             catMap[cat.name] += stock.stock; 
+         }
+      }
+  });
+
+  const grandTotal = Object.values(catMap).reduce((sum, val) => sum + val, 0);
+  
+  return Object.keys(catMap).map((name, index) => ({
+    name: name,
+    value: catMap[name],
+    percentage: grandTotal > 0 ? Math.round((catMap[name] / grandTotal) * 100) + '%' : '0%',
+    colorClass: chartBgClasses[index % chartBgClasses.length],
+    hexColor: chartColors[index % chartColors.length]
+  }));
+});
+
+const donutChartSeries = computed(() => categoryStats.value.map(cat => cat.value));
+const donutChartRef = ref(null);
+
+const donutChartOptions = computed(() => ({
+  chart: { 
+      type: 'donut', 
+      width: 300, 
+      fontFamily: 'Inter, sans-serif', 
+      animations: { enabled: true }, 
+      events: { 
+          dataPointSelection: (event, chartContext, config) => { 
+             handleDonutChartClick(config.dataPointIndex);
+          } 
+      } 
+  },
+  labels: categoryStats.value.map(cat => cat.name),
+  colors: categoryStats.value.map(cat => cat.hexColor),
+  plotOptions: { pie: { donut: { size: '75%', labels: { show: true, name: { show: true, fontSize: '14px', fontFamily: 'Inter, sans-serif', fontWeight: 600, color: '#64748b', offsetY: -10 }, value: { show: true, fontSize: '20px', fontFamily: 'Inter, sans-serif', fontWeight: 700, color: '#1e293b', offsetY: 16, formatter: (val) => val }, total: { show: true, label: 'Total Item', color: '#64748b', formatter: () => stats.value.realTotalStock.toLocaleString('id-ID') } } } } },
+  legend: { show: false }, stroke: { show: true, colors: ['#ffffff'], width: 2 }, tooltip: { y: { formatter: (val) => val.toLocaleString('id-ID') + ' item' }, style: { fontSize: '12px', fontFamily: 'Inter, sans-serif' } }, dataLabels: { enabled: false }, 
+}));
+
+// HANDLER: CLICK DONUT CHART
+const handleDonutChartClick = (dataPointIndex) => {
+    const categoryName = categoryStats.value[dataPointIndex].name;
+    const categoryId = store.categories.find(c => c.name === categoryName)?.id;
+    if (!categoryId) return;
+
+    const stockDetails = store.stocks
+        .map(stock => {
+            const item = store.atks.find(a => a.id === stock.item_id);
+            if (!item || item.category_id !== categoryId) return null;
+            return {
+                itemName: item.name,
+                itemCode: item.code,
+                url_photo: item.url_photo,
+                stock: stock.stock,
+                categoryName: categoryName,
+                categoryId: item.category_id // Pass Category ID
+            };
+        })
+        .filter(item => item !== null);
+
+    const aggregatedStock = {};
+    stockDetails.forEach(s => {
+        if (!aggregatedStock[s.itemCode]) {
+            aggregatedStock[s.itemCode] = { ...s };
+        } else {
+            aggregatedStock[s.itemCode].stock += s.stock;
+        }
+    });
+    const finalList = Object.values(aggregatedStock);
+
+    const sortedStock = [...finalList].sort((a, b) => b.stock - a.stock);
+    let topItem = null;
+    let lowItem = null;
+    if (sortedStock.length > 0) {
+        topItem = { name: sortedStock[0].itemName, value: sortedStock[0].stock };
+        lowItem = { name: sortedStock[sortedStock.length - 1].itemName, value: sortedStock[sortedStock.length - 1].stock };
+    }
+
+    openChartModal({
+        title: `Stok Kategori: ${categoryName}`,
+        subtitle: `Menampilkan ${finalList.length} jenis item dalam kategori ini.`,
+        type: 'stock',
+        data: finalList,
+        stats: { topItem, lowItem },
+        icon: ChartPieIcon,
+        colorClass: 'text-purple-600'
+    });
+};
+
+
+// =========================================================
+//  PENDING APPROVAL LIST
 // =========================================================
 const sortedPendingTransactions = computed(() => {
-    // Sort Ascending (Oldest date first)
     return [...store.pendingTransactionList].sort((a, b) => new Date(a.trx_date) - new Date(b.trx_date));
 });
 
-// Format time utility
 const formatTime = (isoString) => {
     if (!isoString) return '-';
     const date = new Date(isoString);
@@ -567,25 +1058,16 @@ const formatTime = (isoString) => {
 // =========================================================
 //  MODAL STATE (APPROVAL & REVIEW)
 // =========================================================
-
-const approvalModal = ref({
-    show: false,
-    data: null, 
-    items: []   
-});
+const approvalModal = ref({ show: false, data: null, items: [] });
 
 const openApprovalModal = (trx) => {
-    // Mapping Data untuk Modal
     const itemsWithStats = trx.details.map(detail => {
         const masterItem = store.atks.find(a => a.id === detail.item_id) || {};
         const existingStock = store.stocks.find(s => s.item_id === detail.item_id && s.unit_id === trx.unit_id);
         const currentStock = existingStock ? existingStock.stock : 0;
         const maxStock = masterItem.max_stock || 9999;
-        
-        // HITUNG MAX ALLOCATABLE (Sisa gudang)
         const maxAllocatable = Math.max(0, maxStock - currentStock);
 
-        // Auto limit quantity jika melebihi slot gudang unit
         let defaultApproved = detail.qty;
         if (defaultApproved > maxAllocatable) defaultApproved = maxAllocatable;
 
@@ -597,33 +1079,25 @@ const openApprovalModal = (trx) => {
             uom: masterItem.uom || 'Pcs',
             currentStock, maxStock, maxAllocatable,
             reqQty: detail.qty,
-            // Form Values
             approved_qty: defaultApproved,
-            action: 'approve', // Default: Terima
-            reason: '' // Alasan jika tolak atau penyesuaian
+            action: 'approve',
+            reason: ''
         };
     });
-
     approvalModal.value = { show: true, data: trx, items: itemsWithStats };
 };
 
 const closeApprovalModal = () => { approvalModal.value.show = false; };
+const validateItem = (item) => {}
 
-const validateItem = (item) => {
-    // Validasi auto-correct jika perlu
-    // if (item.approved_qty > item.maxAllocatable) item.approved_qty = item.maxAllocatable;
-}
-
-// Validasi Form
 const isFormValid = computed(() => {
     if (!approvalModal.value.items.length) return false;
-    
     for (const item of approvalModal.value.items) {
         if (item.action === 'approve') {
-            if (item.approved_qty > item.maxAllocatable) return false; // Melebihi stok gudang
-            if (!item.approved_qty || item.approved_qty <= 0) return false; // Qty kosong/0
+            if (item.approved_qty > item.maxAllocatable) return false; 
+            if (!item.approved_qty || item.approved_qty <= 0) return false; 
         } else {
-            if (!item.reason || item.reason.trim() === '') return false; // Alasan wajib diisi
+            if (!item.reason || item.reason.trim() === '') return false; 
         }
     }
     return true;
@@ -634,7 +1108,6 @@ const formErrorMessage = computed(() => {
         return (item.action === 'approve' && (item.approved_qty > item.maxAllocatable || !item.approved_qty || item.approved_qty <= 0)) ||
                (item.action === 'reject' && !item.reason);
     });
-
     if (!invalidItem) return '';
     if (invalidItem.action === 'approve') {
         if (!invalidItem.approved_qty || invalidItem.approved_qty <= 0) return `Jumlah disetujui "${invalidItem.itemName}" tidak boleh 0!`;
@@ -645,16 +1118,13 @@ const formErrorMessage = computed(() => {
 
 const submitBatchProcessing = () => {
     if (!isFormValid.value) return;
-
-    // Panggil Store Action
     store.processBatchTransaction(approvalModal.value.data.id, approvalModal.value.items);
-    
     closeApprovalModal();
     triggerToast('Keputusan tersimpan. Notifikasi dikirim ke User.', 'success');
 };
 
 
-// MANUAL REQUEST MODAL (Backup)
+// MANUAL REQUEST MODAL
 const confirmModal = ref({ show: false, title: '', message: '', buttonText: '', buttonClass: '', icon: null, iconBg: '', iconColor: '', showInput: false, inputValue: '', onConfirmAction: () => {} });
 
 const openConfirmModal = ({ title, message, buttonText, buttonClass, icon, iconBg, iconColor, showInput = false, onConfirm }) => {
@@ -670,22 +1140,13 @@ const onConfirm = () => {
   closeConfirmModal();
 };
 
-// =========================================================
-//  MANUAL RESTOCK LOGIC (AUTO-ASSIGN TO USER)
-// =========================================================
 const handleRequestStock = (item) => {
-  // 1. Cari Unit dari item ini
   const targetUnitId = item.unit_id;
   const targetUnit = store.units.find(u => u.id === targetUnitId);
   const unitName = targetUnit ? targetUnit.alias : 'Unit Terkait';
 
-  // 2. Cek apakah sudah ada request PENDING untuk barang ini di unit tersebut
-  //    (Constraint: Jangan spam request)
   const isPending = store.pendingTransactionList.some(trx => {
-      // Cek apakah transaksi ini milik unit yang sama
       if (trx.unit_id !== targetUnitId) return false;
-      
-      // Cek apakah di dalam detail transaksi ada item_id yang sama
       return trx.details.some(d => d.item_id === item.item_id);
   });
 
@@ -694,20 +1155,16 @@ const handleRequestStock = (item) => {
       return;
   }
 
-  // 3. Cari User Aktif di Unit tersebut
-  //    Prioritas: Role User biasa, kalau ga ada ambil sembarang dari unit tsb
   const targetUser = store.users.find(u => u.unit_id === targetUnitId && u.is_active === 1);
-  
   if (!targetUser) {
       triggerToast('Gagal: Tidak ada user aktif di unit ini untuk dikirimi notifikasi.', 'error');
       return;
   }
 
-  // 4. Hitung Rekomendasi Qty (Fill up to Max Stock)
   const masterItem = store.atks.find(a => a.id === item.item_id) || {};
   const currentStock = item.stock;
-  const maxStock = masterItem.max_stock || 100; // Default fallback
-  const recommendedQty = Math.max(20, maxStock - currentStock); // Minimal request 20 atau selisihnya
+  const maxStock = masterItem.max_stock || 100; 
+  const recommendedQty = Math.max(20, maxStock - currentStock); 
 
   openConfirmModal({
     title: 'Buat Rekomendasi Restock',
@@ -717,7 +1174,6 @@ const handleRequestStock = (item) => {
     icon: QuestionMarkCircleIcon, iconBg: 'bg-blue-50', iconColor: 'text-blue-600',
     showInput: false,
     onConfirm: () => {
-      // Create Transaction on behalf of User
       store.createTransaction({
         user_id: targetUser.id, 
         unit_id: targetUnitId,
@@ -741,9 +1197,6 @@ const updateTime = () => {
 onMounted(() => { updateTime(); timeInterval = setInterval(updateTime, 1000); });
 onUnmounted(() => { if (timeInterval) clearInterval(timeInterval); });
 
-// =========================================================
-//  REAL-TIME STATS COMPUTED
-// =========================================================
 const stats = computed(() => {
   const activeUnits = store.units.filter(u => u.is_active === 1).length;
   const totalATK = store.atks.length;
@@ -753,62 +1206,6 @@ const stats = computed(() => {
   if (totalStock > 1000) { formattedStock = (totalStock / 1000).toFixed(1).replace('.', ',') + 'k'; }
   return { activeUnits, totalATK, totalStock: formattedStock, realTotalStock: totalStock, lowStockCount };
 });
-
-/// =========================================================
-//  CHART LOGIC (SUDAH DIPERBAIKI - OTOMATIS)
-// =========================================================
-const chartColors = ['#2563EB', '#22C55E', '#EAB308', '#EF4444', '#A855F7']; 
-const chartBgClasses = ['bg-blue-600', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500'];
-
-// --- 1. DONUT CHART (KATEGORI) ---
-const categoryStats = computed(() => {
-  const catMap = {}; 
-  store.categories.forEach(cat => { catMap[cat.name] = 0; });
-  store.stocks.forEach(stock => {
-      const atk = store.atks.find(a => a.id === stock.item_id);
-      if(atk) {
-         const catName = store.categories.find(c => c.id === atk.category_id)?.name;
-         if(catName && catMap[catName] !== undefined) { catMap[catName] += stock.stock; }
-      }
-  });
-  const grandTotal = Object.values(catMap).reduce((sum, val) => sum + val, 0);
-  return Object.keys(catMap).map((name, index) => ({
-    name: name,
-    value: catMap[name],
-    percentage: grandTotal > 0 ? Math.round((catMap[name] / grandTotal) * 100) + '%' : '0%',
-    colorClass: chartBgClasses[index % chartBgClasses.length],
-    hexColor: chartColors[index % chartColors.length]
-  }));
-});
-
-const donutChartSeries = computed(() => categoryStats.value.map(cat => cat.value));
-const donutChartRef = ref(null);
-const selectedCategoryIndices = ref([]);
-const donutChartTotalLabel = ref('Total Item');
-const donutChartTotalValue = ref(stats.value.totalStock); 
-
-const updateCenterLabel = () => {
-  const count = selectedCategoryIndices.value.length;
-  if (count === 0) { donutChartTotalLabel.value = 'Total Item'; donutChartTotalValue.value = stats.value.realTotalStock.toLocaleString('id-ID'); }
-  else if (count === 1) { const idx = selectedCategoryIndices.value[0]; donutChartTotalLabel.value = categoryStats.value[idx].name; donutChartTotalValue.value = categoryStats.value[idx].value.toLocaleString('id-ID'); }
-  else { const sum = selectedCategoryIndices.value.reduce((acc, idx) => acc + categoryStats.value[idx].value, 0); donutChartTotalLabel.value = 'Total Terpilih'; donutChartTotalValue.value = sum.toLocaleString('id-ID'); }
-  if (donutChartRef.value) { donutChartRef.value.updateOptions({ plotOptions: { pie: { donut: { labels: { total: { label: donutChartTotalLabel.value, formatter: () => donutChartTotalValue.value } } } } } }); }
-};
-
-const donutChartOptions = computed(() => ({
-  chart: { type: 'donut', width: 300, fontFamily: 'Inter, sans-serif', animations: { enabled: true }, events: { dataPointSelection: (event, chartContext, config) => { handleLegendClick(config.dataPointIndex); } } },
-  labels: categoryStats.value.map(cat => cat.name),
-  colors: categoryStats.value.map(cat => cat.hexColor),
-  plotOptions: { pie: { donut: { size: '75%', labels: { show: true, name: { show: true, fontSize: '14px', fontFamily: 'Inter, sans-serif', fontWeight: 600, color: '#64748b', offsetY: -10 }, value: { show: true, fontSize: '20px', fontFamily: 'Inter, sans-serif', fontWeight: 700, color: '#1e293b', offsetY: 16, formatter: (val) => val }, total: { show: true, label: 'Total Item', color: '#64748b', formatter: () => stats.value.realTotalStock.toLocaleString('id-ID') } } } } },
-  legend: { show: false }, stroke: { show: true, colors: ['#ffffff'], width: 2 }, tooltip: { y: { formatter: (val) => val.toLocaleString('id-ID') + ' item' }, style: { fontSize: '12px', fontFamily: 'Inter, sans-serif' } }, dataLabels: { enabled: false }, 
-}));
-
-const handleLegendClick = (index) => {
-  const pos = selectedCategoryIndices.value.indexOf(index);
-  if (pos >= 0) selectedCategoryIndices.value.splice(pos, 1); else selectedCategoryIndices.value.push(index);
-  if (donutChartRef.value) donutChartRef.value.toggleDataPointSelection(index);
-  updateCenterLabel();
-};
 
 const recentActivity = computed(() => {
   return store.history.slice(0, 10).map(log => {
@@ -823,77 +1220,6 @@ const recentActivity = computed(() => {
     return { id: log.id, type: log.type === 'IN' ? 'masuk' : 'keluar', item: log.itemName, qty: log.qty, user: log.actor, time: timeLabel };
   });
 });
-
-const topRequestedItems = computed(() => {
-  const frequencyMap = {};
-  store.history.forEach(log => { if (!frequencyMap[log.itemName]) { frequencyMap[log.itemName] = { count: 0, item_id: log.item_id }; } frequencyMap[log.itemName].count += 1; });
-  return Object.keys(frequencyMap).map(name => {
-    const data = frequencyMap[name]; let catName = '-';
-    const atk = store.atks.find(a => a.id === data.item_id) || store.atks.find(a => a.name === name);
-    if(atk) { const cat = store.categories.find(c => c.id === atk.category_id); if(cat) catName = cat.name; }
-    return { name: name, count: data.count, category: catName };
-  }).sort((a, b) => b.count - a.count).slice(0, 5);
-});
-
-// --- 2. BAR CHART (TREN PERMINTAAN - FIX: DYNAMIC DATA) ---
-const monthlyRequestStats = computed(() => {
-  // 1. Inisialisasi Array 12 Bulan (0 semua)
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
-  const counts = Array(12).fill(0);
-  const currentYear = new Date().getFullYear();
-
-  // 2. Ambil semua transaksi (Pending & Completed)
-  //    Jika ingin hanya yg completed, hapus `...store.pendingTransactionList`
-  const allTransactions = [...store.transactions, ...store.pendingTransactionList];
-
-  // 3. Hitung jumlah transaksi per bulan
-  allTransactions.forEach(trx => {
-    const d = new Date(trx.created_at);
-    // Hanya hitung tahun ini agar data relevan
-    if (d.getFullYear() === currentYear) {
-      counts[d.getMonth()]++; // getMonth() return 0-11
-    }
-  });
-
-  // 4. Logic untuk menampilkan "6 Bulan Terakhir" atau "Sampai Bulan Ini"
-  const currentMonthIndex = new Date().getMonth(); 
-  // Kita ambil range dari (Bulan ini - 5) sampai (Bulan ini)
-  // Contoh: Sekarang Des (11), ambil dari Jun (6) s/d Des (11)
-  let start = currentMonthIndex - 5;
-  let end = currentMonthIndex + 1;
-  
-  // Handle jika awal tahun (misal Januari, jangan minus)
-  if (start < 0) start = 0;
-
-  const labels = monthNames.slice(start, end);
-  const data = counts.slice(start, end);
-
-  return { labels, data };
-});
-
-// Masukkan data dinamis ke Chart Series
-const barChartSeries = computed(() => [{ 
-  name: 'Permintaan', 
-  data: monthlyRequestStats.value.data 
-}]);
-
-// Masukkan label bulan dinamis ke Chart Options
-const barChartOptions = computed(() => ({ 
-  chart: { type: 'bar', height: 320, fontFamily: 'Inter, sans-serif', toolbar: { show: false }, zoom: { enabled: false } }, 
-  plotOptions: { bar: { borderRadius: 4, horizontal: false, columnWidth: '55%' } }, 
-  dataLabels: { enabled: false }, 
-  stroke: { show: false }, 
-  xaxis: { 
-    categories: monthlyRequestStats.value.labels, // Pakai Label Dinamis
-    labels: { style: { colors: '#64748b', fontSize: '12px' } }, 
-    axisBorder: { show: false }, 
-    axisTicks: { show: false } 
-  }, 
-  yaxis: { labels: { style: { colors: '#64748b', fontSize: '12px' }, formatter: (val) => val.toFixed(0) } }, 
-  grid: { borderColor: '#f1f5f9', strokeDashArray: 4, yaxis: { lines: { show: true } }, xaxis: { lines: { show: false } } }, 
-  colors: ['#3b82f6'], 
-  tooltip: { y: { formatter: (val) => val + " permintaan" } } 
-}));
 
 </script>
 
