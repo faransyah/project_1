@@ -263,7 +263,7 @@ const defaultTransactionDetails = [
     { id: 2, name: 'Kertas & Dokumen' },
     { id: 3, name: 'Tinta & Toner' },
     { id: 4, name: 'Perlengkapan' },
-    { id: 5, name: 'Lain-lain' },
+    { id: 5, name: 'Perekat' },
   ];
 
   // =======================================================================
@@ -488,7 +488,40 @@ const defaultTransactionDetails = [
     }
   };
 
-// --- PROCESS BATCH TRANSACTION (GRANULAR) ---
+  // --- NEW ACTION: CONSUME STOCK (DIRECT USAGE) ---
+  const consumeStock = (payload) => {
+    // 1. Cari Stok Spesifik (Item ID + Unit ID)
+    const targetStock = stocks.value.find(s => s.item_id === payload.item_id && s.unit_id === payload.unit_id);
+    
+    if (!targetStock) {
+      throw new Error('Data stok tidak ditemukan di unit Anda.');
+    }
+
+    if (targetStock.stock < payload.qty) {
+      throw new Error(`Stok tidak cukup. Sisa: ${targetStock.stock}`);
+    }
+
+    // 2. Kurangi Stok
+    targetStock.stock -= payload.qty;
+    targetStock.updated_at = new Date().toISOString();
+
+    // 3. Catat History (Log Mutasi OUT)
+    const actor = users.value.find(u => u.id === payload.user_id);
+    const item = atks.value.find(a => a.id === payload.item_id);
+
+    history.value.unshift({
+       id: Date.now(),
+       type: 'OUT', // Keluar karena dipakai
+       date: new Date().toLocaleString('id-ID'),
+       item_id: payload.item_id,
+       itemName: item ? item.name : 'Unknown Item',
+       qty: payload.qty,
+       actor: actor ? actor.full_name : 'User',
+       note: `Pemakaian Langsung: ${payload.reason}`
+    });
+  };
+
+  // --- PROCESS BATCH TRANSACTION (GRANULAR) ---
   const processBatchTransaction = (trxId, processedItems) => {
     const trx = transactions.value.find(t => t.id === trxId);
     if (!trx) return;
@@ -603,6 +636,7 @@ const defaultTransactionDetails = [
     addStock, updateStock, deleteStock, addHistory,
     addUser, updateUser, deleteUser,
     addRestockRequest, rejectRestockRequest, approveRestockRequest, 
-    createTransaction, cancelTransaction, rejectTransaction, processBatchTransaction, approveTransaction
+    createTransaction, cancelTransaction, rejectTransaction, processBatchTransaction, approveTransaction,
+    consumeStock // <--- EXPORTED NEW FUNCTION
   };
 });

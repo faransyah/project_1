@@ -79,16 +79,10 @@
                      class="bg-white rounded-2xl border shadow-sm overflow-hidden flex flex-col md:flex-row transition-all hover:shadow-md"
                      :class="{
                         'border-slate-200': detailModal.data.status === 'Pending',
-                        
-                        // HIJAU: Jika Disetujui >= Request
                         'border-emerald-500 ring-1 ring-emerald-500/20': detailModal.data.status !== 'Pending' && item.qty_approved >= item.qty,
-                        
-                        // KUNING: Jika Disetujui Parsial (< Request)
                         'border-amber-500 ring-1 ring-amber-500/20': detailModal.data.status !== 'Pending' && item.qty_approved > 0 && item.qty_approved < item.qty,
-                        
-                        // MERAH: Jika Ditolak (0)
                         'border-red-500 ring-1 ring-red-500/20': detailModal.data.status !== 'Pending' && (item.qty_approved === 0 || item.qty_approved === null)
-                     }">
+                      }">
                     
                     <div class="w-full md:w-32 bg-slate-50 flex items-center justify-center p-4 border-b md:border-b-0 md:border-r border-slate-100 relative">
                         <img v-if="getDetailItem(item.item_id)?.url_photo" :src="getDetailItem(item.item_id).url_photo" class="h-20 w-20 object-contain mix-blend-multiply" />
@@ -120,9 +114,9 @@
                             
                             <div class="p-1 rounded-full shrink-0"
                                  :class="{
-                                     'bg-emerald-100 text-emerald-600': item.qty_approved >= item.qty,
-                                     'bg-amber-100 text-amber-600': item.qty_approved > 0 && item.qty_approved < item.qty,
-                                     'bg-red-100 text-red-600': item.qty_approved === 0 || item.qty_approved === null
+                                    'bg-emerald-100 text-emerald-600': item.qty_approved >= item.qty,
+                                    'bg-amber-100 text-amber-600': item.qty_approved > 0 && item.qty_approved < item.qty,
+                                    'bg-red-100 text-red-600': item.qty_approved === 0 || item.qty_approved === null
                                  }">
                                 <InformationCircleIcon class="h-4 w-4" />
                             </div>
@@ -172,9 +166,9 @@
                             <div class="flex items-baseline justify-end gap-1">
                                 <p class="text-2xl font-black" 
                                    :class="{
-                                       'text-emerald-600': item.qty_approved >= item.qty,
-                                       'text-amber-600': item.qty_approved > 0 && item.qty_approved < item.qty,
-                                       'text-red-600': item.qty_approved === 0 || item.qty_approved === null
+                                      'text-emerald-600': item.qty_approved >= item.qty,
+                                      'text-amber-600': item.qty_approved > 0 && item.qty_approved < item.qty,
+                                      'text-red-600': item.qty_approved === 0 || item.qty_approved === null
                                    }">
                                     {{ item.qty_approved ?? 0 }}
                                 </p>
@@ -197,6 +191,97 @@
                 </div>
             </div>
 
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="modal-fade">
+      <div v-if="consumeModal.show" class="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeConsumeModal"></div>
+        <div class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-scale-up ring-1 ring-white/10">
+            
+            <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-6 flex items-start justify-between text-white shadow-lg relative z-10">
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0 backdrop-blur-md border border-white/20 shadow-inner">
+                        <BoltIcon class="h-7 w-7 text-white" />
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black leading-tight tracking-tight">Lapor Pemakaian</h3>
+                        <p class="text-xs text-orange-100 font-medium mt-0.5 opacity-90">Stok berkurang otomatis.</p>
+                    </div>
+                </div>
+                <button @click="closeConsumeModal" class="text-white/60 hover:text-white transition-colors bg-white/10 hover:bg-white/20 p-1.5 rounded-lg">
+                    <XMarkIcon class="h-6 w-6" />
+                </button>
+            </div>
+
+            <div class="p-6 space-y-6 bg-white">
+                
+                <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 bottom-0 w-1 bg-orange-400"></div>
+                    <div class="h-16 w-16 bg-white rounded-xl border border-slate-200 flex items-center justify-center p-2 shadow-sm shrink-0">
+                        <img v-if="consumeModal.item?.url_photo" :src="consumeModal.item.url_photo" class="h-full w-full object-contain mix-blend-multiply" />
+                        <CubeIcon v-else class="h-8 w-8 text-slate-300" />
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs text-slate-400 font-mono mb-0.5">{{ consumeModal.item?.code }}</p>
+                        <h4 class="text-sm font-bold text-slate-800 line-clamp-2 leading-snug">{{ consumeModal.item?.name }}</h4>
+                        <div class="flex items-center gap-2 mt-1.5">
+                            <span class="text-[10px] font-bold bg-orange-50 text-orange-700 px-2 py-0.5 rounded border border-orange-100 uppercase tracking-wide">
+                                Stok Unit: {{ getUnitStock(consumeModal.item?.id) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4 items-end">
+                        <div class="col-span-2">
+                            <label class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2">
+                                <span>Jumlah Dipakai <span class="text-red-500">*</span></span>
+                                <span class="text-slate-400 font-normal normal-case">Sisa nanti: <b class="text-slate-700">{{ getUnitStock(consumeModal.item?.id) - consumeForm.qty }}</b></span>
+                            </label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <ArchiveBoxIcon class="h-5 w-5 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
+                                </div>
+                                <input type="number" 
+                                       v-model.number="consumeForm.qty" 
+                                       min="1" 
+                                       :max="getUnitStock(consumeModal.item?.id)" 
+                                       class="w-full pl-12 pr-12 py-3 rounded-xl border-slate-200 font-bold text-slate-800 focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all bg-slate-50 focus:bg-white text-lg"
+                                       placeholder="0"
+                                />
+                                <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-xs font-bold text-slate-400 pointer-events-none">{{ consumeModal.item?.uom }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Keperluan / Keterangan <span class="text-red-500">*</span></label>
+                        <div class="relative group">
+                            <textarea v-model="consumeForm.reason" 
+                                      rows="2" 
+                                      class="w-full rounded-xl border-slate-200 text-sm p-4 focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all bg-slate-50 focus:bg-white resize-none leading-relaxed" 
+                                      placeholder="Contoh: Digunakan untuk kebutuhan rapat..."
+                            ></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="p-6 bg-slate-50 border-t border-slate-200 flex gap-3">
+                <button @click="closeConsumeModal" class="flex-1 py-3.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 hover:text-slate-800 transition-colors shadow-sm">
+                    Batal
+                </button>
+                <button @click="submitConsume" 
+                        :disabled="!consumeForm.qty || consumeForm.qty < 1 || !consumeForm.reason || consumeForm.qty > getUnitStock(consumeModal.item?.id)"
+                        class="flex-1 py-3.5 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-xl shadow-lg shadow-orange-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95 flex items-center justify-center gap-2">
+                    <BoltIcon class="h-4 w-4" />
+                    Konfirmasi
+                </button>
+            </div>
         </div>
       </div>
     </Transition>
@@ -243,7 +328,6 @@
                     
                     <div v-else v-for="notif in unreadNotifications" :key="notif.id" class="p-4 border-b border-slate-50 hover:bg-blue-50/30 transition-colors cursor-pointer group" @click="openDetailModalFromNotif(notif)">
                         <div class="flex gap-3 items-start">
-                            
                             <div class="h-8 w-8 rounded-full flex items-center justify-center shrink-0"
                                  :class="{
                                     'bg-blue-100 text-blue-600': notif.status === 'Pending', 
@@ -254,7 +338,6 @@
                                 <CheckBadgeIcon v-else-if="notif.status === 'Completed'" class="h-5 w-5" />
                                 <XCircleIcon v-else class="h-5 w-5" />
                             </div>
-
                             <div>
                                 <p class="text-xs text-slate-700 font-medium leading-snug">
                                     <span v-if="notif.status === 'Pending'">
@@ -297,12 +380,15 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <div v-for="item in filteredCatalog" :key="item.id" class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all overflow-hidden group flex flex-col relative">
+          
           <div class="absolute top-3 right-3 z-10">
-              <span v-if="getRemainingQuota(item.id) <= 0" class="px-2.5 py-1 bg-red-500 text-white text-[10px] font-bold rounded-lg shadow-sm backdrop-blur-sm border border-red-400">Stok Habis</span>
-              <span v-else class="px-2.5 py-1 bg-white/90 text-slate-700 text-[10px] font-bold rounded-lg shadow-sm backdrop-blur-sm border border-slate-200 flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Sisa: {{ getRemainingQuota(item.id) }}
+              <span class="px-2.5 py-1 text-[10px] font-bold rounded-lg shadow-sm backdrop-blur-sm border flex items-center gap-1.5"
+                    :class="getStockStatus(item).class">
+                  <span class="w-2 h-2 rounded-full" :class="getStockStatus(item).dot"></span>
+                  {{ getStockStatus(item).label }}
               </span>
           </div>
+
           <div class="h-44 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden flex items-center justify-center p-6 group-hover:from-blue-50/50 transition-colors">
               <img v-if="item.url_photo" :src="item.url_photo" class="h-full object-contain drop-shadow-sm group-hover:scale-110 transition-transform duration-500" />
               <div v-else class="flex flex-col items-center text-slate-300"><CubeIcon class="h-12 w-12 mb-1" /><span class="text-[10px] font-bold">No Image</span></div>
@@ -319,9 +405,29 @@
                  <div class="bg-slate-50 p-1.5 rounded text-center border border-slate-100">Stok: <b class="text-slate-700">{{ getUnitStock(item.id) }}</b></div>
                  <div class="bg-slate-50 p-1.5 rounded text-center border border-slate-100">Max: <b class="text-slate-700">{{ item.max_stock }}</b></div>
               </div>
-              <button @click="addToCart(item)" :disabled="getRemainingQuota(item.id) <= 0 || isInCart(item.id)" class="mt-3 w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95" :class="[isInCart(item.id) ? 'bg-emerald-50 text-emerald-600 cursor-not-allowed border border-emerald-100' : getRemainingQuota(item.id) <= 0 ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-blue-600/30']">
-                  <component :is="isInCart(item.id) ? CheckCircleIcon : PlusCircleIcon" class="h-4 w-4" /> {{ isInCart(item.id) ? 'Di Keranjang' : (getRemainingQuota(item.id) <= 0 ? 'Stok Habis' : 'Tambah') }}
-              </button>
+              
+              <div class="mt-4 flex gap-2">
+                  <button @click="openConsumeModal(item)" 
+                          :disabled="getUnitStock(item.id) <= 0"
+                          class="flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1 transition-all active:scale-95 border border-orange-200 text-orange-600 hover:bg-orange-50 hover:text-orange-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-100"
+                          title="Lapor Pemakaian Langsung (Tanpa Approval)">
+                      <BoltIcon class="h-4 w-4" /> Pakai
+                  </button>
+
+                  <button @click="addToCart(item)" 
+                          :disabled="getRemainingQuota(item.id) <= 0 || isInCart(item.id)" 
+                          class="flex-[2] py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md" 
+                          :class="[
+                            isInCart(item.id) ? 'bg-emerald-50 text-emerald-600 cursor-not-allowed border border-emerald-100 shadow-none' 
+                            : getRemainingQuota(item.id) <= 0 ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none' 
+                            : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-blue-600/30'
+                          ]">
+                      <component :is="isInCart(item.id) ? CheckCircleIcon : PlusCircleIcon" class="h-4 w-4" /> 
+                      <span v-if="isInCart(item.id)">Keranjang</span>
+                      <span v-else-if="getRemainingQuota(item.id) <= 0">Penuh</span>
+                      <span v-else>Request</span>
+                  </button>
+              </div>
           </div>
         </div>
       </div>
@@ -395,54 +501,54 @@
 
     <Transition name="slide-over">
       <div v-if="isCartOpen" class="fixed inset-0 z-[100] flex justify-end">
-         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="isCartOpen = false"></div>
-         <div class="relative w-full max-w-md bg-white shadow-2xl h-full flex flex-col transform transition-transform animate-slide-in-right">
-            <div class="p-6 border-b border-blue-100 flex justify-between items-center bg-blue-600 text-white shadow-md z-10">
-               <div>
-                 <h3 class="text-lg font-bold flex items-center gap-2"><ShoppingCartIcon class="h-6 w-6 text-blue-200"/> Keranjang Request</h3>
-                 <p class="text-blue-100 text-xs mt-0.5">{{ cart.length }} Item dipilih</p>
-               </div>
-               <button @click="isCartOpen = false" class="text-blue-200 hover:text-white transition-colors bg-white/10 p-1.5 rounded-lg"><XMarkIcon class="h-6 w-6"/></button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-5 custom-scrollbar bg-slate-50">
-               <div v-if="cart.length === 0" class="flex flex-col items-center justify-center h-full text-slate-400">
-                  <div class="bg-white p-4 rounded-full shadow-sm mb-3 border border-slate-100"><ShoppingCartIcon class="h-10 w-10 text-slate-300" /></div>
-                  <p class="text-sm font-medium">Keranjang masih kosong.</p>
-               </div>
-               <TransitionGroup name="list" tag="div" class="space-y-4">
-                 <div v-for="(cartItem, idx) in cart" :key="cartItem.id" class="p-4 border border-slate-200 rounded-2xl bg-white shadow-sm relative group hover:border-blue-300 transition-colors">
-                    <button @click="removeFromCart(idx)" class="absolute -top-2 -right-2 bg-white border border-slate-200 text-slate-400 rounded-full p-1 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors shadow-sm z-10"><XMarkIcon class="h-4 w-4" /></button>
-                    <div class="flex gap-4">
-                        <div class="h-14 w-14 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 overflow-hidden">
-                           <img v-if="cartItem.url_photo" :src="cartItem.url_photo" class="h-full w-full object-cover" />
-                           <CubeIcon v-else class="h-6 w-6 text-slate-300" />
-                        </div>
-                        <div class="flex-1 min-w-0">
-                           <p class="text-xs font-bold text-slate-800 line-clamp-1">{{ cartItem.name }}</p>
-                           <p class="text-[10px] text-slate-500 mb-2 font-mono">{{ cartItem.code }}</p>
-                           <div class="flex justify-between items-end">
-                              <div class="flex items-center border border-slate-200 rounded-lg bg-slate-50">
-                               <button @click="updateCartQty(cartItem, -1, idx)" class="px-2.5 py-1 text-slate-500 hover:bg-blue-100 hover:text-blue-600 rounded-l-lg transition-colors font-bold">-</button>
-                               <input type="number" v-model.number="cartItem.qty" @change="validateInputQty(cartItem, idx)" @keydown="preventAlpha" class="w-12 text-center bg-transparent border-none text-xs font-bold focus:ring-0 p-0 text-slate-700 no-spinner" />
-                               <button @click="updateCartQty(cartItem, 1, idx)" :disabled="getRemainingQuota(cartItem.id) - cartItem.qty <= 0" class="px-2.5 py-1 text-slate-500 hover:bg-blue-100 hover:text-blue-600 rounded-r-lg transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed">+</button>
-                              </div>
-                              <span class="text-[9px] font-bold text-slate-400">Max: <span class="text-blue-600">{{ getRemainingQuota(cartItem.id) }}</span></span>
-                           </div>
-                        </div>
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-slate-100">
-                        <input type="text" v-model="cartItem.notes" placeholder="Catatan per item (opsional)..." class="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-700 placeholder:text-slate-400" />
-                    </div>
-                 </div>
-               </TransitionGroup>
-            </div>
-            <div class="p-6 border-t border-slate-100 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
-               <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block">Alasan / Keterangan Pengajuan <span class="text-red-500">*</span></label>
-               <textarea v-model="requestDescription" rows="2" class="w-full rounded-xl border-slate-200 text-xs focus:ring-blue-500 focus:border-blue-500 mb-4 p-3 bg-slate-50" placeholder="Contoh: Kebutuhan operasional bulan ini..."></textarea>
-               <button @click="handleSubmit" :disabled="cart.length === 0 || !requestDescription" class="w-full py-3.5 rounded-xl font-bold text-sm text-white shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2" :class="(cart.length > 0 && requestDescription) ? 'bg-blue-600 hover:bg-blue-700 hover:-translate-y-0.5' : 'bg-slate-300 cursor-not-allowed'"><PaperAirplaneIcon class="h-4 w-4" /> Kirim Pengajuan</button>
-            </div>
-         </div>
-      </div>
+          <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="isCartOpen = false"></div>
+          <div class="relative w-full max-w-md bg-white shadow-2xl h-full flex flex-col transform transition-transform animate-slide-in-right">
+             <div class="p-6 border-b border-blue-100 flex justify-between items-center bg-blue-600 text-white shadow-md z-10">
+                <div>
+                  <h3 class="text-lg font-bold flex items-center gap-2"><ShoppingCartIcon class="h-6 w-6 text-blue-200"/> Keranjang Request</h3>
+                  <p class="text-blue-100 text-xs mt-0.5">{{ cart.length }} Item dipilih</p>
+                </div>
+                <button @click="isCartOpen = false" class="text-blue-200 hover:text-white transition-colors bg-white/10 p-1.5 rounded-lg"><XMarkIcon class="h-6 w-6"/></button>
+             </div>
+             <div class="flex-1 overflow-y-auto p-5 custom-scrollbar bg-slate-50">
+                <div v-if="cart.length === 0" class="flex flex-col items-center justify-center h-full text-slate-400">
+                   <div class="bg-white p-4 rounded-full shadow-sm mb-3 border border-slate-100"><ShoppingCartIcon class="h-10 w-10 text-slate-300" /></div>
+                   <p class="text-sm font-medium">Keranjang masih kosong.</p>
+                </div>
+                <TransitionGroup name="list" tag="div" class="space-y-4">
+                  <div v-for="(cartItem, idx) in cart" :key="cartItem.id" class="p-4 border border-slate-200 rounded-2xl bg-white shadow-sm relative group hover:border-blue-300 transition-colors">
+                      <button @click="removeFromCart(idx)" class="absolute -top-2 -right-2 bg-white border border-slate-200 text-slate-400 rounded-full p-1 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors shadow-sm z-10"><XMarkIcon class="h-4 w-4" /></button>
+                      <div class="flex gap-4">
+                          <div class="h-14 w-14 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 overflow-hidden">
+                             <img v-if="cartItem.url_photo" :src="cartItem.url_photo" class="h-full w-full object-cover" />
+                             <CubeIcon v-else class="h-6 w-6 text-slate-300" />
+                          </div>
+                          <div class="flex-1 min-w-0">
+                             <p class="text-xs font-bold text-slate-800 line-clamp-1">{{ cartItem.name }}</p>
+                             <p class="text-[10px] text-slate-500 mb-2 font-mono">{{ cartItem.code }}</p>
+                             <div class="flex justify-between items-end">
+                                <div class="flex items-center border border-slate-200 rounded-lg bg-slate-50">
+                                 <button @click="updateCartQty(cartItem, -1, idx)" class="px-2.5 py-1 text-slate-500 hover:bg-blue-100 hover:text-blue-600 rounded-l-lg transition-colors font-bold">-</button>
+                                 <input type="number" v-model.number="cartItem.qty" @change="validateInputQty(cartItem, idx)" @keydown="preventAlpha" class="w-12 text-center bg-transparent border-none text-xs font-bold focus:ring-0 p-0 text-slate-700 no-spinner" />
+                                 <button @click="updateCartQty(cartItem, 1, idx)" :disabled="getRemainingQuota(cartItem.id) - cartItem.qty <= 0" class="px-2.5 py-1 text-slate-500 hover:bg-blue-100 hover:text-blue-600 rounded-r-lg transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed">+</button>
+                                </div>
+                                <span class="text-[9px] font-bold text-slate-400">Max: <span class="text-blue-600">{{ getRemainingQuota(cartItem.id) }}</span></span>
+                             </div>
+                          </div>
+                      </div>
+                      <div class="mt-3 pt-3 border-t border-slate-100">
+                          <input type="text" v-model="cartItem.notes" placeholder="Catatan per item (opsional)..." class="w-full text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-700 placeholder:text-slate-400" />
+                      </div>
+                   </div>
+                </TransitionGroup>
+             </div>
+             <div class="p-6 border-t border-slate-100 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+                <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block">Alasan / Keterangan Pengajuan <span class="text-red-500">*</span></label>
+                <textarea v-model="requestDescription" rows="2" class="w-full rounded-xl border-slate-200 text-xs focus:ring-blue-500 focus:border-blue-500 mb-4 p-3 bg-slate-50" placeholder="Contoh: Kebutuhan operasional bulan ini..."></textarea>
+                <button @click="handleSubmit" :disabled="cart.length === 0 || !requestDescription" class="w-full py-3.5 rounded-xl font-bold text-sm text-white shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2" :class="(cart.length > 0 && requestDescription) ? 'bg-blue-600 hover:bg-blue-700 hover:-translate-y-0.5' : 'bg-slate-300 cursor-not-allowed'"><PaperAirplaneIcon class="h-4 w-4" /> Kirim Pengajuan</button>
+             </div>
+          </div>
+       </div>
     </Transition>
 
   </div>
@@ -456,7 +562,7 @@ import {
   MagnifyingGlassIcon, XMarkIcon, Squares2X2Icon, ClockIcon, 
   BellIcon, BuildingOfficeIcon, ArchiveBoxIcon, CheckIcon, PaperAirplaneIcon,
   ChevronDownIcon, ChevronUpIcon, ClipboardDocumentCheckIcon, CheckBadgeIcon, TagIcon, ChatBubbleBottomCenterTextIcon, ExclamationCircleIcon,
-  UserIcon, InformationCircleIcon, XCircleIcon
+  UserIcon, InformationCircleIcon, XCircleIcon, BoltIcon
 } from '@heroicons/vue/24/outline';
 
 const store = useInventoryStore();
@@ -477,6 +583,49 @@ const detailModal = ref({
     data: {}
 });
 
+// --- CONSUME (DIRECT USE) MODAL STATE ---
+const consumeModal = ref({
+    show: false,
+    item: null
+});
+const consumeForm = ref({
+    qty: 1,
+    reason: ''
+});
+
+// --- ACTIONS MODAL CONSUME ---
+const openConsumeModal = (item) => {
+    consumeModal.value.item = item;
+    consumeForm.value = { qty: 1, reason: '' };
+    consumeModal.value.show = true;
+};
+
+const closeConsumeModal = () => {
+    consumeModal.value.show = false;
+    consumeModal.value.item = null;
+};
+
+const submitConsume = () => {
+    if (!consumeForm.value.qty || consumeForm.value.qty < 1 || !consumeForm.value.reason) {
+        showToast('error', 'Gagal', 'Lengkapi jumlah dan keterangan.');
+        return;
+    }
+
+    try {
+        store.consumeStock({
+            user_id: currentUserId,
+            unit_id: currentUser.value.unit_id,
+            item_id: consumeModal.value.item.id,
+            qty: consumeForm.value.qty,
+            reason: consumeForm.value.reason
+        });
+        showToast('success', 'Berhasil', `Stok ${consumeModal.value.item.name} berhasil dipakai.`);
+        closeConsumeModal();
+    } catch (error) {
+        showToast('error', 'Gagal', error.message || 'Terjadi kesalahan.');
+    }
+};
+
 const openDetailModal = (trx) => {
     detailModal.value.data = trx;
     detailModal.value.show = true;
@@ -492,12 +641,8 @@ const closeDetailModal = () => {
 };
 
 // --- SCROLL LOCK WATCHER ---
-watch(() => detailModal.value.show, (val) => {
-    if (val) {
-        document.body.style.overflow = 'hidden';
-    } else {
-        document.body.style.overflow = '';
-    }
+watch(() => detailModal.value.show || consumeModal.value.show, (val) => {
+    document.body.style.overflow = val ? 'hidden' : '';
 });
 
 // --- LOGIC TEMPLATE PESAN OTOMATIS ---
@@ -538,26 +683,30 @@ const getFirstName = (name) => name ? name.split(' ')[0] : 'User';
 const getCategoryName = (id) => store.categories.find(c => c.id === id)?.name || 'Umum';
 const getDetailItem = (itemId) => store.atks.find(i => i.id === itemId);
 
+// --- HELPER BARU: STATUS STOK (LOGIKA YANG DIMINTA) ---
+const getStockStatus = (item) => {
+    const stock = getUnitStock(item.id);
+    const min = item.min_stock || 0;
+    const max = item.max_stock || 100;
+
+    if (stock === 0) return { label: 'Stok Kosong', class: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-500' };
+    if (stock >= max) return { label: 'Stok Penuh', class: 'bg-blue-100 text-blue-700 border-blue-200', dot: 'bg-blue-500' };
+    if (stock <= min) return { label: 'Stok Menipis', class: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-500' };
+    
+    return { label: 'Tersedia', class: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' };
+};
+
 // --- FORMAT WAKTU LENGKAP & RELATIF ---
 const formatDateHeader = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('id-ID', { 
-        weekday: 'long', 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-    }).format(date);
+    return new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(date);
 };
 
 const formatDateTimeFull = (isoString) => {
     if (!isoString) return '-';
     const date = new Date(isoString);
-    return date.toLocaleString('id-ID', { 
-        day: 'numeric', month: 'long', year: 'numeric',
-        hour: '2-digit', minute: '2-digit', 
-        hour12: false, timeZone: 'Asia/Jakarta'
-    }).replace(/\./g, ':');
+    return date.toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' }).replace(/\./g, ':');
 };
 
 const getRelativeTime = (isoString) => {
@@ -570,7 +719,6 @@ const getRelativeTime = (isoString) => {
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} menit lalu`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} jam lalu`;
     
-    // Jika lebih dari 24 jam, tampilkan tanggal
     return formatDateTimeFull(isoString);
 };
 
@@ -648,21 +796,13 @@ const handleSubmit = () => {
 // --- FIX DATA JOIN TRANSAKSI & DETAILS ---
 const myTransactions = computed(() => {
     const allTrx = store.transactions || store.pendingTransactionList || [];
-    const allDetails = store.transactionDetails || []; // Ambil raw details dari store
+    const allDetails = store.transactionDetails || []; 
 
-    // Filter transaksi milik user saat ini
     const userTrx = allTrx.filter(t => t.user_id === currentUserId);
 
-    // Map setiap transaksi untuk menggabungkan dengan detailnya
     return userTrx.map(trx => {
-        // Cari detail yang punya transaction_id sama
         const details = allDetails.filter(d => d.transaction_id === trx.id);
-        
-        // Return object baru dengan detail yang sudah di-join
-        return {
-            ...trx,
-            details: details
-        };
+        return { ...trx, details: details };
     }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 });
 
@@ -676,14 +816,11 @@ const groupedTransactions = computed(() => {
     return groups;
 });
 
-// LOGIKA NOTIFIKASI DIUPDATE DI SINI
 const unreadNotifications = computed(() => {
     return myTransactions.value
         .filter(t => 
-             // Tampilkan jika Completed/Rejected (User biasa)
              t.status === 'Completed' || 
              t.status === 'Rejected' || 
-             // Tampilkan juga jika Pending TAPI ada pesan "System Alert" (Request dari Admin)
              (t.status === 'Pending' && t.description && t.description.includes('System Alert'))
         )
         .slice(0, 5); 
