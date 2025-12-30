@@ -517,7 +517,7 @@ const defaultTransactionDetails = [
        itemName: item ? item.name : 'Unknown Item',
        qty: payload.qty,
        actor: actor ? actor.full_name : 'User',
-       note: `Pemakaian Langsung: ${payload.reason}`
+       note: `${payload.reason}`
     });
   };
 
