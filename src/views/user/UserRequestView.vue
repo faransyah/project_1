@@ -239,20 +239,34 @@
                         <div class="col-span-2">
                             <label class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2">
                                 <span>Jumlah Dipakai <span class="text-red-500">*</span></span>
-                                <span class="text-slate-400 font-normal normal-case">Sisa nanti: <b class="text-slate-700">{{ getUnitStock(consumeModal.item?.id) - consumeForm.qty }}</b></span>
+                                <span class="text-[10px] font-normal normal-case" :class="getUnitStock(consumeModal.item?.id) - consumeForm.qty < 0 ? 'text-red-500 font-bold' : 'text-slate-400'">
+                                    Sisa nanti: <b class="text-slate-700">{{ getUnitStock(consumeModal.item?.id) - consumeForm.qty }}</b>
+                                </span>
                             </label>
+                            
                             <div class="relative group">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <ArchiveBoxIcon class="h-5 w-5 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
+                                    <ArchiveBoxIcon class="h-5 w-5 text-slate-400 group-focus-within:text-orange-500 transition-colors" 
+                                        :class="{'text-red-500': consumeForm.qty > getUnitStock(consumeModal.item?.id)}" />
                                 </div>
+                                
                                 <input type="number" 
                                        v-model.number="consumeForm.qty" 
                                        min="1" 
                                        :max="getUnitStock(consumeModal.item?.id)" 
-                                       class="w-full pl-12 pr-12 py-3 rounded-xl border-slate-200 font-bold text-slate-800 focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all bg-slate-50 focus:bg-white text-lg"
+                                       class="w-full pl-12 pr-12 py-3 rounded-xl border-slate-200 font-bold text-slate-800 transition-all bg-slate-50 focus:bg-white text-lg"
+                                       :class="consumeForm.qty > getUnitStock(consumeModal.item?.id) 
+                                            ? 'border-red-500 focus:border-red-500 focus:ring-red-100 bg-red-50 text-red-600' 
+                                            : 'focus:ring-2 focus:ring-orange-100 focus:border-orange-500'"
                                        placeholder="0"
                                 />
+                                
                                 <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-xs font-bold text-slate-400 pointer-events-none">{{ consumeModal.item?.uom }}</span>
+                                
+                                <div v-if="consumeForm.qty > getUnitStock(consumeModal.item?.id)" class="absolute -bottom-5 left-0 text-[10px] font-bold text-red-500 flex items-center gap-1 animate-pulse">
+                                    <ExclamationCircleIcon class="h-3 w-3" />
+                                    Melebihi stok! Sisa hanya {{ getUnitStock(consumeModal.item?.id) }} {{ consumeModal.item?.uom }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -562,7 +576,7 @@ import {
   MagnifyingGlassIcon, XMarkIcon, Squares2X2Icon, ClockIcon, 
   BellIcon, BuildingOfficeIcon, ArchiveBoxIcon, CheckIcon, PaperAirplaneIcon,
   ChevronDownIcon, ChevronUpIcon, ClipboardDocumentCheckIcon, CheckBadgeIcon, TagIcon, ChatBubbleBottomCenterTextIcon, ExclamationCircleIcon,
-  UserIcon, InformationCircleIcon, XCircleIcon, BoltIcon
+  UserIcon, InformationCircleIcon, XCircleIcon, BoltIcon, CalendarDaysIcon
 } from '@heroicons/vue/24/outline';
 
 const store = useInventoryStore();
