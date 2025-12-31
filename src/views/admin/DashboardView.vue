@@ -215,7 +215,7 @@
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeApprovalModal"></div>
 
         <div class="relative w-full max-w-5xl h-[85vh] transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all flex flex-col animate-scale-up">
-          
+            
           <div class="relative bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6 shrink-0 border-b border-white/10">
             <div class="flex items-start justify-between text-white">
               <div>
@@ -255,7 +255,7 @@
 
           <div class="p-8 overflow-y-auto custom-scrollbar bg-slate-50 flex-1">
             <div class="space-y-5">
-              
+                
               <div 
                 v-for="(item, index) in approvalModal.items" 
                 :key="item.item_id" 
@@ -268,16 +268,16 @@
                 }"
               >
                 <div class="flex items-start gap-5 flex-1 w-full xl:w-auto">
-                   <div class="h-20 w-20 rounded-2xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 relative shadow-sm">
+                    <div class="h-20 w-20 rounded-2xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 relative shadow-sm">
                       <img v-if="item.url_photo" :src="item.url_photo" class="h-full w-full object-cover" />
                       <CubeIcon v-else class="h-10 w-10 text-slate-300" />
                       <span class="absolute top-0 left-0 bg-slate-800 text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg">#{{ index + 1 }}</span>
-                   </div>
-                   
-                   <div class="min-w-0 flex-1">
+                    </div>
+                    
+                    <div class="min-w-0 flex-1">
                       <p class="text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{{ item.itemName }}</p>
                       <p class="text-xs text-slate-500 font-mono bg-slate-100 w-fit px-2 py-0.5 rounded mt-1">{{ item.itemCode }}</p>
-                      
+                       
                       <p v-if="item.notes" class="text-xs text-slate-500 mt-2 flex items-center gap-1">
                           <span class="font-bold text-slate-400 text-[10px] uppercase">Note:</span> {{ item.notes }}
                       </p>
@@ -294,11 +294,11 @@
                             Sisa Slot: +{{ item.maxAllocatable }}
                           </span>
                       </div>
-                   </div>
+                    </div>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-5 w-full xl:w-auto items-stretch sm:items-start">
-                    
+                     
                     <div class="flex flex-col gap-2 shrink-0">
                         <button 
                           @click="item.action = 'approve'; validateItem(item)"
@@ -333,7 +333,7 @@
                                 
                                 <div class="flex-1">
                                   <label class="text-[10px] font-bold uppercase mb-1.5 block flex justify-between" 
-                                           :class="(item.approved_qty > 0 && item.approved_qty < item.reqQty) ? 'text-amber-600' : 'text-emerald-600'">
+                                               :class="(item.approved_qty > 0 && item.approved_qty < item.reqQty) ? 'text-amber-600' : 'text-emerald-600'">
                                      <span>Jml Disetujui</span>
                                      <span v-if="item.approved_qty > 0 && item.approved_qty < item.reqQty" class="text-[9px] bg-amber-100 px-1.5 rounded">Parsial</span>
                                      <span v-else-if="item.approved_qty > item.reqQty" class="text-[9px] bg-emerald-100 px-1.5 rounded">Lebih / Bonus</span>
@@ -351,8 +351,8 @@
                                          'border-emerald-200 focus:border-emerald-500 focus:ring-emerald-500': item.approved_qty >= item.reqQty,
                                          'border-red-300 focus:border-red-500 focus:ring-red-500 text-red-600': !item.approved_qty || item.approved_qty <= 0
                                        }"
-                                     />
-                                     <span class="ml-2 text-xs font-bold text-slate-400">Pcs</span>
+                                      />
+                                      <span class="ml-2 text-xs font-bold text-slate-400">Pcs</span>
                                   </div>
                                 </div>
                             </div>
@@ -785,20 +785,15 @@ const itemSummaries = computed(() => {
 const getCategoryColor = (categoryId) => {
   // Mapping ID Kategori ke Style Warna
   const map = {
-    1: 'border-l-blue-500 bg-blue-50 text-blue-700',      // Alat Tulis (Blue)
+    1: 'border-l-blue-500 bg-blue-50 text-blue-700',       // Alat Tulis (Blue)
     2: 'border-l-emerald-500 bg-emerald-50 text-emerald-700', // Kertas (Green)
-    3: 'border-l-violet-500 bg-violet-50 text-violet-700',   // Tinta (Purple)
-    4: 'border-l-amber-500 bg-amber-50 text-amber-700',     // Perlengkapan (Orange)
-    5: 'border-l-rose-500 bg-rose-50 text-rose-700',        // Perekat (Red)
+    3: 'border-l-violet-500 bg-violet-50 text-violet-700',    // Tinta (Violet)
+    4: 'border-l-amber-500 bg-amber-50 text-amber-700',      // Perlengkapan (Orange)
+    5: 'border-l-rose-500 bg-rose-50 text-rose-700',         // Perekat (Red)
   };
   // Default jika ID tidak ditemukan
   return map[categoryId] || 'border-l-slate-500 bg-slate-50 text-slate-700';
 };
-
-// SCROLL LOCK WATCHER
-watch(() => chartModal.value.show, (val) => {
-    document.body.style.overflow = val ? 'hidden' : '';
-});
 
 // =========================================================
 //  CHART: BAR CHART LOGIC (REAL DATA FROM STORE)
@@ -849,6 +844,13 @@ const barChartOptions = computed(() => ({
         }
       }
   }, 
+  // --- FIX WARNA: JANGAN BERUBAH SAAT KLIK/HOVER ---
+  states: {
+    normal: { filter: { type: 'none', value: 0 } },
+    hover: { filter: { type: 'none', value: 0 } },
+    active: { allowMultipleDataPointsSelection: false, filter: { type: 'none', value: 0 } }
+  },
+  // -------------------------------------------------
   plotOptions: { 
     bar: { 
       distributed: true, 
@@ -939,8 +941,8 @@ const handleBarChartClick = (dataPointIndex) => {
 // =========================================================
 //  CHART: DONUT CHART LOGIC (REAL DATA FROM STORE)
 // =========================================================
-const chartColors = ['#2563EB', '#22C55E', '#EAB308', '#EF4444', '#A855F7']; 
-const chartBgClasses = ['bg-blue-600', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500'];
+const chartColors = ['#2563EB', '#22C55E', '#8B5CF6', '#F59E0B', '#F43F5E']; 
+const chartBgClasses = ['bg-blue-700', 'bg-emerald-700', 'bg-violet-700', 'bg-amber-700', 'bg-rose-700'];
 
 const categoryStats = computed(() => {
   const catMap = {}; 
@@ -982,6 +984,13 @@ const donutChartOptions = computed(() => ({
           } 
       } 
   },
+  // --- FIX WARNA: JANGAN BERUBAH SAAT KLIK/HOVER ---
+  states: {
+    normal: { filter: { type: 'none', value: 0 } },
+    hover: { filter: { type: 'none', value: 0 } },
+    active: { allowMultipleDataPointsSelection: false, filter: { type: 'none', value: 0 } }
+  },
+  // -------------------------------------------------
   labels: categoryStats.value.map(cat => cat.name),
   colors: categoryStats.value.map(cat => cat.hexColor),
   plotOptions: { pie: { donut: { size: '75%', labels: { show: true, name: { show: true, fontSize: '14px', fontFamily: 'Inter, sans-serif', fontWeight: 600, color: '#64748b', offsetY: -10 }, value: { show: true, fontSize: '20px', fontFamily: 'Inter, sans-serif', fontWeight: 700, color: '#1e293b', offsetY: 16, formatter: (val) => val }, total: { show: true, label: 'Total Item', color: '#64748b', formatter: () => stats.value.realTotalStock.toLocaleString('id-ID') } } } } },
@@ -1220,6 +1229,21 @@ const recentActivity = computed(() => {
     return { id: log.id, type: log.type === 'IN' ? 'masuk' : 'keluar', item: log.itemName, qty: log.qty, user: log.actor, time: timeLabel };
   });
 });
+
+// =========================================================
+//  SCROLL LOCK WATCHER (Moved to Bottom to Fix ReferenceError)
+//  Mencegah scroll pada body saat ADA modal yang terbuka
+// =========================================================
+watch(
+  [() => chartModal.value.show, () => approvalModal.value.show, () => confirmModal.value.show],
+  ([chartOpen, approvalOpen, confirmOpen]) => {
+    if (chartOpen || approvalOpen || confirmOpen) {
+        document.body.style.overflow = 'hidden'; // Kunci scroll
+    } else {
+        document.body.style.overflow = ''; // Lepas kunci
+    }
+  }
+);
 
 </script>
 
