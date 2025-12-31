@@ -1,38 +1,41 @@
-# project_1
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/a0834d3e-f7f1-4c19-ac57-7e67b8783e7e" />
+<img width="1920" height="2880" alt="image" src="https://github.com/user-attachments/assets/493a5ebf-bb09-40ba-9e6f-a79fd69c5f8a" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/6d4924b0-00fd-4d43-9348-2e207e9342c8" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/31e0f147-56df-4f6b-8708-aed25e4f227c" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/66b3771c-dde7-4cf5-b101-9b066cf12135" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/1cd0c8df-a534-4bcf-b817-767fbe69ac30" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/e99e18e9-6214-497f-870b-aa6ca1f5ab70" />
+<img width="1920" height="1565" alt="image" src="https://github.com/user-attachments/assets/6b7b0c5e-9e2f-4e44-be4d-857e7d6a3ce4" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/6f86f9b9-57e7-4b73-930f-b6f63d14502e" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/f85d73f8-20a0-40a3-910c-c02e51f10183" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/ea79e2b3-0922-477f-b3cd-d6eeb520ff28" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/3978a36c-ab63-4298-908d-cfc3f0c6b063" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/18225ab3-c011-4180-aeab-a0820d26dfcf" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/7575f484-3717-42d3-bbec-0e5283ef8b12" />
+<img width="1920" height="1718" alt="image" src="https://github.com/user-attachments/assets/2358064f-744d-44bb-bb1b-2ef422c71201" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/ea295c46-9eac-4b26-ad0f-24ab1862e491" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/3726631b-1ee7-49a3-8de6-736b1bd201d1" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/7f68d7ea-aaa2-4e26-b1a3-b75c3a77cb62" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/59dd3fe4-ddcb-4bfc-8b42-f50cc611d80e" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/ec1e19e6-2969-4cd3-946b-bb905f697da6" />
+<img width="1920" height="1560" alt="image" src="https://github.com/user-attachments/assets/05ef3d9c-3969-4986-a003-f0585feb881d" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/843657ea-36c9-4f5e-a3c4-a644e685a2f6" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/4e52caf4-2aa8-482f-8c06-ddbbed53083c" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/b636bd33-42cb-46cd-b186-943a3bd37faa" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/22417a4a-2054-4c58-8cd8-4ecf0b55f0c1" />
+<img width="1920" height="1791" alt="image" src="https://github.com/user-attachments/assets/88f1b11f-0b81-4270-8054-6ce2a5ad3283" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/09d54c32-315d-4ded-b21b-c2f4f7ea64a9" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/483cbad4-55f0-4e12-ab5e-49613cefd5de" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/35047a9f-09d7-4ad1-b5aa-aad76529a037" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/e835daff-d0a3-4bf6-8d91-3dbe5e3897c8" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/5607eb55-6220-46e6-8419-36504f87c3c7" />
+<img width="1920" height="2629" alt="image" src="https://github.com/user-attachments/assets/d768e6f6-379a-4ba6-8513-ba453ec687b9" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/82f1f6bf-5990-4005-b35f-e7d242570323" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/30f4d738-c84d-4772-9faa-4c0d31d959ad" />
+<img width="1920" height="3681" alt="image" src="https://github.com/user-attachments/assets/fd64205c-99f1-41b3-819d-03dd6c83709c" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/2f6ff6d6-ad51-4098-baa8-99be3bbf40e0" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/3be94983-2e7a-4b09-8568-438ae52e6915" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/dee43653-a66a-4c1f-88a4-57667f7ba454" />
+<img width="1920" height="970" alt="image" src="https://github.com/user-attachments/assets/23c67caa-0571-49f3-9873-53d6301591cb" />
 
-This template should help get you started developing with Vue 3 in Vite.
 
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
