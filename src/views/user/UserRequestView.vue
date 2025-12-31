@@ -676,7 +676,27 @@ const toggleNotifications = () => {
 };
 
 const handleClickOutside = (event) => { if (notificationRef.value && !notificationRef.value.contains(event.target)) { showNotifications.value = false; } };
-onMounted(() => { document.addEventListener('click', handleClickOutside); });
+
+onMounted(() => { 
+    document.addEventListener('click', handleClickOutside);
+    
+    // --- LOAD CART FROM LOCALSTORAGE ---
+    const savedCart = localStorage.getItem('atk_user_cart');
+    if (savedCart) {
+        try {
+            cart.value = JSON.parse(savedCart);
+        } catch (e) {
+            console.error('Error parsing cart from storage', e);
+            localStorage.removeItem('atk_user_cart');
+        }
+    }
+});
+
+// --- WATCH CART CHANGES TO SAVE IN LOCALSTORAGE ---
+watch(cart, (newVal) => {
+    localStorage.setItem('atk_user_cart', JSON.stringify(newVal));
+}, { deep: true });
+
 onUnmounted(() => { 
     document.removeEventListener('click', handleClickOutside); 
     document.body.style.overflow = ''; // Clean up scroll lock
@@ -800,8 +820,12 @@ const handleSubmit = () => {
         details: cart.value.map(c => ({ item_id: c.id, qty: c.qty, notes: c.notes }))
     };
     store.createTransaction(payload);
+    
+    // Clear cart and storage after success
     cart.value = [];
+    localStorage.removeItem('atk_user_cart');
     requestDescription.value = '';
+    
     isCartOpen.value = false;
     showToast('success', 'Permintaan Terkirim', 'Cek status di menu Riwayat.');
     isNotificationRead.value = false; 
