@@ -277,7 +277,7 @@
                     <div class="min-w-0 flex-1">
                       <p class="text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{{ item.itemName }}</p>
                       <p class="text-xs text-slate-500 font-mono bg-slate-100 w-fit px-2 py-0.5 rounded mt-1">{{ item.itemCode }}</p>
-                       
+                        
                       <p v-if="item.notes" class="text-xs text-slate-500 mt-2 flex items-center gap-1">
                           <span class="font-bold text-slate-400 text-[10px] uppercase">Note:</span> {{ item.notes }}
                       </p>
@@ -298,7 +298,7 @@
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-5 w-full xl:w-auto items-stretch sm:items-start">
-                     
+                      
                     <div class="flex flex-col gap-2 shrink-0">
                         <button 
                           @click="item.action = 'approve'; validateItem(item)"
@@ -337,7 +337,7 @@
                                      <span>Jml Disetujui</span>
                                      <span v-if="item.approved_qty > 0 && item.approved_qty < item.reqQty" class="text-[9px] bg-amber-100 px-1.5 rounded">Parsial</span>
                                      <span v-else-if="item.approved_qty > item.reqQty" class="text-[9px] bg-emerald-100 px-1.5 rounded">Lebih / Bonus</span>
-                                  </label>
+                                   </label>
                                   
                                   <div class="relative flex items-center">
                                      <input 
@@ -442,7 +442,7 @@
 
     <div class="space-y-8 pb-10">
 
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
         <div>
           <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">Dashboard</h1>
           <p class="mt-2 text-base text-slate-500">Rangkuman sistem ATK <span class="font-semibold text-[#009BDB]">Icon Plus</span>.</p>
@@ -509,6 +509,15 @@
         </div>
       </div>
 
+      <div class="relative flex items-center py-4">
+          <div class="flex-grow border-t border-slate-200"></div>
+          <span class="flex-shrink-0 mx-4 text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+              <PresentationChartLineIcon class="h-4 w-4" />
+              Data & Analitik
+          </span>
+          <div class="flex-grow border-t border-slate-200"></div>
+      </div>
+
       <div class="grid grid-cols-12 gap-6">
         
         <div class="col-span-12 lg:col-span-8">
@@ -539,6 +548,15 @@
               <apexchart ref="donutChartRef" type="donut" width="300" :options="donutChartOptions" :series="donutChartSeries"></apexchart>
             </div>
           </div>
+        </div>
+
+        <div class="col-span-12 relative flex items-center py-4">
+             <div class="flex-grow border-t border-slate-200"></div>
+             <span class="flex-shrink-0 mx-4 text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                 <QueueListIcon class="h-4 w-4" />
+                 Manajemen Permintaan
+             </span>
+             <div class="flex-grow border-t border-slate-200"></div>
         </div>
 
         <div class="col-span-12">
@@ -605,6 +623,15 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="col-span-12 relative flex items-center py-4">
+             <div class="flex-grow border-t border-slate-200"></div>
+             <span class="flex-shrink-0 mx-4 text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                 <ShieldExclamationIcon class="h-4 w-4" />
+                 Monitoring Stok & Log
+             </span>
+             <div class="flex-grow border-t border-slate-200"></div>
         </div>
 
         <div class="col-span-12 lg:col-span-6">
@@ -719,7 +746,9 @@ import {
   CheckCircleIcon, XCircleIcon, XMarkIcon, QuestionMarkCircleIcon, NoSymbolIcon,
   MapPinIcon, ChartPieIcon, ChartBarIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon,
   UserIcon, BuildingOfficeIcon, HashtagIcon, CubeIcon, CheckBadgeIcon, ClipboardDocumentCheckIcon,
-  ArrowLongRightIcon, ExclamationCircleIcon, ChatBubbleBottomCenterTextIcon
+  ArrowLongRightIcon, ExclamationCircleIcon, ChatBubbleBottomCenterTextIcon,
+  // New Icons for Dividers (Sudah diperbaiki)
+  PresentationChartLineIcon, QueueListIcon, ShieldExclamationIcon, RectangleGroupIcon
 } from '@heroicons/vue/24/outline';
 import { BoltIcon as BoltSolidIcon } from '@heroicons/vue/24/solid';
 
@@ -788,8 +817,8 @@ const getCategoryColor = (categoryId) => {
     1: 'border-l-blue-500 bg-blue-50 text-blue-700',       // Alat Tulis (Blue)
     2: 'border-l-emerald-500 bg-emerald-50 text-emerald-700', // Kertas (Green)
     3: 'border-l-violet-500 bg-violet-50 text-violet-700',    // Tinta (Violet)
-    4: 'border-l-amber-500 bg-amber-50 text-amber-700',      // Perlengkapan (Orange)
-    5: 'border-l-rose-500 bg-rose-50 text-rose-700',         // Perekat (Red)
+    4: 'border-l-amber-500 bg-amber-50 text-amber-700',       // Perlengkapan (Orange)
+    5: 'border-l-rose-500 bg-rose-50 text-rose-700',          // Perekat (Red)
   };
   // Default jika ID tidak ditemukan
   return map[categoryId] || 'border-l-slate-500 bg-slate-50 text-slate-700';
